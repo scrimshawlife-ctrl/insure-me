@@ -100,14 +100,14 @@ alter table public.provenance_entries enable row level security;
 alter table public.underwriting_observations enable row level security;
 
 create policy provider_bindings_workforce_select on public.provider_bindings
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy external_requests_workforce_select on public.external_requests
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy external_reports_workforce_select on public.external_reports
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy provenance_workforce_select on public.provenance_entries
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy observations_workforce_select on public.underwriting_observations
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 
 revoke insert, update, delete on public.provider_bindings, public.external_requests, public.external_reports, public.provenance_entries, public.underwriting_observations from anon, authenticated;
