@@ -9,6 +9,11 @@ import type {
 
 export interface SyntheticProviderRequest {
   scenario: 'SUCCESS' | 'NO_HIT' | 'PARTIAL' | 'STALE' | 'ERROR';
+  /**
+   * Synthetic-only normalized fact overrides used by canonical scenario tests.
+   * These never cross the agent/provider API boundary and are forbidden in live adapters.
+   */
+  factOverrides?: Record<string, string | number | boolean | null>;
 }
 
 export interface SyntheticProviderNormalized {
@@ -95,7 +100,10 @@ export class SyntheticProviderAdapter
     const normalized: SyntheticProviderNormalized = {
       capability: this.capability,
       subjectIds: [...context.subjectIds],
-      facts: syntheticFacts(this.capability),
+      facts: {
+        ...syntheticFacts(this.capability),
+        ...(request.factOverrides ?? {}),
+      },
     };
 
     const provenance: ProvenanceEntry[] = Object.keys(normalized.facts).map((key) => ({
