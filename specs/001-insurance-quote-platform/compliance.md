@@ -217,7 +217,7 @@ California SB 354 (2025-2026), the proposed Insurance Consumer Privacy Protectio
 ## Production compliance gate
 `PASS` requires:
 - legal/compliance review signed off;
-- Allstate/carrier responsibilities resolved;
+- responsibilities for each enabled carrier program resolved;
 - provider roles and contracts resolved;
 - notices approved/versioned;
 - data-use matrix complete;
