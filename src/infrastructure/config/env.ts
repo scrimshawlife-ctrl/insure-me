@@ -5,7 +5,12 @@ const serverEnvironmentSchema = z.object({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
 });
 
+const adminEnvironmentSchema = serverEnvironmentSchema.extend({
+  SUPABASE_SECRET_KEY: z.string().min(20),
+});
+
 export type ServerEnvironment = z.infer<typeof serverEnvironmentSchema>;
+export type AdminEnvironment = z.infer<typeof adminEnvironmentSchema>;
 
 export function getServerEnvironment(
   source: NodeJS.ProcessEnv = process.env,
@@ -13,6 +18,16 @@ export function getServerEnvironment(
   const parsed = serverEnvironmentSchema.safeParse(source);
   if (!parsed.success) {
     throw new Error('SERVER_ENVIRONMENT_INVALID');
+  }
+  return parsed.data;
+}
+
+export function getAdminEnvironment(
+  source: NodeJS.ProcessEnv = process.env,
+): AdminEnvironment {
+  const parsed = adminEnvironmentSchema.safeParse(source);
+  if (!parsed.success) {
+    throw new Error('ADMIN_ENVIRONMENT_INVALID');
   }
   return parsed.data;
 }
