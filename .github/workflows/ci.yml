@@ -18,11 +18,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.0.0 --activate
-          pnpm --version
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - run: pnpm --version
       - run: pnpm install --no-frozen-lockfile
       - name: Upload generated lockfile
         uses: actions/upload-artifact@v4
@@ -45,11 +43,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.0.0 --activate
-          pnpm --version
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - run: pnpm --version
       - run: pnpm install --no-frozen-lockfile
       - name: Start local Supabase
         run: pnpm db:start
