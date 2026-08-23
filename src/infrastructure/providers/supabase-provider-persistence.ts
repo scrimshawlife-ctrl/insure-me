@@ -39,6 +39,7 @@ export class SupabaseProviderOrchestrationPersistence
   }): Promise<{ decisionId: string }> {
     const decisionId = await rpc<string>('record_provider_purpose_decision', {
       p_quote_case_id: input.context.quoteCaseId,
+      p_actor_id: input.context.actorId,
       p_capability: input.context.capability,
       p_purpose_code: input.purposeCode,
       p_policy_version: input.policyVersion,
