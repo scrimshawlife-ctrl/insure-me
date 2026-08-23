@@ -13,9 +13,28 @@
 - [x] Add production evidence manifest template.
 - [x] Add production launch/rollback runbook.
 - [x] Define repository, pilot, and production acceptance states.
-- [ ] Run full CI and repair any implementation defects.
-- [ ] Open production-enablement PR against the sealed synthetic-core branch.
-- [ ] Mark repository verdict `PRODUCTION_ENABLEMENT_REPO_READY` after green CI.
+- [x] Embed the canonical dependency lock snapshot in the repository and reconstruct it deterministically in CI.
+- [x] Verify the reconstructed lock SHA before use.
+- [x] Install application and database dependencies with `--frozen-lockfile` from the same canonical artifact.
+- [x] Run full application CI and repair implementation defects.
+- [x] Rebuild the complete Supabase migration chain.
+- [x] Pass all 130 pgTAP assertions across 10 database suites.
+- [x] Pass database lint.
+- [x] Generate and verify the pinned public database-contract hash.
+- [x] Open production-enablement PR against the sealed synthetic-core branch.
+- [x] Mark repository verdict `PRODUCTION_ENABLEMENT_REPO_READY` after green CI.
+
+### Repository acceptance provenance
+
+- Verdict: `PRODUCTION_ENABLEMENT_REPO_READY`
+- Acceptance head before this ledger-only seal: `cec3da7ad25d304f61382a9e4110100383f81506`
+- Acceptance CI: `32628441498`
+- Dependency snapshot SHA-256: `bc16dd4902b6bd7c438238e9019d0751079d9929c3810eec3876603d00042886`
+- Application verification: PASS
+- Complete database migration rebuild: PASS
+- pgTAP: `130/130 PASS`
+- Database lint: PASS
+- Generated database contract verification: PASS
 
 ## External enablement tasks
 
@@ -39,4 +58,11 @@ These tasks require real external facts and cannot be completed by code alone.
 
 ## State rule
 
-Repository completion changes the verdict from `IMPLEMENTATION_ACTIVE` to `PRODUCTION_ENABLEMENT_REPO_READY`. It MUST NOT change external tasks to complete without evidence.
+Repository-controlled implementation is complete at the current specification boundary: `PRODUCTION_ENABLEMENT_REPO_READY`.
+
+External state remains:
+
+- `PILOT_BLOCKED_EXTERNAL_EVIDENCE`
+- `PRODUCTION_BLOCKED_EXTERNAL_AUTHORITY`
+
+No repository change, automated test, model output, or deployment script may mark an external task complete without evidence from the authorized real-world source.
