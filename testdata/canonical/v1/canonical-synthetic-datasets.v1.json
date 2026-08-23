@@ -1,0 +1,2243 @@
+{
+  "catalogId": "insure-me-canonical-synthetic-v1",
+  "datasets": [
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "ACCEPTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "happy-path@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-happy-path-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "happy-path",
+      "description": "Single driver, single vehicle, clean provider results, ready for carrier.",
+      "drivers": [
+        {
+          "driverId": "driver-happy-path-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-happy-path-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION"
+        ],
+        "blockingReasonCodes": [],
+        "carrierSubmissionAllowed": true,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "READY_FOR_CARRIER"
+      },
+      "jurisdiction": "CA",
+      "name": "Happy path",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-happy-path-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-happy-path-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-happy-path-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-happy-path-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-happy-path-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-happy-path",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "happy-path",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-happy-path-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "NOT_SUBMITTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "provider-no-hit@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-provider-no-hit-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "provider-no-hit",
+      "description": "Claims provider returns no hit while other sources succeed.",
+      "drivers": [
+        {
+          "driverId": "driver-provider-no-hit-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-provider-no-hit-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION"
+        ],
+        "blockingReasonCodes": [
+          "CLAIMS_NO_HIT_REVIEW"
+        ],
+        "carrierSubmissionAllowed": false,
+        "providerStatuses": {
+          "CLAIMS": "NO_HIT",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "REVIEW_REQUIRED"
+      },
+      "jurisdiction": "CA",
+      "name": "Provider no-hit",
+      "normalizedFacts": {
+        "claims": null,
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-no-hit-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-no-hit-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-no-hit-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "NO_HIT",
+          "subjectIds": [
+            "subject-provider-no-hit-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-no-hit-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-provider-no-hit",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "provider-no-hit",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-provider-no-hit-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "ACCEPTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "multiple-drivers@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-multiple-drivers-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "multiple-drivers",
+      "description": "Two-driver household with complete MVR data for both drivers.",
+      "drivers": [
+        {
+          "driverId": "driver-multiple-drivers-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-multiple-drivers-primary",
+          "yearsLicensed": 15
+        },
+        {
+          "driverId": "driver-multiple-drivers-02",
+          "license": {
+            "maskedNumber": "SYNTH-0002",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "SPOUSE",
+          "subjectId": "subject-multiple-drivers-secondary",
+          "yearsLicensed": 12
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "MULTI_SUBJECT_ENRICHMENT"
+        ],
+        "blockingReasonCodes": [],
+        "carrierSubmissionAllowed": true,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "READY_FOR_CARRIER"
+      },
+      "jurisdiction": "CA",
+      "name": "Multiple drivers",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 2,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-drivers-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-drivers-primary",
+            "subject-multiple-drivers-secondary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-drivers-primary",
+            "subject-multiple-drivers-secondary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-drivers-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-drivers-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-multiple-drivers",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "multiple-drivers",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-multiple-drivers-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "ACCEPTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "multiple-vehicles@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-multiple-vehicles-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "multiple-vehicles",
+      "description": "Two-vehicle household with complete VIN/vehicle observations.",
+      "drivers": [
+        {
+          "driverId": "driver-multiple-vehicles-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-multiple-vehicles-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "MULTI_VEHICLE_ENRICHMENT"
+        ],
+        "blockingReasonCodes": [],
+        "carrierSubmissionAllowed": true,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "READY_FOR_CARRIER"
+      },
+      "jurisdiction": "CA",
+      "name": "Multiple vehicles",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 2
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-vehicles-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-vehicles-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-vehicles-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-vehicles-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-multiple-vehicles-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-multiple-vehicles",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "multiple-vehicles",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-multiple-vehicles-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        },
+        {
+          "annualMileage": 5000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Orbit",
+          "ownership": "FINANCED",
+          "usage": "PLEASURE",
+          "vehicleId": "vehicle-multiple-vehicles-02",
+          "vin": "1SYNTHETIC0000002",
+          "year": 2019
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "NOT_SUBMITTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [
+        {
+          "conflictId": "conflict-vehicle-title-001",
+          "consumerValue": "CLEAN",
+          "field": "vehicle.titleStatus",
+          "material": true,
+          "providerValue": "SALVAGE",
+          "resolution": "UNRESOLVED"
+        }
+      ],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "conflicting-records@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-conflicting-records-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "conflicting-records",
+      "description": "Provider and consumer disagree on a material vehicle fact; no silent resolution.",
+      "drivers": [
+        {
+          "driverId": "driver-conflicting-records-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-conflicting-records-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION"
+        ],
+        "blockingReasonCodes": [
+          "MATERIAL_CONFLICT_UNRESOLVED"
+        ],
+        "carrierSubmissionAllowed": false,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "REVIEW_REQUIRED"
+      },
+      "jurisdiction": "CA",
+      "name": "Conflicting records",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "SALVAGE"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-conflicting-records-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-conflicting-records-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-conflicting-records-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-conflicting-records-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-conflicting-records-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-conflicting-records",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "conflicting-records",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-conflicting-records-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "NOT_SUBMITTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "stale-report@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-stale-report-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "stale-report",
+      "description": "MVR result is stale and requires refresh or review before carrier handoff.",
+      "drivers": [
+        {
+          "driverId": "driver-stale-report-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-stale-report-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION"
+        ],
+        "blockingReasonCodes": [
+          "MVR_STALE"
+        ],
+        "carrierSubmissionAllowed": false,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "STALE",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "REVIEW_REQUIRED"
+      },
+      "jurisdiction": "CA",
+      "name": "Stale report",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-stale-report-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-stale-report-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "STALE",
+          "subjectIds": [
+            "subject-stale-report-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-stale-report-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-stale-report-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-stale-report",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "stale-report",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-stale-report-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "NOT_SUBMITTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "provider-outage@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-provider-outage-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "provider-outage",
+      "description": "MVR provider returns an error; request is retryable and carrier handoff is blocked.",
+      "drivers": [
+        {
+          "driverId": "driver-provider-outage-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-provider-outage-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "PROVIDER_RETRY_SCHEDULED"
+        ],
+        "blockingReasonCodes": [
+          "MVR_PROVIDER_ERROR"
+        ],
+        "carrierSubmissionAllowed": false,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "ERROR",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "REVIEW_REQUIRED"
+      },
+      "jurisdiction": "CA",
+      "name": "Provider outage",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": null,
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-outage-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-outage-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "ERROR",
+          "subjectIds": [
+            "subject-provider-outage-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-outage-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-provider-outage-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-provider-outage",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "provider-outage",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-provider-outage-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "ACCEPTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "consumer-correction@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-consumer-correction-primary"
+      },
+      "corrections": [
+        {
+          "at": "2026-08-23T00:05:00.000Z",
+          "correctedValue": 7200,
+          "correctionId": "correction-mileage-001",
+          "field": "vehicle.annualMileage",
+          "priorValue": 9000,
+          "reason": "CONSUMER_CORRECTION",
+          "source": "CONSUMER"
+        }
+      ],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "consumer-correction",
+      "description": "Consumer corrects annual mileage after prefill; correction remains source-attributed.",
+      "drivers": [
+        {
+          "driverId": "driver-consumer-correction-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-consumer-correction-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "CONSUMER_CORRECTION"
+        ],
+        "blockingReasonCodes": [],
+        "carrierSubmissionAllowed": true,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "READY_FOR_CARRIER"
+      },
+      "jurisdiction": "CA",
+      "name": "Consumer correction",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-consumer-correction-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-consumer-correction-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-consumer-correction-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-consumer-correction-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-consumer-correction-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-consumer-correction",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "consumer-correction",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 7200,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-consumer-correction-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-b",
+        "expectedStatus": "ACCEPTED",
+        "ratingInputs": [
+          {
+            "approvedValue": 3,
+            "inputKey": "mvr.movingViolationCount",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": false,
+            "inputKey": "vehicle.severeDamageIndicator",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "B"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "adverse-action-handoff@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-adverse-action-handoff-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "adverse-action-handoff",
+      "description": "Carrier result requires downstream adverse-action workflow ownership without platform underwriting.",
+      "drivers": [
+        {
+          "driverId": "driver-adverse-action-handoff-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-adverse-action-handoff-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "adverseAction": {
+          "noticeInputsRecorded": true,
+          "owner": "CARRIER",
+          "triggeredBy": "RESPONSIBLE_PARTY"
+        },
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "ADVERSE_ACTION_HANDOFF"
+        ],
+        "blockingReasonCodes": [],
+        "carrierSubmissionAllowed": true,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "READY_FOR_CARRIER"
+      },
+      "jurisdiction": "CA",
+      "name": "Adverse-action handoff",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 3
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-adverse-action-handoff-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-adverse-action-handoff-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-adverse-action-handoff-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-adverse-action-handoff-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-adverse-action-handoff-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-adverse-action-handoff",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "adverse-action-handoff",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-adverse-action-handoff-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "NOT_SUBMITTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "privacy-deletion@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-privacy-deletion-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "privacy-deletion",
+      "description": "Verified deletion request reaches a retention/legal-hold decision path.",
+      "drivers": [
+        {
+          "driverId": "driver-privacy-deletion-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-privacy-deletion-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "PRIVACY_RIGHTS_REQUEST"
+        ],
+        "blockingReasonCodes": [
+          "PRIVACY_REQUEST_PENDING"
+        ],
+        "carrierSubmissionAllowed": false,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "RETENTION_HOLD"
+      },
+      "jurisdiction": "CA",
+      "name": "Privacy deletion",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [
+        {
+          "identityVerified": true,
+          "requestId": "privacy-delete-001",
+          "requestedAt": "2026-08-23T00:10:00.000Z",
+          "status": "PENDING_POLICY_EVALUATION",
+          "type": "DELETION"
+        }
+      ],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-privacy-deletion-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-privacy-deletion-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-privacy-deletion-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-privacy-deletion-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-privacy-deletion-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-privacy-deletion",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "privacy-deletion",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-privacy-deletion-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedStatus": "NOT_SUBMITTED",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          },
+          {
+            "approvedValue": 0,
+            "inputKey": "claims.claimCount",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "unauthorized-lookup@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-unauthorized-lookup-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "unauthorized-lookup",
+      "description": "MVR lookup is attempted without report authorization and must be blocked before execution.",
+      "drivers": [
+        {
+          "driverId": "driver-unauthorized-lookup-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-unauthorized-lookup-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "UNAUTHORIZED_LOOKUP_BLOCKED"
+        ],
+        "blockingReasonCodes": [
+          "REPORT_AUTHORIZATION_MISSING"
+        ],
+        "carrierSubmissionAllowed": false,
+        "providerStatuses": {
+          "MVR": "BLOCKED"
+        },
+        "quoteReadiness": "NOTICE_REQUIRED"
+      },
+      "jurisdiction": "CA",
+      "name": "Unauthorized lookup",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": null,
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "MVR",
+          "expectedExecution": "BLOCKED_PRE_EXECUTION",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-unauthorized-lookup-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-unauthorized-lookup",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "unauthorized-lookup",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-unauthorized-lookup-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    },
+    {
+      "asOf": "2026-08-23T00:00:00.000Z",
+      "carrier": {
+        "carrierProgramId": "synthetic-program-a",
+        "expectedReasonCodes": [
+          "MISSING_REQUIRED_INPUT:claims.claimCount"
+        ],
+        "expectedStatus": "ERROR",
+        "ratingInputs": [
+          {
+            "approvedValue": "VALID",
+            "inputKey": "mvr.licenseStatus",
+            "source": "PROVIDER"
+          }
+        ],
+        "variant": "A"
+      },
+      "classification": "SYNTHETIC_TEST_ONLY",
+      "conflicts": [],
+      "consumer": {
+        "address": {
+          "city": "Sacramento",
+          "line1": "100 Test Loop",
+          "postalCode": "95814",
+          "state": "CA"
+        },
+        "dateOfBirth": "1988-04-12",
+        "email": "carrier-adapter-failure@example.invalid",
+        "firstName": "Avery",
+        "lastName": "Testperson",
+        "phone": "+15550100001",
+        "subjectId": "subject-carrier-adapter-failure-primary"
+      },
+      "corrections": [],
+      "coverageRequest": {
+        "bodilyInjury": "100/300",
+        "collisionDeductible": 500,
+        "comprehensiveDeductible": 500,
+        "propertyDamage": 50000
+      },
+      "datasetId": "carrier-adapter-failure",
+      "description": "Carrier A submission omits a required rating input and must fail validation deterministically.",
+      "drivers": [
+        {
+          "driverId": "driver-carrier-adapter-failure-01",
+          "license": {
+            "maskedNumber": "SYNTH-0001",
+            "state": "CA",
+            "status": "VALID"
+          },
+          "relationship": "NAMED_INSURED",
+          "subjectId": "subject-carrier-adapter-failure-primary",
+          "yearsLicensed": 15
+        }
+      ],
+      "expected": {
+        "auditEventClasses": [
+          "NOTICE_ACTION",
+          "PROVIDER_REQUEST",
+          "PROVIDER_RESULT",
+          "CARRIER_SUBMISSION",
+          "CARRIER_VALIDATION_ERROR"
+        ],
+        "blockingReasonCodes": [],
+        "carrierSubmissionAllowed": true,
+        "providerStatuses": {
+          "CLAIMS": "SUCCESS",
+          "IDENTITY": "SUCCESS",
+          "MVR": "SUCCESS",
+          "PREFILL": "SUCCESS",
+          "VEHICLE": "SUCCESS"
+        },
+        "quoteReadiness": "READY_FOR_CARRIER"
+      },
+      "jurisdiction": "CA",
+      "name": "Carrier adapter failure",
+      "normalizedFacts": {
+        "claims": {
+          "claimCount": 0,
+          "latestLossDate": null
+        },
+        "identity": {
+          "identityMatch": true
+        },
+        "mvr": {
+          "licenseStatus": "VALID",
+          "movingViolationCount": 0
+        },
+        "prefill": {
+          "matchedDriverCount": 1,
+          "matchedVehicleCount": 1
+        },
+        "vehicle": {
+          "severeDamageIndicator": false,
+          "titleStatus": "CLEAN"
+        }
+      },
+      "notices": [
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "PRIVACY_NOTICE",
+          "version": "synthetic-privacy-v1"
+        },
+        {
+          "action": "ACKNOWLEDGED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "CONSUMER_REPORT_DISCLOSURE",
+          "version": "synthetic-report-disclosure-v1"
+        },
+        {
+          "action": "AUTHORIZED",
+          "at": "2026-08-23T00:00:00.000Z",
+          "category": "REPORT_AUTHORIZATION",
+          "version": "synthetic-report-auth-v1"
+        }
+      ],
+      "privacyActions": [],
+      "productLine": "PRIVATE_PASSENGER_AUTO",
+      "providerRequests": [
+        {
+          "capability": "IDENTITY",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-carrier-adapter-failure-primary"
+          ]
+        },
+        {
+          "capability": "PREFILL",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-carrier-adapter-failure-primary"
+          ]
+        },
+        {
+          "capability": "MVR",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-carrier-adapter-failure-primary"
+          ]
+        },
+        {
+          "capability": "CLAIMS",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-carrier-adapter-failure-primary"
+          ]
+        },
+        {
+          "capability": "VEHICLE",
+          "scenario": "SUCCESS",
+          "subjectIds": [
+            "subject-carrier-adapter-failure-primary"
+          ]
+        }
+      ],
+      "quoteCase": {
+        "lifecycleState": "DATA_ENRICHMENT",
+        "quoteCaseId": "qc-carrier-adapter-failure",
+        "sourceChannel": "WEB"
+      },
+      "schemaVersion": "canonical-synthetic-dataset-v1",
+      "seed": "carrier-adapter-failure",
+      "tenant": {
+        "agencyId": "agency-synth-001",
+        "configurationVersion": "tenant-config-v1",
+        "tenantId": "tenant-synth-001"
+      },
+      "vehicles": [
+        {
+          "annualMileage": 9000,
+          "garagingPostalCode": "95814",
+          "make": "Test Motors",
+          "model": "Vector",
+          "ownership": "OWNED",
+          "usage": "COMMUTE",
+          "vehicleId": "vehicle-carrier-adapter-failure-01",
+          "vin": "1SYNTHETIC0000001",
+          "year": 2022
+        }
+      ]
+    }
+  ],
+  "determinism": {
+    "clock": "2026-08-23T00:00:00.000Z",
+    "jurisdiction": "CA",
+    "locale": "en-US",
+    "randomness": "NONE"
+  },
+  "generatedAt": "2026-08-23T00:00:00.000Z",
+  "safety": {
+    "allowedEnvironments": [
+      "local",
+      "ci",
+      "staging"
+    ],
+    "containsRealPII": false,
+    "productionUse": "FORBIDDEN"
+  },
+  "schemaVersion": "canonical-synthetic-dataset-v1"
+}
