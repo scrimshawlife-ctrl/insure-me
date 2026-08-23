@@ -1,0 +1,73 @@
+schema_version: 1
+status: BLOCKED
+
+# This file stores references and decision metadata only.
+# Never commit credentials, PII, consumer reports, privileged legal advice, or confidential contracts.
+
+deployment:
+  stage: synthetic
+  public_base_url: null
+  operating_entity:
+    name: null
+    authority_ref: null
+    approved_by: null
+    approved_at: null
+
+legal:
+  notice_set:
+    version: null
+    content_hash: null
+    approval_ref: null
+  retention_policy:
+    version: null
+    approval_ref: null
+  fcra_role:
+    approval_ref: null
+    report_user: null
+    adverse_action_owner: null
+  privacy_role:
+    approval_ref: null
+    role: null
+
+security:
+  review_ref: null
+  incident_response_owner: null
+  incident_runbook_version: production-launch-v1
+
+providers: []
+# Example item after external verification:
+# - provider_id: vendor-name
+#   product_id: product-name
+#   capability: MVR
+#   jurisdiction: CA
+#   product_line: PRIVATE_PASSENGER_AUTO
+#   adapter_id: vendor-mvr
+#   adapter_version: vendor-mvr-v1
+#   contractual_purpose_code: null
+#   contract_ref: null
+#   certification_ref: null
+#   storage_policy_ref: null
+#   freshness_policy_ref: null
+#   kill_switch_verified: false
+
+carrier_programs: []
+# Example item after external verification:
+# - carrier_id: carrier-name
+#   program_id: program-name
+#   jurisdiction: CA
+#   product_line: PRIVATE_PASSENGER_AUTO
+#   handoff_mode: API
+#   adapter_id: carrier-program
+#   adapter_version: carrier-program-v1
+#   required_field_policy_version: null
+#   rating_input_policy_version: null
+#   response_mapping_version: null
+#   notice_ownership_policy_version: null
+#   certification_ref: null
+#   kill_switch_verified: false
+
+launch_decision:
+  decision: BLOCKED
+  decision_ref: null
+  decided_by: null
+  decided_at: null
