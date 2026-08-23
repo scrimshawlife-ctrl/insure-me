@@ -1,7 +1,9 @@
 # Integration Specification
 
 ## Principle
-Integrations are capability providers behind stable internal interfaces. No vendor becomes canonical domain language.
+Integrations are capability providers behind stable internal interfaces. No vendor or carrier becomes canonical domain language.
+
+The platform MUST be independently deployable before any production carrier is selected. Carrier onboarding is configuration plus adapter certification, not a redesign.
 
 ## Required MVP capability classes
 1. Identity verification
@@ -25,7 +27,8 @@ Potential capabilities include:
 Status: `CANDIDATE / UNCONTRACTED`.
 
 Required diligence:
-- agency/carrier eligibility;
+- agency eligibility;
+- carrier compatibility where relevant;
 - exact API/product access;
 - California fields and restrictions;
 - FCRA/CRA role by product;
@@ -35,8 +38,7 @@ Required diligence:
 - report retention;
 - dispute workflow;
 - pricing/minimums;
-- sandbox availability;
-- Allstate approval.
+- sandbox availability.
 
 ### Verisk
 Potential capabilities include:
@@ -79,7 +81,7 @@ Normalized minimum output SHOULD support where provider supplies it:
 - accidents appearing in the MVR product;
 - provider warnings/no-hit/partial status.
 
-The platform MUST NOT infer chargeability or rating impact unless carrier-approved rules explicitly provide it.
+The platform MUST NOT infer chargeability or rating impact unless approved rules for the configured carrier explicitly provide it.
 
 ## Claims adapter
 Normalized output SHOULD support:
@@ -92,7 +94,7 @@ Normalized output SHOULD support:
 - disposition/status;
 - provider warnings.
 
-The platform MUST NOT label a claim at-fault unless that fact is directly sourced or carrier-approved logic establishes it.
+The platform MUST NOT label a claim at-fault unless directly sourced or approved carrier logic establishes it.
 
 ## Vehicle adapter
 Normalized output MAY support:
@@ -103,7 +105,7 @@ Normalized output MAY support:
 - ownership/registration-derived attributes only when legally and contractually permitted.
 
 ## Prefill adapter
-Prefill is treated as candidate data requiring confirmation where appropriate.
+Prefill is candidate data requiring confirmation where appropriate.
 
 Each returned candidate MUST preserve:
 - source;
@@ -126,30 +128,44 @@ Normalized output SHOULD be limited to:
 
 Do not persist unnecessary identity-document images unless explicitly required and approved.
 
-## Carrier integration: Allstate
-Current state: `BLOCKED / UNVERIFIED`.
+## Carrier abstraction
+Carrier integration is represented only through a stable `CarrierAdapter` contract.
 
-Before implementation, determine:
-- whether a local Allstate agency may use an external consumer intake front end;
-- whether Allstate supplies approved agency APIs, comparative rater integration, deep links, or import formats;
-- whether Allstate mandates approved MVR/claims vendors;
-- whether Allstate permits storage of prospect, report, and carrier-decision data in this platform;
-- security assessment/vendor onboarding requirements;
-- required agent authentication/SSO;
-- whether quoting can be API-driven or must remain inside Allstate systems;
-- allowed use of Allstate branding/trademarks;
-- whether the local agency is captive and what outside-carrier functionality is permitted.
+No carrier name, proprietary field, portal workflow, rating rule, authentication scheme, or brand asset may leak into the core domain model.
 
-Until answered, `CarrierAdapter` MUST remain mocked/stubbed.
+Each carrier configuration MUST declare:
+- carrier ID and product/program ID;
+- jurisdictions and product lines;
+- submission mode;
+- required and optional input fields;
+- field mapping from canonical schema;
+- rating-input allowlist;
+- authentication method;
+- endpoint/deep-link/export metadata;
+- response schema and reason-code mapping;
+- whether carrier responses may be retained and for how long;
+- notice/adverse-action ownership;
+- agent authorization requirements;
+- branding permissions;
+- certification/sandbox status;
+- kill-switch state.
 
 ## Carrier handoff modes
-Preferred order depends on carrier approval, not engineering preference:
-1. API submission/response;
+The adapter MUST support one or more of these modes without changing the canonical QuoteCase model:
+1. API submission and response;
 2. approved deep link with prefilled context;
-3. secure structured export/import;
-4. controlled manual handoff.
+3. comparative-rater or agency-management-system bridge;
+4. secure structured export/import;
+5. controlled manual handoff.
 
-A browser automation or screen-scraping integration with a carrier portal is prohibited unless the carrier expressly authorizes it.
+Browser automation or screen scraping of a carrier portal is prohibited unless that carrier expressly authorizes it.
+
+## Multi-carrier readiness
+The MVP MAY activate only one real carrier adapter, but the architecture MUST support multiple configured carriers.
+
+A quote case MAY contain zero, one, or multiple carrier eligibility/handoff targets. Multi-carrier comparative quoting itself is not required for MVP, but the model MUST NOT preclude it.
+
+Core services MUST NOT branch on carrier names. They may branch only on declared capabilities, policy configuration, jurisdiction, and product line.
 
 ## Notification providers
 Provider-agnostic interface:
@@ -162,26 +178,28 @@ Provider-agnostic interface:
 Marketing campaigns are out of MVP scope.
 
 ## Integration testing
-Every provider adapter MUST have:
-- contract tests against recorded synthetic/sandbox fixtures;
-- no-hit fixture;
+Every provider and carrier adapter MUST have:
+- contract tests against synthetic/sandbox fixtures;
+- no-hit or unavailable fixture where applicable;
 - partial fixture;
 - timeout fixture;
 - auth failure fixture;
 - malformed response fixture;
-- duplicate idempotency fixture;
-- California restriction fixture;
-- prohibited-purpose fixture;
-- redaction/logging test.
+- duplicate/idempotency fixture;
+- California restriction fixture where relevant;
+- prohibited-purpose fixture for regulated data providers;
+- redaction/logging test;
+- disable/kill-switch test.
 
-## Vendor substitution
-Replacing Provider A with Provider B requires:
+## Vendor or carrier substitution
+Replacing Provider A with Provider B, or Carrier A with Carrier B, requires:
 - field mapping comparison;
 - legal/contract comparison;
 - notice/authorization comparison;
-- FCRA role comparison;
+- FCRA role comparison where applicable;
 - retention comparison;
 - data-use matrix update;
+- adapter contract tests;
 - acceptance rerun.
 
-A provider swap is not a simple credential change.
+A provider or carrier swap is not a credential change, but it MUST NOT require a core-domain fork.
