@@ -1,6 +1,6 @@
 begin;
 
-select plan(12);
+select plan(14);
 
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
 values ('91000000-0000-0000-0000-000000000001','90000000-0000-0000-0000-000000000001','Synthetic Intake Agency','Intake Agency');
@@ -34,7 +34,6 @@ select lives_ok($$select * from public.replace_consumer_drivers(
 )$$, 'consumer can save drivers for owned quote');
 
 select is((select count(*) from public.get_consumer_drivers('94000000-0000-0000-0000-000000000001')),1::bigint,'consumer reads one safe driver projection');
-
 select throws_ok($$select license_identifier_ciphertext from public.drivers$$,'42501',null,'consumer cannot directly read driver protected fields');
 
 select lives_ok($$select * from public.replace_consumer_vehicles(
@@ -43,7 +42,6 @@ select lives_ok($$select * from public.replace_consumer_vehicles(
 )$$, 'consumer can save vehicles for owned quote');
 
 select is((select count(*) from public.get_consumer_vehicles('94000000-0000-0000-0000-000000000001')),1::bigint,'consumer reads one safe vehicle projection');
-
 select throws_ok($$select vin_ciphertext from public.vehicles$$,'42501',null,'consumer cannot directly read VIN ciphertext');
 
 select lives_ok($$select public.upsert_consumer_coverage_request(
@@ -56,13 +54,14 @@ select lives_ok($$select public.upsert_consumer_coverage_request(
 select is((select count(*) from public.get_consumer_coverage_request('94000000-0000-0000-0000-000000000001')),1::bigint,'consumer reads saved coverage request');
 
 select throws_ok($$select * from public.replace_consumer_drivers('94000000-0000-0000-0000-000000000002','[]'::jsonb)$$,'42501','CONSUMER_QUOTE_ACCESS_DENIED','consumer cannot mutate another quote drivers');
-
 select throws_ok($$select * from public.replace_consumer_vehicles('94000000-0000-0000-0000-000000000002','[]'::jsonb)$$,'42501','CONSUMER_QUOTE_ACCESS_DENIED','consumer cannot mutate another quote vehicles');
-
 select throws_ok($$select public.upsert_consumer_coverage_request('94000000-0000-0000-0000-000000000002',1,'{}'::jsonb,'{}'::jsonb,null)$$,'42501','CONSUMER_QUOTE_ACCESS_DENIED','consumer cannot mutate another quote coverage');
 
+select lives_ok($$select * from public.complete_consumer_intake('94000000-0000-0000-0000-000000000001')$$,'consumer can complete intake when canonical minimum is present');
+select is((select state::text from public.quote_cases where quote_case_id='94000000-0000-0000-0000-000000000001'),'DATA_ENRICHMENT','intake completion advances exactly to DATA_ENRICHMENT');
+
 reset role;
-select is((select count(*) from public.audit_events where quote_case_id='94000000-0000-0000-0000-000000000001' and event_type in ('CONSUMER_DRIVERS_REPLACED','CONSUMER_VEHICLES_REPLACED','CONSUMER_COVERAGE_REQUEST_SAVED')),3::bigint,'all intake writes emit audit evidence');
+select is((select count(*) from public.audit_events where quote_case_id='94000000-0000-0000-0000-000000000001' and event_type in ('CONSUMER_DRIVERS_REPLACED','CONSUMER_VEHICLES_REPLACED','CONSUMER_COVERAGE_REQUEST_SAVED','CONSUMER_INTAKE_COMPLETED')),4::bigint,'all intake writes and completion emit audit evidence');
 
 select * from finish();
 rollback;
