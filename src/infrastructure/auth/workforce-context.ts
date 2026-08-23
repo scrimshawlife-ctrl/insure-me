@@ -8,6 +8,12 @@ import {
 } from '@/src/domain/auth/workforce';
 import type { Database } from '@/src/infrastructure/supabase/database.types';
 
+type VerifiedClaims = {
+  sub?: string;
+  aal?: string;
+  app_metadata?: unknown;
+};
+
 type WorkforceContextRow = {
   agency_user_id: string;
   tenant_id: string;
@@ -25,24 +31,16 @@ type WorkforceContextRpc = (
 export async function requireWorkforceContext(
   client: SupabaseClient<Database>,
 ): Promise<WorkforceContext> {
-  const {
-    data: { user },
-    error: userError,
-  } = await client.auth.getUser();
+  const { data: claimsData, error: claimsError } = await client.auth.getClaims();
+  const claims = claimsData?.claims as VerifiedClaims | undefined;
 
-  if (userError || !user) {
+  if (claimsError || !claims?.sub) {
     throw new Error('WORKFORCE_AUTHENTICATION_REQUIRED');
   }
 
-  const { data: assurance, error: assuranceError } =
-    await client.auth.mfa.getAuthenticatorAssuranceLevel();
+  assertWorkforceMfa(claims.aal);
+  const expectedTenantId = getActiveTenantId(claims.app_metadata);
 
-  if (assuranceError) {
-    throw new Error('WORKFORCE_ASSURANCE_UNAVAILABLE');
-  }
-  assertWorkforceMfa(assurance.currentLevel);
-
-  const expectedTenantId = getActiveTenantId(user.app_metadata);
   const rpc = client.rpc as unknown as WorkforceContextRpc;
   const { data, error } = await rpc('get_current_workforce_context');
 
@@ -59,7 +57,7 @@ export async function requireWorkforceContext(
   }
 
   return {
-    userId: user.id,
+    userId: claims.sub,
     agencyUserId: row.agency_user_id,
     tenantId: row.tenant_id,
     agencyId: row.agency_id,
