@@ -25,10 +25,10 @@ declare
   v_binding public.provider_bindings;
 begin
   select * into v_case
-  from public.quote_cases
-  where quote_case_id=p_quote_case_id
-    and tenant_id=p_tenant_id
-    and agency_id=p_agency_id;
+  from public.quote_cases qc
+  where qc.quote_case_id=p_quote_case_id
+    and qc.tenant_id=p_tenant_id
+    and qc.agency_id=p_agency_id;
 
   if v_case.quote_case_id is null then
     raise exception 'QUOTE_CASE_NOT_FOUND' using errcode='P0002';
@@ -39,14 +39,14 @@ begin
   end if;
 
   select * into v_binding
-  from public.provider_bindings
-  where tenant_id=p_tenant_id
-    and agency_id=p_agency_id
-    and capability=p_capability
-    and jurisdiction=v_case.jurisdiction
-    and product_line=v_case.product_line
-    and status='ACTIVE'
-  order by created_at desc
+  from public.provider_bindings pb
+  where pb.tenant_id=p_tenant_id
+    and pb.agency_id=p_agency_id
+    and pb.capability=p_capability
+    and pb.jurisdiction=v_case.jurisdiction
+    and pb.product_line=v_case.product_line
+    and pb.status='ACTIVE'
+  order by pb.created_at desc
   limit 1;
 
   if v_binding.provider_binding_id is null then
