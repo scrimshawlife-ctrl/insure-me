@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 import type { RequiredNoticeView } from '@/src/application/notice/get-required-notices';
@@ -86,7 +87,7 @@ export function NoticeSequence({ quoteCaseId, notices }: { quoteCaseId: string; 
         <p className="eyebrow">Step 2 of 7</p>
         <h2>Notices complete</h2>
         <p>You’ve finished the notices currently required for this quote. Next we’ll confirm the drivers.</p>
-        <a className="primary-link" href={`/quote/${quoteCaseId}/drivers`}>Continue to drivers</a>
+        <Link className="primary-link" href={`/quote/${quoteCaseId}/drivers`}>Continue to drivers</Link>
       </div>
     );
   }
