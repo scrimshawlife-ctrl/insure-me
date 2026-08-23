@@ -25,6 +25,21 @@ export interface ProviderOrchestrationPersistence {
     requestHash: string;
     decisionId: string;
   }): Promise<{ externalRequestId: string; reused: boolean }>;
+  claimExternalRequest(input: {
+    externalRequestId: string;
+    workerId: string;
+  }): Promise<void>;
+  markExternalRequestRetry(input: {
+    externalRequestId: string;
+    errorCode: string;
+    backoffSeconds: number;
+  }): Promise<void>;
+  getExternalRequestResult<T>(input: {
+    externalRequestId: string;
+  }): Promise<{
+    requestStatus: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'BLOCKED';
+    result: ProviderResult<T> | null;
+  } | null>;
   settleExternalResult<T>(input: {
     context: ProviderRequestContext;
     externalRequestId: string;
@@ -68,6 +83,13 @@ function selectDescriptor<TRequest, TNormalized>(
   return descriptor;
 }
 
+function errorCode(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message.slice(0, 120).replace(/[^A-Z0-9_:-]/gi, '_').toUpperCase();
+  }
+  return 'PROVIDER_EXECUTION_FAILED';
+}
+
 export async function orchestrateProviderRequest<TRequest, TNormalized>(input: {
   adapter: ProviderAdapter<TRequest, TNormalized>;
   persistence: ProviderOrchestrationPersistence;
@@ -102,15 +124,49 @@ export async function orchestrateProviderRequest<TRequest, TNormalized>(input: {
     decisionId: purposeDecision.decisionId,
   });
 
-  await input.adapter.validate(input.context, input.request);
-  const result = await input.adapter.execute(input.context, input.request);
+  if (externalRequest.reused) {
+    const existing = await input.persistence.getExternalRequestResult<TNormalized>({
+      externalRequestId: externalRequest.externalRequestId,
+    });
+    if (existing?.requestStatus === 'SUCCEEDED' && existing.result) {
+      return existing.result;
+    }
+    if (existing?.requestStatus === 'RUNNING') {
+      throw new Error('PROVIDER_REQUEST_ALREADY_RUNNING');
+    }
+  }
 
-  await input.persistence.settleExternalResult({
-    context: input.context,
+  await input.adapter.validate(
+    { ...input.context, permissiblePurposeDecisionId: purposeDecision.decisionId },
+    input.request,
+  );
+
+  await input.persistence.claimExternalRequest({
     externalRequestId: externalRequest.externalRequestId,
-    descriptor,
-    result,
+    workerId: `provider:${input.context.traceId}`,
   });
 
-  return result;
+  try {
+    const executionContext = {
+      ...input.context,
+      permissiblePurposeDecisionId: purposeDecision.decisionId,
+    };
+    const result = await input.adapter.execute(executionContext, input.request);
+
+    await input.persistence.settleExternalResult({
+      context: executionContext,
+      externalRequestId: externalRequest.externalRequestId,
+      descriptor,
+      result,
+    });
+
+    return result;
+  } catch (error) {
+    await input.persistence.markExternalRequestRetry({
+      externalRequestId: externalRequest.externalRequestId,
+      errorCode: errorCode(error),
+      backoffSeconds: 60,
+    });
+    throw error;
+  }
 }
