@@ -1,9 +1,9 @@
 # Implementation Tasks
 
-## Phase 0 — External authority and governance
-- [ ] T001 Confirm local Allstate agency relationship, authorized external-app use, data-storage constraints, branding rules, and security/vendor onboarding.
-- [ ] T002 Identify approved Allstate/carrier quote handoff method.
-- [ ] T003 Determine whether Allstate mandates specific MVR/claims providers.
+## Phase 0 — Governance and production prerequisites
+- [ ] T001 Define the first production operator model: agency, brokerage, carrier program, or white-label deployment.
+- [ ] T002 Define generic CarrierAdapter contract and carrier capability registry.
+- [ ] T003 Define generic agency/tenant configuration and branding model.
 - [ ] T004 Select and contract candidate MVR provider.
 - [ ] T005 Select and contract candidate claims-history/CRA provider.
 - [ ] T006 Select identity/prefill/vehicle providers as needed.
@@ -12,6 +12,7 @@
 - [ ] T009 Approve data-use matrix.
 - [ ] T010 Approve retention schedule.
 - [ ] T011 Assign security incident and privacy-rights owners.
+- [ ] T012 Define carrier onboarding/certification checklist independent of carrier name.
 
 ## Phase 1 — Repository and domain kernel
 - [ ] T100 Create runtime repository and link this specs repo as canonical requirement source.
@@ -19,22 +20,22 @@
 - [ ] T102 Implement environment separation: local/CI/staging/production.
 - [ ] T103 Implement canonical IDs and timestamps.
 - [ ] T104 Implement QuoteCase state machine.
-- [ ] T105 Implement Agency, AgencyUser, Role, Permission.
+- [ ] T105 Implement Agency, AgencyUser, Role, Permission, TenantConfiguration.
 - [ ] T106 Implement Prospect, Person, Driver, Vehicle, CoverageRequest.
 - [ ] T107 Implement NoticeDefinition and ConsentRecord.
 - [ ] T108 Implement PermissiblePurposeDecision.
 - [ ] T109 Implement ExternalRequest, ExternalReport, UnderwritingObservation.
 - [ ] T110 Implement DataUsePolicy and RatingInput boundary.
 - [ ] T111 Implement ReadinessIssue.
-- [ ] T112 Implement CarrierSubmission and CarrierDecision.
+- [ ] T112 Implement Carrier, CarrierProgram, CarrierSubmission, CarrierDecision.
 - [ ] T113 Implement PrivacyRequest and RetentionPolicy.
 - [ ] T114 Implement append-only AuditEvent pipeline.
 - [ ] T115 Create full synthetic fixture library.
 
 ## Phase 2 — Authentication and security baseline
-- [ ] T200 Implement agency workforce identity provider.
+- [ ] T200 Implement agency workforce identity provider abstraction.
 - [ ] T201 Enforce MFA.
-- [ ] T202 Implement RBAC + agency object scope.
+- [ ] T202 Implement RBAC + tenant/agency object scope.
 - [ ] T203 Implement service principal authentication.
 - [ ] T204 Implement consumer secure session/resume flow.
 - [ ] T205 Implement KMS/secrets integration.
@@ -56,6 +57,7 @@
 - [ ] T309 Build conflict/correction flow.
 - [ ] T310 Build consumer status/follow-up flow.
 - [ ] T311 Complete WCAG 2.2 AA engineering pass.
+- [ ] T312 Implement tenant/agency theming without carrier-specific core components.
 
 ## Phase 4 — Provider gateway
 - [ ] T400 Define ProviderAdapter and capability descriptor contracts.
@@ -83,6 +85,7 @@
 - [ ] T504 Implement freshness/stale-report rules.
 - [ ] T505 Implement completeness-only readiness engine.
 - [ ] T506 Verify no observation can bypass RatingInput allowlist.
+- [ ] T507 Implement carrier-program field requirement overlays without modifying canonical domain entities.
 
 ## Phase 6 — Agent workspace
 - [ ] T600 Build quote queue.
@@ -96,15 +99,20 @@
 - [ ] T608 Build issue-resolution workflow.
 - [ ] T609 Build consumer follow-up request flow.
 - [ ] T610 Build case audit timeline.
+- [ ] T611 Build configured carrier/program target selector where deployment permits multiple targets.
 
-## Phase 7 — Carrier handoff
-- [ ] T700 Keep carrier stub enabled until external authority is resolved.
-- [ ] T701 Implement approved CarrierAdapter mode only.
+## Phase 7 — Carrier gateway
+- [ ] T700 Implement synthetic StubCarrierAdapter as the default build target.
+- [ ] T701 Implement CarrierAdapter capability descriptor.
 - [ ] T702 Implement carrier submission allowlist/schema mapping.
 - [ ] T703 Implement carrier submission idempotency.
 - [ ] T704 Implement carrier response/decision provenance.
-- [ ] T705 Implement kill switch/disable control.
-- [ ] T706 Complete carrier sandbox certification/acceptance.
+- [ ] T705 Implement per-carrier kill switch/disable control.
+- [ ] T706 Implement adapter modes: API, deep link, AMS/comparative-rater bridge, structured export, manual handoff.
+- [ ] T707 Implement carrier-program configuration and versioning.
+- [ ] T708 Add generic carrier adapter contract test suite.
+- [ ] T709 Certify first live carrier adapter when a production partner is selected.
+- [ ] T710 Verify switching carrier adapters does not require core-domain code changes.
 
 ## Phase 8 — Compliance operations
 - [ ] T800 Build privacy request intake.
@@ -131,11 +139,11 @@
 - [ ] T907 FCRA/adverse-action synthetic rehearsal.
 - [ ] T908 Penetration test/independent security assessment.
 - [ ] T909 Resolve all critical/high findings.
-- [ ] T910 Run full P0 acceptance suite.
-- [ ] T911 Obtain legal/compliance launch approval.
-- [ ] T912 Obtain agency/carrier production approval.
+- [ ] T910 Run full P0 acceptance suite against synthetic providers and StubCarrierAdapter.
+- [ ] T911 Obtain legal/compliance launch approval for the selected deployment.
+- [ ] T912 Complete first live agency/carrier/provider production certification.
 - [ ] T913 Production deployment and smoke test.
 - [ ] T914 Post-launch audit and first-week control review.
 
 ## Dependency rule
-No task in a later phase may silently resolve an unresolved Phase 0 assumption. External authority must be evidenced, not inferred from technical feasibility.
+Core implementation phases MAY proceed against deterministic synthetic providers and `StubCarrierAdapter`. No later task may silently convert an unresolved production-specific legal, provider, carrier, or agency requirement into an implementation assumption. Production activation requires evidence; core build completion does not.
