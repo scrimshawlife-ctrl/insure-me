@@ -20,45 +20,52 @@ const context: ProviderRequestContext = {
   idempotencyKey: 'idem-test',
 };
 
+function persistence(overrides: Partial<Record<string, unknown>> = {}) {
+  return {
+    createPurposeDecision: vi.fn(async () => ({ decisionId: 'decision-1' })),
+    createExternalRequest: vi.fn(async () => ({ externalRequestId: 'request-1', reused: false })),
+    claimExternalRequest: vi.fn(async () => undefined),
+    markExternalRequestRetry: vi.fn(async () => undefined),
+    getExternalRequestResult: vi.fn(async () => null),
+    settleExternalResult: vi.fn(async () => undefined),
+    ...overrides,
+  };
+}
+
+const allowPolicy = {
+  evaluate: vi.fn(async () => ({
+    allowed: true,
+    purposeCode: 'INSURANCE_UNDERWRITING',
+    policyVersion: 'synthetic-policy-v1',
+    reasonCodes: [],
+  })),
+};
+
 describe('orchestrateProviderRequest', () => {
-  it('persists purpose, external request, and normalized settlement for an allowed request', async () => {
+  it('persists purpose, claims the request, and settles an allowed provider execution', async () => {
     const adapter = new SyntheticProviderAdapter('MVR');
-    const persistence = {
-      createPurposeDecision: vi.fn(async () => ({ decisionId: 'decision-1' })),
-      createExternalRequest: vi.fn(async () => ({ externalRequestId: 'request-1', reused: false })),
-      settleExternalResult: vi.fn(async () => undefined),
-    };
-    const policy = {
-      evaluate: vi.fn(async () => ({
-        allowed: true,
-        purposeCode: 'INSURANCE_UNDERWRITING',
-        policyVersion: 'synthetic-policy-v1',
-        reasonCodes: [],
-      })),
-    };
+    const store = persistence();
 
     const result = await orchestrateProviderRequest({
       adapter,
-      persistence,
-      policy,
+      persistence: store,
+      policy: allowPolicy,
       context,
       request: { scenario: 'SUCCESS' as const },
     });
 
     expect(result.status).toBe('SUCCESS');
-    expect(persistence.createPurposeDecision).toHaveBeenCalledOnce();
-    expect(persistence.createExternalRequest).toHaveBeenCalledOnce();
-    expect(persistence.settleExternalResult).toHaveBeenCalledOnce();
+    expect(store.createPurposeDecision).toHaveBeenCalledOnce();
+    expect(store.createExternalRequest).toHaveBeenCalledOnce();
+    expect(store.claimExternalRequest).toHaveBeenCalledOnce();
+    expect(store.settleExternalResult).toHaveBeenCalledOnce();
+    expect(store.markExternalRequestRetry).not.toHaveBeenCalled();
   });
 
-  it('fails closed before adapter execution when policy denies the request', async () => {
+  it('fails closed before request creation or adapter execution when policy denies', async () => {
     const adapter = new SyntheticProviderAdapter('MVR');
     const executeSpy = vi.spyOn(adapter, 'execute');
-    const persistence = {
-      createPurposeDecision: vi.fn(async () => ({ decisionId: 'decision-deny' })),
-      createExternalRequest: vi.fn(async () => ({ externalRequestId: 'never', reused: false })),
-      settleExternalResult: vi.fn(async () => undefined),
-    };
+    const store = persistence();
     const policy = {
       evaluate: vi.fn(async () => ({
         allowed: false,
@@ -71,15 +78,78 @@ describe('orchestrateProviderRequest', () => {
     await expect(
       orchestrateProviderRequest({
         adapter,
-        persistence,
+        persistence: store,
         policy,
         context: { ...context, consentRecordIds: [] },
         request: { scenario: 'SUCCESS' as const },
       }),
     ).rejects.toThrow('PROVIDER_REQUEST_BLOCKED:MISSING_REQUIRED_AUTHORIZATION');
 
-    expect(persistence.createPurposeDecision).toHaveBeenCalledOnce();
-    expect(persistence.createExternalRequest).not.toHaveBeenCalled();
+    expect(store.createPurposeDecision).toHaveBeenCalledOnce();
+    expect(store.createExternalRequest).not.toHaveBeenCalled();
+    expect(store.claimExternalRequest).not.toHaveBeenCalled();
     expect(executeSpy).not.toHaveBeenCalled();
+  });
+
+  it('returns a cached settled result for an idempotent replay without executing provider again', async () => {
+    const adapter = new SyntheticProviderAdapter('MVR');
+    const executeSpy = vi.spyOn(adapter, 'execute');
+    const cached = {
+      status: 'SUCCESS' as const,
+      providerRequestId: 'cached-request',
+      providerReportId: 'cached-report',
+      retrievedAt: '2026-08-23T00:00:00.000Z',
+      normalized: {
+        capability: 'MVR' as const,
+        subjectIds: context.subjectIds,
+        facts: { licenseStatus: 'VALID' },
+      },
+      provenance: [],
+      warnings: [],
+    };
+    const store = persistence({
+      createExternalRequest: vi.fn(async () => ({ externalRequestId: 'request-1', reused: true })),
+      getExternalRequestResult: vi.fn(async () => ({
+        requestStatus: 'SUCCEEDED' as const,
+        result: cached,
+      })),
+    });
+
+    const result = await orchestrateProviderRequest({
+      adapter,
+      persistence: store,
+      policy: allowPolicy,
+      context,
+      request: { scenario: 'SUCCESS' as const },
+    });
+
+    expect(result).toEqual(cached);
+    expect(store.claimExternalRequest).not.toHaveBeenCalled();
+    expect(store.settleExternalResult).not.toHaveBeenCalled();
+    expect(executeSpy).not.toHaveBeenCalled();
+  });
+
+  it('returns a claimed request to retry state when adapter execution throws', async () => {
+    const adapter = new SyntheticProviderAdapter('MVR');
+    vi.spyOn(adapter, 'execute').mockRejectedValueOnce(new Error('SYNTHETIC_TRANSIENT'));
+    const store = persistence();
+
+    await expect(
+      orchestrateProviderRequest({
+        adapter,
+        persistence: store,
+        policy: allowPolicy,
+        context,
+        request: { scenario: 'SUCCESS' as const },
+      }),
+    ).rejects.toThrow('SYNTHETIC_TRANSIENT');
+
+    expect(store.claimExternalRequest).toHaveBeenCalledOnce();
+    expect(store.markExternalRequestRetry).toHaveBeenCalledWith({
+      externalRequestId: 'request-1',
+      errorCode: 'SYNTHETIC_TRANSIENT',
+      backoffSeconds: 60,
+    });
+    expect(store.settleExternalResult).not.toHaveBeenCalled();
   });
 });
