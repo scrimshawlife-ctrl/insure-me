@@ -119,17 +119,17 @@ alter table public.carrier_submissions enable row level security;
 alter table public.carrier_decisions enable row level security;
 
 create policy carriers_workforce_select on public.carriers
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy carrier_programs_workforce_select on public.carrier_programs
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy carrier_rating_rules_workforce_select on public.carrier_program_rating_rules
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy rating_inputs_workforce_select on public.rating_inputs
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy carrier_submissions_workforce_select on public.carrier_submissions
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy carrier_decisions_workforce_select on public.carrier_decisions
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 
 revoke insert, update, delete on public.carriers, public.carrier_programs,
   public.carrier_program_rating_rules, public.rating_inputs,
