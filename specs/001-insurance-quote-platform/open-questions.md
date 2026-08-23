@@ -2,57 +2,62 @@
 
 ## Launch-blocking questions
 
-### Q-001 Allstate external application authority
-Can the local Mountain View Allstate agency use an externally hosted consumer intake and underwriting-data orchestration application?
+### Q-001 Initial deployment authority
+Which agency or licensed insurance entity will operate the first production deployment, and what external-application, vendor, data-storage, and security requirements apply?
 
-Required evidence: written carrier/agency approval or applicable program documentation.
+Required evidence: written agency/carrier/program approval where required.
 
-Status: `BLOCKED`.
+Status: `BLOCKED FOR PRODUCTION / NOT BLOCKING CORE BUILD`.
 
-### Q-002 Allstate data storage boundary
-Which prospect, MVR, claims, consumer-report, quote, and decision data may be stored outside Allstate-controlled systems, for how long, and in what form?
+### Q-002 Data storage boundary
+For each configured agency, carrier, and provider, which prospect, MVR, claims, consumer-report, quote, and decision data may be stored, for how long, and in what form?
 
-Status: `BLOCKED`.
+Status: `BLOCKED FOR PRODUCTION / CONFIGURATION-SPECIFIC`.
 
 ### Q-003 Carrier handoff
-What approved mechanism exists: API, deep link, comparative-rater/import integration, secure export, or manual entry?
+For the first live carrier, what approved mechanism exists: API, deep link, comparative-rater/AMS bridge, secure export, or manual entry?
 
-Status: `BLOCKED`.
+Status: `BLOCKED FOR LIVE CARRIER / NOT BLOCKING STUB ADAPTER`.
 
 ### Q-004 Required/approved data providers
-Does Allstate mandate or prohibit specific MVR, claims, identity, vehicle, or prefill vendors?
+Which MVR, claims, identity, vehicle, and prefill vendors are contractually available to the operating agency and compatible with the selected carrier/program?
 
-Status: `BLOCKED`.
+Status: `BLOCKED FOR LIVE DATA / NOT BLOCKING SYNTHETIC ADAPTERS`.
 
 ### Q-005 FCRA ownership
-For each consumer-report product, who is the user of the report and who owns adverse-action notice delivery: agency, Allstate, or another party?
+For each consumer-report product and carrier workflow, who is the user of the report and who owns adverse-action notice delivery: agency, carrier, platform customer, or another party?
 
-Status: `BLOCKED`.
+Status: `BLOCKED FOR PRODUCTION`.
 
 ### Q-006 Notice ownership
-Which privacy/information-practices and report notices are supplied by Allstate, which by the agency, and which by Insure Me as a service provider?
+Which privacy/information-practices and report notices are supplied by the operating agency/carrier and which are supplied by Insure Me as a service provider or technology platform?
 
-Status: `BLOCKED`.
+Status: `BLOCKED FOR PRODUCTION`.
 
 ### Q-007 Retention
 What retention periods are required or permitted for abandoned quotes, completed quotes, consent evidence, MVR/claims reports, carrier decisions, audit events, and privacy evidence?
 
-Status: `BLOCKED` pending legal/provider/carrier input.
+Status: `BLOCKED FOR PRODUCTION` pending legal/provider/carrier input.
 
 ### Q-008 CCPA/CPRA role
-For each processing activity, is the platform acting as service provider/contractor or another role, and which insurance/GLBA exemptions apply to which data?
+For each processing activity and deployment, is Insure Me acting as service provider/contractor or another role, and which insurance/GLBA exemptions apply to which data?
 
 Status: `LEGAL REVIEW`.
 
-### Q-009 California SB 354
-What is the enacted/final status and effective date, if any, before launch, and does it change notice, consent, retention, service-provider, correction, or adverse-underwriting requirements?
+### Q-009 California legislative watch
+Before launch, confirm whether any newly enacted California insurance privacy law changes notice, consent, retention, service-provider, correction, automated-decision, or adverse-underwriting requirements.
 
 Status: `WATCH`.
 
 ### Q-010 Branding
-Can the consumer surface use Allstate name/logo/colors, and what trademark/brand approval is required?
+Will the initial consumer experience be Insure Me-branded, white-labeled for the agency, co-branded, or carrier-branded? What approvals are required for any third-party marks?
 
-Status: `BLOCKED`.
+Status: `PRODUCT DECISION / THIRD-PARTY APPROVAL IF USED`.
+
+### Q-011 Multi-carrier strategy
+Will the first production release route to a single configured carrier, allow an agent to choose among carriers, or support comparative quoting through an approved rater/AMS?
+
+Status: `NOT BLOCKING CORE BUILD`.
 
 ## Non-blocking technical decisions
 - hosting platform;
@@ -65,7 +70,7 @@ Status: `BLOCKED`.
 - responsive web only vs native shell after MVP;
 - document rendering/storage vendor.
 
-These SHOULD be decided only after external data/storage/security requirements are known.
+The core build MAY proceed with synthetic data and stub carrier/provider adapters while production-specific external gates remain unresolved.
 
 ## Decision record format
 For every resolved question create a decision record containing:
@@ -81,4 +86,4 @@ For every resolved question create a decision record containing:
 - reviewer/owner.
 
 ## Rule
-`UNVERIFIED` and `BLOCKED` questions must never be converted into implementation assumptions merely because an API or technical workaround exists.
+`UNVERIFIED` and `BLOCKED` questions must never be converted into production assumptions merely because an API or technical workaround exists. They also MUST NOT prevent implementation of provider-neutral core capabilities when deterministic synthetic adapters can preserve the boundary.
