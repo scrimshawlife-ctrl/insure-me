@@ -76,9 +76,9 @@ select throws_ok(
   'request cannot link a person before identity verification'
 );
 
-select hasnt_table_privilege('anon', 'public.privacy_requests', 'SELECT', 'anonymous users cannot enumerate privacy requests');
-select hasnt_table_privilege('authenticated', 'public.privacy_requests', 'INSERT', 'authenticated users cannot directly create privacy requests');
-select hasnt_table_privilege('authenticated', 'public.retention_policies', 'INSERT', 'authenticated users cannot directly create retention policy versions');
+select is(has_table_privilege('anon', 'public.privacy_requests', 'SELECT'), false, 'anonymous users cannot enumerate privacy requests');
+select is(has_table_privilege('authenticated', 'public.privacy_requests', 'INSERT'), false, 'authenticated users cannot directly create privacy requests');
+select is(has_table_privilege('authenticated', 'public.retention_policies', 'INSERT'), false, 'authenticated users cannot directly create retention policy versions');
 
 set local role authenticated;
 select set_config(
