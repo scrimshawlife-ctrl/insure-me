@@ -1,140 +1,186 @@
 # Acceptance Specification
 
-## Rule
-A feature is not complete because the UI works. It is complete when the product behavior, compliance control, security control, failure behavior, and audit evidence all pass.
+## Purpose
+This document defines release-blocking behavior for the Insure Me core platform and deployment-specific production activation. Synthetic acceptance MUST be possible without live carrier or consumer-report credentials.
 
-## P0 launch acceptance
+## Acceptance levels
+- `P0 CORE`: required for synthetic build completeness.
+- `P0 PRODUCTION`: required before a specific live deployment activates regulated provider or carrier adapters.
+- `P1`: important but may follow initial MVP when explicitly accepted.
 
-### A-001 QuoteCase prerequisite
-Given no QuoteCase, when any regulated provider request is attempted, then the request is denied before provider execution and an audit event records the denial.
+## P0 CORE — domain and workflow
 
-### A-002 Permissible purpose
-Given a QuoteCase without an allowed purpose decision, when MVR/claims data is requested, then the request fails closed with a machine-readable reason.
+### A-001 QuoteCase required before regulated lookup
+Given no valid QuoteCase, when any provider request is attempted, then execution is denied before provider invocation and an AuditEvent records the denial.
 
-### A-003 Required notice/authorization
-Given a provider capability that requires a notice/authorization, when the consumer has not completed it, then provider execution does not occur.
+### A-002 Purpose enforcement
+Given a QuoteCase without an allowed permissible-purpose decision, when a regulated provider request is attempted, then it fails closed with `PURPOSE_NOT_PERMITTED` and the adapter is not called.
 
-### A-004 Jurisdiction restriction
-Given a California case and a provider capability not approved for California, the system blocks the request even if the provider API would technically accept it.
+### A-003 Notice/authorization enforcement
+Given a capability requiring notice or authorization that has not been satisfied, when the capability is requested, then it fails before provider execution with a stable reason code.
 
-### A-005 Object-level authorization
-An agent from Agency A cannot read, mutate, export, or order reports for Agency B.
+### A-004 Jurisdiction/capability enforcement
+Given a configured provider binding that does not support the case jurisdiction/product, the provider request MUST be blocked before adapter execution.
 
-### A-006 MFA
-A workforce user without satisfied MFA cannot access the agent workspace or regulated report operations.
+### A-005 Tenant isolation
+Given users or service principals from Tenant A, attempts to read, mutate, export, or execute regulated actions against Tenant B objects MUST fail. No existence oracle or metadata leak is permitted.
 
-### A-007 Provenance
-Every displayed external observation can be traced to provider, report/reference, retrieval time, and source field/path where contract permits.
+### A-006 Provider-neutral canonical model
+Replacing `StubMvrAdapter-A` with `StubMvrAdapter-B` MUST NOT require changes to QuoteCase, Driver, Vehicle, ExternalReport, UnderwritingObservation, RatingInput, or CarrierDecision schemas.
 
-### A-008 No silent conflict resolution
-When user-provided and external facts materially conflict, the system creates a review state and does not silently choose a value.
+### A-007 External data provenance
+Every material normalized provider fact shown to an agent MUST resolve to provider/report/retrieval/transformation provenance.
 
-### A-009 Rating separation
-No ExternalReport or UnderwritingObservation automatically becomes a RatingInput. Only carrier-approved mapping can create a RatingInput.
+### A-008 Report/observation/rating separation
+Tests MUST prove that an ExternalReport cannot directly become a CarrierSubmission field without normalization, data-use evaluation, and explicit RatingInput/submission mapping where required.
 
-### A-010 Readiness semantics
-Readiness reflects completeness/workflow state only and is never labeled or used as consumer risk/insurability score.
+### A-009 Readiness is not risk
+Readiness output MUST be based on workflow completeness, freshness, conflicts, and configured program prerequisites only. It MUST NOT expose a risk, insurability, or predicted-premium score.
 
-### A-011 Carrier authority
-Without an approved CarrierAdapter, the system cannot display an independently calculated binding premium or bind coverage.
+### A-010 Conflicting facts require review
+Materially conflicting sourced facts MUST create a blocking or review ReadinessIssue according to policy. The system MUST NOT silently select a winner.
 
-### A-012 Idempotent provider requests
-Replaying the same idempotency key does not place a second provider order or duplicate chargeable transaction.
+### A-011 Provider idempotency
+Two identical provider-order requests using the same idempotency key MUST produce at most one external execution/charge-equivalent event.
 
-### A-013 Idempotent carrier submission
-Replaying a carrier-submission idempotency key does not create a duplicate submission.
+### A-012 Carrier submission idempotency
+Two identical carrier submissions using the same idempotency key MUST produce at most one carrier execution unless the adapter contract explicitly records a linked new attempt.
 
-### A-014 Provider outage
-If enrichment provider is unavailable, consumer intake remains recoverable and case state clearly indicates pending/review instead of losing data.
+### A-013 Sensitive data in telemetry
+Automated tests MUST verify that raw DOB, license numbers, consumer-report contents, secrets, and other prohibited high-risk fields do not appear in standard logs, traces, analytics, or error payloads.
 
-### A-015 No production PII in telemetry
-Automated scanning verifies logs/analytics do not contain configured sensitive fields or raw provider payloads.
+### A-014 Consumer session isolation
+A consumer quote session MUST access only its authorized QuoteCase and MUST expire/revoke according to session policy.
 
-### A-016 Consumer session security
-Sensitive identifiers are absent from URLs and expired resume/session credentials no longer grant access.
+### A-015 Workforce security
+Agent/admin surfaces MUST enforce workforce authentication, MFA state, tenant/agency scope, and role/permission checks.
 
-### A-017 Consent evidence
-For any regulated request requiring authorization, an auditor can identify the exact notice version, subject, action, and time associated with the request.
+### A-016 Synthetic provider execution
+Local and CI MUST complete the happy-path quote flow using deterministic StubIdentity, StubPrefill, StubMvr, StubClaims, and StubVehicle adapters without external network credentials.
 
-### A-018 Privacy request
-Synthetic access/correction/deletion test locates applicable records, applies approved exceptions, propagates required vendor actions, and produces closure evidence.
+### A-017 Synthetic carrier execution
+Local and CI MUST complete carrier handoff and synthetic CarrierDecision ingestion using `StubCarrierAdapter` without a live carrier.
 
-### A-019 Adverse-action support
-A synthetic carrier adverse decision partially based on a consumer report produces the configured workflow with CRA identity, consumer-report linkage, responsible party, notice inputs, and dispute route.
+### A-018 Carrier program policy gate
+A CarrierSubmission MUST fail if its selected CarrierProgram is disabled, unsupported for jurisdiction/product, kill-switched, or missing required readiness/data-use prerequisites.
 
-### A-020 Audit integrity
-Normal application roles cannot edit/delete historical AuditEvents. Tamper-evidence validation passes.
+### A-019 Carrier mapping boundary
+Carrier-specific request fields MAY exist inside an adapter mapping fixture but MUST NOT be added to canonical Person, Driver, Vehicle, QuoteCase, or UnderwritingObservation solely to satisfy one carrier.
 
-### A-021 Retention
-Expired synthetic records transition to the configured disposition; legal-hold records do not.
+### A-020 Provider failure/degraded mode
+Timeout, unavailable, no-hit, partial, malformed, and auth-failure fixtures MUST produce defined states/reason codes and MUST NOT corrupt canonical facts or cause infinite retries.
 
-### A-022 Provider credential isolation
-Browser/mobile clients never receive provider credentials. Sandbox credentials cannot execute production requests.
+### A-021 Carrier failure states
+Validation failure, authentication failure, timeout, unavailable, rejected, and ambiguous-status carrier fixtures MUST preserve an auditable CarrierSubmission state and MUST NOT fabricate a CarrierDecision.
 
-### A-023 Admin security
-Role, integration, provider, and notice activation changes require authorized admin access, step-up auth where specified, and audit evidence.
+### A-022 Privacy request existence protection
+Before requester identity verification, privacy APIs MUST NOT reveal whether a person or quote exists.
 
-### A-024 Accessibility
-Critical consumer and agent journeys pass automated checks plus manual keyboard and screen-reader verification against the approved baseline.
+### A-023 Retention/legal hold
+Expired data MUST enter the approved disposition workflow. Legal hold MUST prevent destructive disposition for the held scope and record evidence.
 
-### A-025 Mobile usability
-Consumer happy path is usable at common mobile widths with no horizontal scrolling and no inaccessible fixed overlays.
+### A-024 Audit completeness
+Sensitive reads/writes, provider requests, consent actions, policy/configuration changes, carrier submissions, privacy actions, exports, and important denials MUST create append-only AuditEvents with sufficient policy/configuration provenance.
 
-## P1 acceptance
-- Agent can trace material observations to provenance in <=2 interactions.
-- Consumer can resume an incomplete case securely.
-- Notification delivery/bounce states are visible.
-- Provider partial/no-hit states are normalized consistently.
-- Stale report behavior follows provider freshness rules.
-- Manual entry works when prefill fails.
-- All case-state transitions are audited.
-- Case closure and abandonment trigger retention scheduling.
+### A-025 Accessibility baseline
+Critical consumer and agent journeys MUST pass the approved WCAG 2.2 AA engineering checks, including keyboard operation, focus visibility, labels/errors, contrast, and responsive zoom/reflow.
 
-## Contract tests per provider
-Each adapter MUST prove:
-- valid success;
-- no hit;
-- partial;
-- stale response;
-- validation failure;
-- auth failure;
-- timeout;
-- throttling;
-- malformed payload;
-- duplicate idempotency;
-- jurisdiction restriction;
-- prohibited purpose;
-- logging redaction.
+### A-026 Carrier portability
+The same synthetic QuoteCase MUST be eligible for submission through two independently configured synthetic CarrierPrograms/CarrierAdapters with no carrier-name branch in core code and no canonical schema change. Differences MUST be expressed through program configuration and boundary mapping.
 
-## Carrier acceptance
-Before a real Allstate/carrier adapter is enabled:
-- contract/approval evidence recorded;
-- submission schema approved;
-- data-use mapping approved;
-- auth/security method approved;
-- sandbox test passed;
-- duplicate-submission test passed;
-- carrier error taxonomy mapped;
-- response provenance preserved;
-- premium/eligibility clearly labeled carrier-supplied;
-- rollback/disable switch tested.
+### A-027 Tenant configuration isolation
+Two synthetic tenants with different branding, provider bindings, notices, retention policies, and carrier programs MUST execute concurrently without configuration or data leakage. Changing Tenant B configuration MUST NOT change Tenant A behavior.
 
-## Performance targets
-Exact SLOs remain TBD until provider contracts and hosting are known. P0 behavior requirements:
-- local validation and policy denials return without waiting on external providers;
-- UI remains responsive during async enrichment;
-- long provider operations use job/status patterns rather than blocking browser requests indefinitely;
-- provider timeouts do not corrupt case state.
+### A-028 Configuration version replay
+For a historical regulated request/submission, the system MUST identify the exact TenantConfiguration, policy, provider binding, CarrierProgram, and adapter versions used at execution time even after newer versions are activated.
 
-## Production go/no-go
-GO requires all P0 tests passing plus closure of:
-- Allstate/carrier integration authority;
-- provider contracts;
-- legal notice/authorization approval;
-- data-use matrix;
-- retention schedule;
-- security review;
-- incident response owner;
-- privacy/FCRA ownership matrix.
+### A-029 Carrier switch does not rewrite facts
+Changing a QuoteCase's selected CarrierProgram before submission MAY change readiness and RatingInput projection. It MUST NOT rewrite the underlying user-provided or provider-sourced canonical facts.
 
-Any unresolved item results in NO-GO unless an authorized risk owner provides a documented exception that does not violate law or contract.
+### A-030 Marketing separation
+Quote notices/consent MUST NOT imply marketing consent. Transactional and marketing permission states MUST remain separate.
+
+## P0 PRODUCTION — provider activation
+Before any live regulated provider capability is enabled for a deployment:
+- provider contract/product is identified;
+- DPPA/FCRA/insurance-purpose role is documented as applicable;
+- jurisdiction/product capability is configured;
+- required notices/authorizations are approved;
+- raw-payload and retention rules are approved;
+- dispute/correction routing is documented;
+- production credentials are isolated and rotation tested;
+- sandbox/contract tests pass including no-hit, partial, timeout, malformed, auth failure, restriction, and redaction cases;
+- kill switch exists and is tested.
+
+## P0 PRODUCTION — carrier activation
+Before a live CarrierProgram is enabled for a deployment:
+- operating agency/entity authority and relationship are documented;
+- carrier/program and permitted handoff mode are documented;
+- required-field and RatingInput allowlists are approved/versioned;
+- authentication/security contract is configured;
+- response/reason-code mapping is validated without invention;
+- notice/adverse-action ownership is documented;
+- retention/storage constraints are approved;
+- sandbox/certification tests pass for the selected mode;
+- idempotency and ambiguous-status recovery are tested;
+- kill switch exists and is tested.
+
+A live CarrierProgram activation is deployment-specific. Failure to certify Carrier A MUST NOT block synthetic core acceptance or certification work for Carrier B.
+
+## P0 PRODUCTION — legal/privacy/security
+Before real consumer data is accepted:
+- privacy/information-practices notices are approved;
+- consumer-report/FCRA workflows and adverse-action ownership are approved where applicable;
+- data-use matrix is approved;
+- retention schedule is approved;
+- applicable CCPA/CPRA and California insurance privacy roles are documented;
+- incident-response ownership/runbook is approved;
+- backup/restore and disaster-recovery tests pass;
+- penetration/security review is complete and release-blocking findings are resolved or formally accepted;
+- privacy-rights workflow rehearsal passes.
+
+## Required synthetic fixture classes
+At minimum:
+- happy path;
+- multiple drivers;
+- multiple vehicles;
+- no-hit;
+- partial MVR/claims result;
+- stale report;
+- provider outage/timeout;
+- provider auth failure;
+- prohibited-purpose attempt;
+- missing authorization;
+- conflicting external facts;
+- consumer correction;
+- unauthorized cross-tenant access;
+- privacy access/correction/deletion;
+- retention expiration;
+- legal hold;
+- adverse-action support handoff;
+- carrier validation failure;
+- carrier unavailable/timeout;
+- carrier ambiguous status;
+- two synthetic carrier programs with different required fields/mappings;
+- two tenant configurations with different provider/carrier bindings.
+
+## Core-build verdict
+Core build may be marked `SYNTHETIC_CORE_ACCEPTED` only when all `P0 CORE` tests pass with deterministic fixtures and no unresolved defect allows unauthorized lookup, cross-tenant access, unapproved rating-input propagation, carrier-specific canonical coupling, or unaudited regulated actions.
+
+## Production verdict
+A specific deployment may be marked `PRODUCTION_READY` only when:
+1. all P0 CORE tests pass;
+2. that deployment's live provider capabilities satisfy the provider activation gates;
+3. at least one intended live CarrierProgram satisfies carrier activation gates if live carrier handoff is in scope;
+4. legal/privacy/security gates pass;
+5. release evidence names the exact configuration and adapter versions being activated.
+
+Unknown future carriers and providers are not global blockers. They remain unconfigured capabilities until individually certified.
+
+## P1 examples
+- native mobile shell after responsive validation;
+- additional insurance product lines;
+- additional jurisdictions after jurisdiction-specific compliance specification;
+- advanced agency analytics using approved low-risk dimensions;
+- additional AMS/comparative-rater adapters;
+- self-service tenant onboarding after security/compliance review.
