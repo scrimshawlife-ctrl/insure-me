@@ -10,8 +10,8 @@ import type {
 type SyntheticCarrierVariant = 'A' | 'B';
 
 const REQUIRED_KEYS: Record<SyntheticCarrierVariant, string[]> = {
-  A: ['license.status', 'vehicle.annualMileage'],
-  B: ['driver.yearsLicensed', 'vehicle.usage'],
+  A: ['mvr.licenseStatus', 'claims.claimCount'],
+  B: ['mvr.movingViolationCount', 'vehicle.severeDamageIndicator'],
 };
 
 export class SyntheticCarrierAdapter implements CarrierAdapter {
