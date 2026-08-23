@@ -1,6 +1,6 @@
 begin;
 
-select plan(14);
+select plan(16);
 
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
 values ('a1000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001','Identifier Test Agency','Identifier Test');
@@ -32,6 +32,7 @@ create temporary table preservation_probe (
   vehicle_cipher text,
   vehicle_hash text
 );
+grant select on preservation_probe to authenticated;
 
 select ok(not has_function_privilege('authenticated','private.replace_consumer_drivers_impl(uuid,jsonb)','EXECUTE'), 'authenticated cannot execute private driver mutation');
 select ok(not has_function_privilege('authenticated','private.replace_consumer_vehicles_impl(uuid,jsonb)','EXECUTE'), 'authenticated cannot execute private vehicle mutation');
@@ -55,7 +56,6 @@ from public.replace_consumer_drivers(
  '[{"driverId":null,"relationshipRole":"NAMED_INSURED","firstName":"Taylor","lastName":"Safe","dateOfBirth":"1991-02-02","licenseJurisdiction":"CA","yearsLicensed":9,"confirmationState":"CONFIRMED"}]'::jsonb
 ) d limit 1;
 
--- Restore a protected driver after the projection-shape probe above replaced the collection.
 select * from public.replace_consumer_drivers(
  'a4000000-0000-0000-0000-000000000001',
  '[{"relationshipRole":"NAMED_INSURED","firstName":"Alex","lastName":"Preserve","dateOfBirth":"1990-01-01","licenseJurisdiction":"CA","licenseCiphertextHex":"01020304","licenseKeyVersion":"synthetic-v1","licenseLookupHash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","licenseLast4":"1234","yearsLicensed":10,"confirmationState":"CONFIRMED"}]'::jsonb
@@ -67,7 +67,6 @@ from public.replace_consumer_vehicles(
  '[{"vehicleId":null,"modelYear":2023,"make":"Synthetic","model":"Safe","usage":"PLEASURE","confirmationState":"CONFIRMED"}]'::jsonb
 ) v limit 1;
 
--- Restore a protected vehicle after the projection-shape probe above replaced the collection.
 select * from public.replace_consumer_vehicles(
  'a4000000-0000-0000-0000-000000000001',
  '[{"vinCiphertextHex":"05060708","vinKeyVersion":"synthetic-v1","vinLookupHash":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","vinLast4":"5678","modelYear":2024,"make":"Synthetic","model":"Roadster","usage":"COMMUTE","annualMileage":9000,"confirmationState":"CONFIRMED"}]'::jsonb
