@@ -1,6 +1,6 @@
 begin;
 
-select plan(14);
+select plan(20);
 
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
 values ('91000000-0000-0000-0000-000000000001','90000000-0000-0000-0000-000000000001','Synthetic Intake Agency','Intake Agency');
@@ -36,6 +36,31 @@ select lives_ok($$select * from public.replace_consumer_drivers(
 select is((select count(*) from public.get_consumer_drivers('94000000-0000-0000-0000-000000000001')),1::bigint,'consumer reads one safe driver projection');
 select throws_ok($$select license_identifier_ciphertext from public.drivers$$,'42501',null,'consumer cannot directly read driver protected fields');
 
+select lives_ok(
+  format(
+    'select * from public.replace_consumer_drivers(''94000000-0000-0000-0000-000000000001'', %L::jsonb)',
+    (select jsonb_build_array(jsonb_build_object(
+      'driverId', driver_id,
+      'relationshipRole', relationship_role,
+      'firstName', first_name,
+      'lastName', 'Edited',
+      'dateOfBirth', date_of_birth,
+      'licenseJurisdiction', license_jurisdiction,
+      'yearsLicensed', years_licensed,
+      'confirmationState', 'CONFIRMED'
+    ))::text from public.get_consumer_drivers('94000000-0000-0000-0000-000000000001'))
+  ),
+  'consumer can edit saved driver without re-entering license number'
+);
+
+reset role;
+select is((select encode(license_identifier_ciphertext,'hex') from public.drivers where quote_case_id='94000000-0000-0000-0000-000000000001' and source_type='CONSUMER'),'010203','driver edit preserves encrypted license ciphertext');
+select is((select license_identifier_lookup_hash from public.drivers where quote_case_id='94000000-0000-0000-0000-000000000001' and source_type='CONSUMER'),'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','driver edit preserves license lookup hash');
+select is((select license_last4 from public.drivers where quote_case_id='94000000-0000-0000-0000-000000000001' and source_type='CONSUMER'),'1234','driver edit preserves license last4');
+
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub','99000000-0000-0000-0000-000000000009','role','authenticated','aal','aal1')::text, true);
+
 select lives_ok($$select * from public.replace_consumer_vehicles(
  '94000000-0000-0000-0000-000000000001',
  '[{"vinCiphertextHex":"010203","vinKeyVersion":"synthetic-v1","vinLookupHash":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","vinLast4":"5678","modelYear":2024,"make":"Synthetic","model":"Roadster","usage":"COMMUTE","annualMileage":9000,"confirmationState":"CONFIRMED"}]'::jsonb
@@ -43,6 +68,33 @@ select lives_ok($$select * from public.replace_consumer_vehicles(
 
 select is((select count(*) from public.get_consumer_vehicles('94000000-0000-0000-0000-000000000001')),1::bigint,'consumer reads one safe vehicle projection');
 select throws_ok($$select vin_ciphertext from public.vehicles$$,'42501',null,'consumer cannot directly read VIN ciphertext');
+
+select lives_ok(
+  format(
+    'select * from public.replace_consumer_vehicles(''94000000-0000-0000-0000-000000000001'', %L::jsonb)',
+    (select jsonb_build_array(jsonb_build_object(
+      'vehicleId', vehicle_id,
+      'modelYear', model_year,
+      'make', make,
+      'model', model,
+      'trim', trim,
+      'ownershipState', ownership_state,
+      'garagingPostalCode', garaging_postal_code,
+      'usage', usage,
+      'annualMileage', annual_mileage,
+      'confirmationState', 'CONFIRMED'
+    ))::text from public.get_consumer_vehicles('94000000-0000-0000-0000-000000000001'))
+  ),
+  'consumer can edit saved vehicle without re-entering VIN'
+);
+
+reset role;
+select is((select encode(vin_ciphertext,'hex') from public.vehicles where quote_case_id='94000000-0000-0000-0000-000000000001' and source_type='CONSUMER'),'010203','vehicle edit preserves encrypted VIN ciphertext');
+select is((select vin_lookup_hash from public.vehicles where quote_case_id='94000000-0000-0000-0000-000000000001' and source_type='CONSUMER'),'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb','vehicle edit preserves VIN lookup hash');
+select is((select vin_last4 from public.vehicles where quote_case_id='94000000-0000-0000-0000-000000000001' and source_type='CONSUMER'),'5678','vehicle edit preserves VIN last4');
+
+set local role authenticated;
+select set_config('request.jwt.claims', json_build_object('sub','99000000-0000-0000-0000-000000000009','role','authenticated','aal','aal1')::text, true);
 
 select lives_ok($$select public.upsert_consumer_coverage_request(
  '94000000-0000-0000-0000-000000000001',1,
@@ -61,7 +113,7 @@ select lives_ok($$select * from public.complete_consumer_intake('94000000-0000-0
 select is((select state::text from public.quote_cases where quote_case_id='94000000-0000-0000-0000-000000000001'),'DATA_ENRICHMENT','intake completion advances exactly to DATA_ENRICHMENT');
 
 reset role;
-select is((select count(*) from public.audit_events where quote_case_id='94000000-0000-0000-0000-000000000001' and event_type in ('CONSUMER_DRIVERS_REPLACED','CONSUMER_VEHICLES_REPLACED','CONSUMER_COVERAGE_REQUEST_SAVED','CONSUMER_INTAKE_COMPLETED')),4::bigint,'all intake writes and completion emit audit evidence');
+select is((select count(*) from public.audit_events where quote_case_id='94000000-0000-0000-0000-000000000001' and event_type in ('CONSUMER_DRIVERS_REPLACED','CONSUMER_VEHICLES_REPLACED','CONSUMER_COVERAGE_REQUEST_SAVED','CONSUMER_INTAKE_COMPLETED')),6::bigint,'all intake writes, edits, and completion emit audit evidence');
 
 select * from finish();
 rollback;
