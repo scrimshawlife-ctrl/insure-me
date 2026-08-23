@@ -1,10 +1,12 @@
+import Link from 'next/link';
+
 import { StartQuoteForm } from './start-quote-form';
 
 export default function HomePage() {
   return (
     <main className="site-shell">
       <header className="site-header">
-        <a className="brand" href="/" aria-label="Insure Me home"><span className="brand-mark">I</span>Insure Me</a>
+        <Link className="brand" href="/" aria-label="Insure Me home"><span className="brand-mark">I</span>Insure Me</Link>
         <span className="header-note">California auto quote preparation</span>
       </header>
 
