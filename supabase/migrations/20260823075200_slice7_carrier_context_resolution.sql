@@ -89,7 +89,7 @@ begin
     raise exception 'QUOTE_CASE_NOT_FOUND' using errcode='P0002';
   end if;
 
-  if v_case.state not in ('AGENT_REVIEW','READY_FOR_HANDOFF','SUBMITTED_TO_CARRIER') then
+  if v_case.state not in ('REVIEW_REQUIRED','READY_FOR_CARRIER','SUBMITTED_TO_CARRIER') then
     raise exception 'CARRIER_INVALID_CASE_STATE' using errcode='42501';
   end if;
 
