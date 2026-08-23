@@ -81,10 +81,10 @@ declare
   v_program public.carrier_programs;
 begin
   select * into v_case
-  from public.quote_cases
-  where quote_case_id=p_quote_case_id
-    and tenant_id=p_tenant_id
-    and agency_id=p_agency_id;
+  from public.quote_cases qc
+  where qc.quote_case_id=p_quote_case_id
+    and qc.tenant_id=p_tenant_id
+    and qc.agency_id=p_agency_id;
   if v_case.quote_case_id is null then
     raise exception 'QUOTE_CASE_NOT_FOUND' using errcode='P0002';
   end if;
@@ -94,13 +94,13 @@ begin
   end if;
 
   select * into v_program
-  from public.carrier_programs
-  where carrier_program_id=p_carrier_program_id
-    and tenant_id=p_tenant_id
-    and agency_id=p_agency_id
-    and v_case.jurisdiction=any(jurisdictions)
-    and v_case.product_line=any(product_lines)
-    and retired_at is null;
+  from public.carrier_programs cp
+  where cp.carrier_program_id=p_carrier_program_id
+    and cp.tenant_id=p_tenant_id
+    and cp.agency_id=p_agency_id
+    and v_case.jurisdiction=any(cp.jurisdictions)
+    and v_case.product_line=any(cp.product_lines)
+    and cp.retired_at is null;
   if v_program.carrier_program_id is null then
     raise exception 'CARRIER_PROGRAM_NOT_CONFIGURED' using errcode='42501';
   end if;
