@@ -135,7 +135,7 @@ declare
   v_report_id uuid;
   v_provenance_item jsonb;
   v_observation_item jsonb;
-  v_provenance_ids uuid[] := '{}';
+  v_provenance_ids uuid[] := '{}'::uuid[];
   v_provenance_id uuid;
   v_outcome text;
   v_integrity text;
