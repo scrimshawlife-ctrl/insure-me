@@ -27,12 +27,12 @@ function input(id: string, key: string, value: unknown): RatingInputItem {
 }
 
 describe('SyntheticCarrierAdapter portability', () => {
-  it('supports variant A using its own required projection', async () => {
+  it('supports variant A using its own observation projection', async () => {
     const adapter = new SyntheticCarrierAdapter('A');
     const submission = {
       ratingInputs: [
-        input('1', 'license.status', 'VALID'),
-        input('2', 'vehicle.annualMileage', 9000),
+        input('1', 'mvr.licenseStatus', 'VALID'),
+        input('2', 'claims.claimCount', 0),
       ],
     };
 
@@ -40,12 +40,12 @@ describe('SyntheticCarrierAdapter portability', () => {
     expect((await adapter.submit(context('a'), submission)).status).toBe('ACCEPTED');
   });
 
-  it('supports variant B using a different required projection without changing canonical schemas', async () => {
+  it('supports variant B using a different observation projection without canonical schema changes', async () => {
     const adapter = new SyntheticCarrierAdapter('B');
     const submission = {
       ratingInputs: [
-        input('3', 'driver.yearsLicensed', 12),
-        input('4', 'vehicle.usage', 'COMMUTE'),
+        input('3', 'mvr.movingViolationCount', 0),
+        input('4', 'vehicle.severeDamageIndicator', false),
       ],
     };
 
@@ -53,26 +53,26 @@ describe('SyntheticCarrierAdapter portability', () => {
     expect((await adapter.submit(context('b'), submission)).status).toBe('ACCEPTED');
   });
 
-  it('rejects a projection intended for another carrier program', async () => {
+  it('rejects an observation projection intended for another carrier program', async () => {
     const adapter = new SyntheticCarrierAdapter('B');
     const submission = {
       ratingInputs: [
-        input('1', 'license.status', 'VALID'),
-        input('2', 'vehicle.annualMileage', 9000),
+        input('1', 'mvr.licenseStatus', 'VALID'),
+        input('2', 'claims.claimCount', 0),
       ],
     };
 
     const result = await adapter.validateSubmission(context('b'), submission);
     expect(result.valid).toBe(false);
-    expect(result.reasonCodes).toContain('MISSING_REQUIRED_INPUT:driver.yearsLicensed');
+    expect(result.reasonCodes).toContain('MISSING_REQUIRED_INPUT:mvr.movingViolationCount');
   });
 
-  it('is deterministic for identical context and rating input', async () => {
+  it('is deterministic for identical context and projected rating inputs', async () => {
     const adapter = new SyntheticCarrierAdapter('A');
     const submission = {
       ratingInputs: [
-        input('1', 'license.status', 'VALID'),
-        input('2', 'vehicle.annualMileage', 9000),
+        input('1', 'mvr.licenseStatus', 'VALID'),
+        input('2', 'claims.claimCount', 0),
       ],
     };
 
