@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import styles from '../../agent.module.css';
-import { getAgentCaseSummary } from '@/src/application/agent/workspace';
+import { getAgentCaseIntake, getAgentCaseSummary } from '@/src/application/agent/workspace';
 import { assertWorkforcePermission } from '@/src/domain/auth/workforce';
 import { requireWorkforceContext } from '@/src/infrastructure/auth/workforce-context';
 import { createSupabaseServerClient } from '@/src/infrastructure/supabase/server';
@@ -14,6 +14,13 @@ function displayTime(value: string): string {
   }).format(new Date(value));
 }
 
+function jsonSummary(value: unknown): string {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return 'Not specified';
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (entries.length === 0) return 'Not specified';
+  return entries.map(([key, item]) => `${key}: ${String(item)}`).join(' · ');
+}
+
 export default async function AgentQuoteCasePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: quoteCaseId } = await params;
   const supabase = await createSupabaseServerClient();
@@ -21,7 +28,10 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
   try {
     const context = await requireWorkforceContext(supabase);
     assertWorkforcePermission(context, 'CASE_READ');
-    const summary = await getAgentCaseSummary(supabase, quoteCaseId);
+    const [summary, intake] = await Promise.all([
+      getAgentCaseSummary(supabase, quoteCaseId),
+      getAgentCaseIntake(supabase, quoteCaseId),
+    ]);
     if (!summary) notFound();
 
     const blockingCount = summary.readinessIssues.filter((issue) => issue.blocking).length;
@@ -77,6 +87,52 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
               </dl>
             </aside>
           </div>
+
+          <div className={styles.grid}>
+            <section className={styles.card} aria-labelledby="drivers-heading">
+              <h2 id="drivers-heading">Drivers</h2>
+              {intake.drivers.length === 0 ? <p>No driver records are available.</p> : (
+                <ul className={styles.issueList}>
+                  {intake.drivers.map((driver) => (
+                    <li className={styles.issue} key={driver.driverId}>
+                      <strong>{driver.firstName} {driver.lastName}</strong>
+                      <p>{driver.relationshipRole.replaceAll('_', ' ')} · born {driver.dateOfBirth}</p>
+                      <p>License: {driver.licenseJurisdiction}{driver.licenseLast4 ? ` · ending ${driver.licenseLast4}` : ' · not stored'}{driver.licenseStatus ? ` · ${driver.licenseStatus}` : ''}</p>
+                      <span className={styles.issueCode}>{driver.sourceType} · {driver.confirmationState}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className={styles.card} aria-labelledby="vehicles-heading">
+              <h2 id="vehicles-heading">Vehicles</h2>
+              {intake.vehicles.length === 0 ? <p>No vehicle records are available.</p> : (
+                <ul className={styles.issueList}>
+                  {intake.vehicles.map((vehicle) => (
+                    <li className={styles.issue} key={vehicle.vehicleId}>
+                      <strong>{vehicle.modelYear} {vehicle.make} {vehicle.model}</strong>
+                      <p>{vehicle.trim ?? 'Trim not specified'} · {vehicle.usage.replaceAll('_', ' ')}</p>
+                      <p>VIN: {vehicle.vinLast4 ? `ending ${vehicle.vinLast4}` : 'not stored'}{vehicle.annualMileage !== null ? ` · ${vehicle.annualMileage.toLocaleString()} mi/year` : ''}</p>
+                      <span className={styles.issueCode}>{vehicle.sourceType} · {vehicle.confirmationState}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+
+          <section className={styles.card} aria-labelledby="coverage-heading">
+            <h2 id="coverage-heading">Coverage request</h2>
+            {intake.coverageRequest ? (
+              <dl className={styles.metaList}>
+                <div><dt>Requested limits</dt><dd>{jsonSummary(intake.coverageRequest.requestedLimits)}</dd></div>
+                <div><dt>Preferences</dt><dd>{jsonSummary(intake.coverageRequest.preferences)}</dd></div>
+                <div><dt>Notes</dt><dd>{intake.coverageRequest.notes ?? 'None'}</dd></div>
+                <div><dt>Updated</dt><dd>{displayTime(intake.coverageRequest.updatedAt)}</dd></div>
+              </dl>
+            ) : <p>No coverage request is available.</p>}
+          </section>
         </section>
       </main>
     );
