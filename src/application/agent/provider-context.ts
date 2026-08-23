@@ -2,19 +2,23 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database, Json } from '@/src/infrastructure/supabase/database.types';
 
+export type AgentProviderCapability = 'IDENTITY' | 'PREFILL' | 'MVR' | 'CLAIMS' | 'VEHICLE';
+export type AgentExternalRequestStatus = 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'BLOCKED';
+export type AgentExternalReportStatus = 'SUCCESS' | 'NO_HIT' | 'PARTIAL' | 'STALE' | 'ERROR';
+
 export interface AgentProviderReportView {
   providerBindingId: string;
-  capability: Database['public']['Enums']['provider_capability'];
+  capability: AgentProviderCapability;
   adapterId: string;
   adapterVersion: string;
   requiredForReadiness: boolean;
   externalRequestId: string | null;
-  requestStatus: Database['public']['Enums']['external_request_status'] | null;
+  requestStatus: AgentExternalRequestStatus | null;
   requestedAt: string | null;
   completedAt: string | null;
   subjectIds: string[];
   externalReportId: string | null;
-  reportStatus: Database['public']['Enums']['external_report_status'] | null;
+  reportStatus: AgentExternalReportStatus | null;
   retrievedAt: string | null;
   freshUntil: string | null;
   warnings: string[];
