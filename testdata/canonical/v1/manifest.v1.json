@@ -9,6 +9,14 @@
   "runtimeIdStrategy": "UUIDv5",
   "containsRealPII": false,
   "productionUse": "FORBIDDEN",
+  "acceptance": {
+    "verdict": "CANONICAL_SYNTHETIC_DATASETS_V1_ACCEPTED",
+    "implementationHead": "ec7793552c081d3454f9ac3c524a6c4020fab8c7",
+    "ciRunId": 32656049104,
+    "dependencyGate": "PASS",
+    "applicationVerification": "PASS",
+    "databaseVerification": "PASS"
+  },
   "scenarioIds": [
     "happy-path",
     "provider-no-hit",
