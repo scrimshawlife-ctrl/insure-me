@@ -49,7 +49,7 @@ export async function PUT(
     if (message === 'CARRIER_PROGRAM_NOT_CONFIGURED' || message === 'QUOTE_CASE_NOT_FOUND') {
       return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
     }
-    if (message === 'CARRIER_KILL_SWITCHED' || message === 'CARRIER_NOT_CERTIFIED') {
+    if (message === 'CARRIER_KILL_SWITCHED' || message === 'CARRIER_NOT_CERTIFIED' || message === 'CARRIER_INVALID_CASE_STATE') {
       return NextResponse.json({ error: message }, { status: 409 });
     }
     return NextResponse.json({ error: 'CARRIER_PROGRAM_SELECTION_FAILED' }, { status: 500 });

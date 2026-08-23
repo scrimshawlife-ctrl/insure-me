@@ -102,7 +102,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T608 Build issue-resolution workflow.
 - [x] T609 Build consumer follow-up request flow.
 - [x] T610 Build case audit timeline.
-- [ ] T611 Build configured carrier/program target selector where deployment permits multiple targets.
+- [x] T611 Build configured carrier/program target selector where deployment permits multiple targets.
 
 ## Phase 7 — Carrier gateway
 - [x] T700 Implement synthetic StubCarrierAdapter as the default build target.
