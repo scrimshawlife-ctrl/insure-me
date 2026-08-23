@@ -9,6 +9,7 @@ import type { CarrierRequestContext, RatingInputItem } from '@/src/domain/carrie
 const quoteCaseId = '94000000-0000-0000-0000-000000000001';
 const tenantId = '90000000-0000-0000-0000-000000000001';
 const agencyId = '91000000-0000-0000-0000-000000000001';
+const actorId = '92000000-0000-0000-0000-000000000001';
 
 function providerContext(
   capability: ProviderRequestContext['capability'],
@@ -18,6 +19,7 @@ function providerContext(
     quoteCaseId,
     tenantId,
     agencyId,
+    actorId,
     tenantConfigurationVersion: '1',
     jurisdiction: 'CA',
     productLine: 'PRIVATE_PASSENGER_AUTO',
@@ -123,8 +125,6 @@ describe('SYNTHETIC_CORE_ACCEPTED portability path', () => {
       ),
     ).toBe(true);
 
-    // This line represents the explicit DataUsePolicy gate. Provider observations
-    // cannot reach a carrier before this classification step.
     const policyApproved = normalized.flatMap((slice) =>
       slice.observations.map((observation) => ({
         observationType: observation.observationType,
