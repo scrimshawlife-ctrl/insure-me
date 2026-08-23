@@ -281,11 +281,12 @@ as $$
   select * from private.get_current_workforce_context_impl()
 $$;
 
--- Remove policies that depended on the obsolete exposed helpers before dropping them.
+-- Remove every policy that depends on the obsolete exposed helpers before dropping them.
 drop policy if exists agencies_tenant_select on public.agencies;
 drop policy if exists tenant_configurations_tenant_select on public.tenant_configurations;
 drop policy if exists roles_tenant_select on public.roles;
 drop policy if exists agency_users_tenant_select on public.agency_users;
+drop policy if exists agency_user_roles_tenant_select on public.agency_user_roles;
 drop policy if exists prospects_tenant_all on public.prospects;
 drop policy if exists quote_cases_tenant_all on public.quote_cases;
 drop policy if exists purpose_decisions_tenant_all on public.permissible_purpose_decisions;
