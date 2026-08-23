@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import type { Database } from '@/src/infrastructure/supabase/database.types';
+import type { Database, Json } from '@/src/infrastructure/supabase/database.types';
 
 export interface AgentQueueItem {
   quoteCaseId: string;
@@ -37,6 +37,60 @@ export interface AgentCaseSummary {
   updatedAt: string;
   readinessIssues: AgentReadinessIssue[];
 }
+
+export interface AgentDriverView {
+  driverId: string;
+  relationshipRole: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  licenseJurisdiction: string;
+  licenseLast4: string | null;
+  licenseStatus: string | null;
+  yearsLicensed: number | null;
+  confirmationState: string;
+  sourceType: string;
+  sourceRef: string | null;
+}
+
+export interface AgentVehicleView {
+  vehicleId: string;
+  vinLast4: string | null;
+  modelYear: number;
+  make: string;
+  model: string;
+  trim: string | null;
+  ownershipState: string | null;
+  garagingPostalCode: string | null;
+  usage: string;
+  annualMileage: number | null;
+  confirmationState: string;
+  sourceType: string;
+  sourceRef: string | null;
+}
+
+export interface AgentCoverageView {
+  coverageRequestId: string;
+  schemaVersion: number;
+  requestedLimits: Json;
+  preferences: Json;
+  notes: string | null;
+  updatedAt: string;
+}
+
+export interface AgentCaseIntake {
+  drivers: AgentDriverView[];
+  vehicles: AgentVehicleView[];
+  coverageRequest: AgentCoverageView | null;
+}
+
+type CaseIntakeRpc = (
+  functionName: 'get_workforce_case_intake',
+  args: { p_quote_case_id: string },
+) => PromiseLike<{
+  data: Json | null;
+  error: { message: string } | null;
+}>;
 
 export async function listAgentQueue(
   client: SupabaseClient<Database>,
@@ -126,5 +180,32 @@ export async function getAgentCaseSummary(
       subjectRef: issue.subject_ref,
       createdAt: issue.created_at,
     })),
+  };
+}
+
+function asObject(value: Json | null): Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+export async function getAgentCaseIntake(
+  client: SupabaseClient<Database>,
+  quoteCaseId: string,
+): Promise<AgentCaseIntake> {
+  const rpc = client.rpc as unknown as CaseIntakeRpc;
+  const { data, error } = await rpc('get_workforce_case_intake', {
+    p_quote_case_id: quoteCaseId,
+  });
+
+  if (error) throw new Error(`AGENT_CASE_INTAKE_FAILED:${error.message}`);
+  const payload = asObject(data);
+
+  return {
+    drivers: Array.isArray(payload.drivers) ? payload.drivers as unknown as AgentDriverView[] : [],
+    vehicles: Array.isArray(payload.vehicles) ? payload.vehicles as unknown as AgentVehicleView[] : [],
+    coverageRequest: payload.coverageRequest && typeof payload.coverageRequest === 'object' && !Array.isArray(payload.coverageRequest)
+      ? payload.coverageRequest as unknown as AgentCoverageView
+      : null,
   };
 }
