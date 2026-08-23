@@ -1,6 +1,6 @@
 begin;
 
-select plan(13);
+select plan(15);
 
 insert into public.agencies (agency_id,tenant_id,legal_name,display_name)
 values ('c1000000-0000-0000-0000-000000000001','c0000000-0000-0000-0000-000000000001','Carrier Submission Agency','Carrier Submission');
