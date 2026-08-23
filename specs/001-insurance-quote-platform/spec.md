@@ -4,16 +4,19 @@
 Draft canonical specification for MVP.
 
 ## Product statement
-Insure Me is a California private-passenger auto insurance intake and quote-preparation platform for a local insurance agency. It gives consumers a low-friction mobile-friendly quote intake experience and gives agents a clear, auditable workspace that assembles authorized underwriting data and hands a quote-ready package to the carrier-approved rating or quoting workflow.
+Insure Me is a California private-passenger auto insurance intake and quote-preparation platform for insurance agencies and carrier programs. It gives consumers a low-friction mobile-friendly quote intake experience and gives agents a clear, auditable workspace that assembles authorized underwriting data and hands a quote-ready package to a configured carrier-approved rating or quoting workflow.
+
+The product is carrier-, agency-, and data-provider-agnostic. No carrier-specific field, rule, portal workflow, brand, or API is part of the canonical domain model.
 
 ## Goals
 1. Reduce consumer typing through safe prefill and verification.
 2. Give agents one normalized view of drivers, vehicles, claims, MVR status, current coverage context, missing data, and source provenance.
 3. Enforce purpose, consent/notice, jurisdiction, provider, and carrier controls before regulated data access.
-4. Keep carrier rating and binding authority outside the platform unless explicitly authorized later.
+4. Keep carrier rating and binding authority outside the platform unless explicitly delegated by a configured carrier program.
 5. Make privacy, FCRA/DPPA workflows, auditability, correction, and retention operational product capabilities.
-6. Support provider substitution without redesigning the core domain model.
+6. Support provider and carrier substitution without redesigning the core domain model.
 7. Produce an implementation-ready specification with acceptance tests and launch gates.
+8. Allow the full core platform to be built and tested against deterministic synthetic adapters before live vendors or carriers are selected.
 
 ## Non-goals for MVP
 - independent actuarial pricing;
@@ -24,17 +27,18 @@ Insure Me is a California private-passenger auto insurance intake and quote-prep
 - arbitrary DMV/public-record lookup;
 - autonomous adverse underwriting decisions;
 - consumer-report resale or unrelated profiling;
-- advertising enrichment from underwriting data.
+- advertising enrichment from underwriting data;
+- hard-coding a specific carrier or vendor into the core platform.
 
 ## Personas
 ### Prospect
 A California resident seeking a private-passenger auto quote.
 
 ### Agent
-A licensed or otherwise authorized agency user who reviews quote cases and completes carrier workflows.
+A licensed or otherwise authorized agency user who reviews quote cases and completes configured carrier workflows.
 
 ### Agency Administrator
-Manages users, roles, provider configuration, carrier configuration, notice versions, retention settings, and operational audit access.
+Manages users, roles, provider configuration, carrier/program configuration, notice versions, retention settings, branding, and operational audit access.
 
 ### Compliance/Security Reviewer
 Reviews data-access evidence, privacy rights activity, vendor behavior, incidents, and launch controls.
@@ -52,10 +56,10 @@ A backend identity allowed to execute narrowly scoped system actions. It must ne
 7. Prospect confirms or edits discovered household/driver/vehicle data.
 8. System requests MVR, claims history, VIN/vehicle data, and other approved reports only when prerequisites are satisfied.
 9. System normalizes results into source-backed observations and flags missing/conflicting data.
-10. Prospect supplies remaining information such as annual mileage, garaging, requested coverage, and other carrier-required fields.
+10. Prospect supplies remaining information such as annual mileage, garaging, requested coverage, and other configured program-required fields.
 11. Agent receives a quote-readiness workspace.
-12. Agent resolves exceptions and submits the case through the carrier-approved handoff.
-13. Carrier returns or presents its authoritative quote decision.
+12. Agent resolves exceptions and submits the case through a configured CarrierAdapter or approved handoff.
+13. Carrier returns or presents its authoritative quote decision when a live adapter is configured.
 14. Insure Me records the handoff, carrier response metadata, relevant reason codes, and notice obligations without claiming ownership of carrier rating logic.
 
 ## Primary agent journey
@@ -66,14 +70,15 @@ A backend identity allowed to execute narrowly scoped system actions. It must ne
 5. Request a permitted refresh only when purpose and retention rules allow it.
 6. Correct user-entered data or send consumer correction flow as appropriate.
 7. Resolve blocking readiness issues.
-8. Initiate carrier handoff.
-9. Record carrier result and required follow-up.
-10. If a consumer-report-based adverse result occurs, trigger the configured notice and dispute workflow owned by the responsible party.
+8. Select or use the configured carrier/program target.
+9. Initiate carrier handoff.
+10. Record carrier result and required follow-up.
+11. If a consumer-report-based adverse result occurs, trigger the configured notice and dispute workflow owned by the responsible party.
 
 ## Functional requirements
 
 ### FR-001 QuoteCase creation
-The system MUST create a unique QuoteCase with jurisdiction, agency, product line, lifecycle state, and source channel before any regulated lookup.
+The system MUST create a unique QuoteCase with jurisdiction, agency/tenant, product line, lifecycle state, and source channel before any regulated lookup.
 
 ### FR-002 Identity and contact
 The system MUST collect only attributes required for the configured quote workflow and MUST distinguish user-provided from externally derived values.
@@ -91,7 +96,7 @@ The system MUST expose provider-neutral capability contracts for identity verifi
 The system MUST retain immutable report metadata and a normalized representation sufficient for provenance, dispute support, audit, and carrier handoff. Storage of raw provider payloads MUST follow provider contract and retention policy.
 
 ### FR-007 Driver workflow
-The system MUST support multiple drivers, driver relationship/role, license metadata, years licensed where carrier-required, and source-aware corrections.
+The system MUST support multiple drivers, driver relationship/role, license metadata, years licensed where program-required, and source-aware corrections.
 
 ### FR-008 Vehicle workflow
 The system MUST support multiple vehicles, VIN validation/decoding, ownership/lease status where required, garaging, usage, and mileage inputs.
@@ -105,11 +110,11 @@ Each material normalized attribute MUST have a data-use classification that cont
 ### FR-011 Quote readiness
 The system MUST calculate readiness from completeness and workflow prerequisites only. Readiness MUST NOT be represented as risk score, insurability score, or premium prediction.
 
-### FR-012 Carrier handoff
-The system MUST support a provider-neutral CarrierAdapter. MVP MAY support redirect, deep link, secure export, or API submission depending on Allstate/carrier approval.
+### FR-012 Carrier gateway
+The system MUST support a carrier-neutral `CarrierAdapter`. The adapter contract MUST support API submission/response, deep link, comparative-rater or agency-management-system bridge, structured export/import, and controlled manual handoff as declared capabilities. The canonical QuoteCase model MUST NOT change when carriers are added or replaced.
 
 ### FR-013 Carrier response
-Carrier-returned premium, eligibility, bind status, and reason codes MUST be stored as CarrierDecision data with carrier provenance.
+Carrier-returned premium, eligibility, bind status, and reason codes MUST be stored as CarrierDecision data with carrier/program provenance.
 
 ### FR-014 Human review
 Agents MUST be able to inspect and resolve missing/conflicting data before handoff. The system MUST NOT silently choose among materially conflicting external facts.
@@ -130,7 +135,7 @@ Each data category MUST map to an approved retention rule. Expiration MUST creat
 Sensitive reads, writes, exports, external requests, permission changes, consent actions, privacy-rights actions, carrier submissions, and administrative changes MUST emit tamper-evident AuditEvents.
 
 ### FR-020 Authentication and authorization
-Agents and administrators MUST use strong authentication with MFA. Authorization MUST be agency-scoped and role/permission based.
+Agents and administrators MUST use strong authentication with MFA. Authorization MUST be tenant/agency-scoped and role/permission based.
 
 ### FR-021 Consumer session security
 Consumer quote sessions MUST use secure, expiring access mechanisms. Sensitive identifiers MUST not appear in URLs or analytics.
@@ -145,7 +150,19 @@ Consumer and agent surfaces MUST meet the approved accessibility target, with WC
 Operational telemetry MUST avoid raw PII and report contents. Metrics MUST use opaque identifiers and approved low-risk dimensions.
 
 ### FR-025 Synthetic fixtures
-A complete synthetic quote fixture set MUST exist for happy path, no-hit, multiple drivers, multiple vehicles, conflicting records, stale report, provider outage, consumer correction, adverse-action handoff, privacy deletion, and unauthorized lookup attempts.
+A complete synthetic quote fixture set MUST exist for happy path, no-hit, multiple drivers, multiple vehicles, conflicting records, stale report, provider outage, consumer correction, adverse-action handoff, privacy deletion, unauthorized lookup attempts, and carrier adapter failure.
+
+### FR-026 Tenant and branding configuration
+The system MUST support agency/tenant configuration and optional white-label/co-brand presentation without forking core consumer or agent workflows.
+
+### FR-027 Carrier capability registry
+Each carrier/program configuration MUST declare jurisdictions, product lines, handoff modes, required fields, rating-input allowlist, authentication, response mapping, notice ownership, retention constraints, certification state, and kill-switch state.
+
+### FR-028 Multi-carrier readiness
+The architecture MUST support multiple configured carriers and programs. MVP MAY activate only one live carrier, but core code MUST NOT branch on carrier names.
+
+### FR-029 Synthetic carrier execution
+The full core platform MUST be executable in local, CI, and staging environments using deterministic synthetic data providers and `StubCarrierAdapter`, with no live consumer-report or carrier credentials required.
 
 ## Lifecycle states
 QuoteCase states:
@@ -174,6 +191,9 @@ State transitions MUST be explicit and auditable.
 - Consumer quote consent != marketing consent.
 - Provider success != legal permission to use returned data for rating.
 - Carrier quote != Insure Me quote unless the carrier expressly delegates quoting authority.
+- CarrierProgram configuration != canonical domain schema.
+- Carrier name MUST NOT control core branching logic.
+- Unresolved production integrations MUST NOT block synthetic core implementation.
 
 ## Product success metrics
 MVP metrics, measured without exposing PII:
@@ -186,17 +206,23 @@ MVP metrics, measured without exposing PII:
 - correction rate by data source;
 - privacy/dispute SLA compliance;
 - unauthorized lookup attempts blocked;
-- audit-event completeness.
+- audit-event completeness;
+- carrier-adapter substitution tests passing without core-domain changes.
 
 Targets remain `TBD` until baseline data exists.
 
-## Blocking assumptions
-- `BLOCKED-ALLSTATE-001`: confirm whether the local Allstate agency may use this external intake/orchestration platform and what data may be stored outside Allstate systems.
-- `BLOCKED-ALLSTATE-002`: identify approved carrier handoff mode/API/deep-link/export and required security review.
+## Production-blocking assumptions
+These block live activation only. They MUST NOT block implementation against synthetic adapters.
+
+- `BLOCKED-DEPLOYMENT-001`: identify the first licensed operating agency/entity and its deployment requirements.
+- `BLOCKED-CARRIER-001`: certify at least one live carrier/program handoff mode and security/authentication contract.
 - `BLOCKED-PROVIDER-001`: contract and approve MVR provider.
 - `BLOCKED-PROVIDER-002`: contract and approve claims-history provider/CRA.
 - `BLOCKED-LEGAL-001`: counsel/compliance approval of notices, authorizations, privacy rights, retention, adverse-action ownership, and data-use matrix.
 - `BLOCKED-SECURITY-001`: production security assessment and incident-response approval.
 
-## Release criterion
-MVP is production-ready only when all P0 acceptance criteria pass and all launch-blocking assumptions are resolved or explicitly waived by an authorized owner in a documented decision record.
+## Core-build criterion
+The core MVP implementation is build-complete when all synthetic P0 acceptance criteria pass against provider stubs and `StubCarrierAdapter`, regardless of whether a live carrier or provider has been contracted.
+
+## Production release criterion
+A deployment is production-ready only when all P0 acceptance criteria pass and all launch-blocking assumptions for that specific deployment are resolved or explicitly waived by an authorized owner in a documented decision record.
