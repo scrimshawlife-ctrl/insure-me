@@ -4,6 +4,7 @@ import type { Database, Json } from '@/src/infrastructure/supabase/database.type
 import { protectSensitiveIdentifier } from '@/src/infrastructure/security/sensitive-identifier-protection';
 
 export interface ConsumerDriverInput {
+  driverId?: string;
   relationshipRole: string;
   firstName: string;
   lastName: string;
@@ -15,6 +16,7 @@ export interface ConsumerDriverInput {
 }
 
 export interface ConsumerVehicleInput {
+  vehicleId?: string;
   vin?: string;
   modelYear: number;
   make: string;
@@ -73,6 +75,7 @@ export async function replaceConsumerDrivers(
       : null;
 
     return {
+      driverId: driver.driverId ?? null,
       relationshipRole: driver.relationshipRole,
       firstName: driver.firstName,
       lastName: driver.lastName,
@@ -115,6 +118,7 @@ export async function replaceConsumerVehicles(
       : null;
 
     return {
+      vehicleId: vehicle.vehicleId ?? null,
       vinCiphertextHex: protectedVin?.ciphertextHex ?? null,
       vinKeyVersion: protectedVin?.keyVersion ?? null,
       vinLookupHash: protectedVin?.lookupHash ?? null,
