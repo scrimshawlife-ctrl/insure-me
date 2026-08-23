@@ -14,15 +14,28 @@ const REQUIRED_KEYS: Record<SyntheticCarrierVariant, string[]> = {
   B: ['mvr.movingViolationCount', 'vehicle.severeDamageIndicator'],
 };
 
+export interface SyntheticCarrierBinding {
+  carrierId?: string;
+  carrierProgramId?: string;
+  adapterId?: string;
+  adapterVersion?: string;
+}
+
 export class SyntheticCarrierAdapter implements CarrierAdapter {
-  public constructor(private readonly variant: SyntheticCarrierVariant) {}
+  public constructor(
+    private readonly variant: SyntheticCarrierVariant,
+    private readonly binding: SyntheticCarrierBinding = {},
+  ) {}
 
   public descriptor(): CarrierCapabilityDescriptor {
     return {
-      carrierId: `synthetic-carrier-${this.variant.toLowerCase()}`,
-      carrierProgramId: `synthetic-program-${this.variant.toLowerCase()}`,
-      adapterId: `synthetic-carrier-adapter-${this.variant.toLowerCase()}`,
-      adapterVersion: 'synthetic-carrier-v1',
+      carrierId:
+        this.binding.carrierId ?? `synthetic-carrier-${this.variant.toLowerCase()}`,
+      carrierProgramId:
+        this.binding.carrierProgramId ?? `synthetic-program-${this.variant.toLowerCase()}`,
+      adapterId:
+        this.binding.adapterId ?? `synthetic-carrier-adapter-${this.variant.toLowerCase()}`,
+      adapterVersion: this.binding.adapterVersion ?? 'synthetic-carrier-v1',
       mode: 'STUB',
       jurisdictions: ['CA'],
       productLines: ['PRIVATE_PASSENGER_AUTO'],
