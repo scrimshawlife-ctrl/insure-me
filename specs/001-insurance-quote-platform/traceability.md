@@ -28,7 +28,7 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-019 Audit | append-only AuditEvent pipeline | T114, T610 | A-024 |
 | FR-020 Authentication/authorization | MFA + tenant RBAC/ABAC | T200-T203 | A-005, A-015 |
 | FR-021 Consumer session security | secure resume/session boundary | T204, T306 | A-014 |
-| FR-022 Notification separation | transactional notification subsystem | T022/T310/T808 as applicable | A-030 |
+| FR-022 Notification separation | transactional notification subsystem | T310, T808 | A-030 |
 | FR-023 Accessibility | WCAG 2.2 AA baseline | T311 | A-025 |
 | FR-024 Observability | PII-safe telemetry | T208, T900+ | A-013 |
 | FR-025 Synthetic fixtures | deterministic fixture library | T115, T405-T409 | A-016-A-021 |
