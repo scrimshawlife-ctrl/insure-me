@@ -46,9 +46,9 @@ alter table public.data_use_policy_rules enable row level security;
 alter table public.readiness_issues enable row level security;
 
 create policy data_use_policy_workforce_select on public.data_use_policy_rules
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 create policy readiness_issues_workforce_select on public.readiness_issues
-for select to authenticated using (private.has_active_workforce_tenant(tenant_id));
+for select to authenticated using (private.has_tenant_membership(tenant_id));
 
 revoke insert, update, delete on public.data_use_policy_rules, public.readiness_issues from anon, authenticated;
 
