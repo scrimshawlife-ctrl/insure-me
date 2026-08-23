@@ -1,6 +1,6 @@
 begin;
 
-select plan(16);
+select plan(17);
 
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
 values (
