@@ -8,6 +8,7 @@ function context(capability: ProviderRequestContext['capability']): ProviderRequ
     quoteCaseId: 'qc_test',
     tenantId: 'tenant_test',
     agencyId: 'agency_test',
+    actorId: 'actor_test',
     tenantConfigurationVersion: '1',
     jurisdiction: 'CA',
     productLine: 'PRIVATE_PASSENGER_AUTO',
