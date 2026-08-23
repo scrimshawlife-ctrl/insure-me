@@ -8,6 +8,7 @@ const context: ProviderRequestContext = {
   quoteCaseId: 'qc-test',
   tenantId: 'tenant-test',
   agencyId: 'agency-test',
+  actorId: 'actor-test',
   tenantConfigurationVersion: '1',
   jurisdiction: 'CA',
   productLine: 'PRIVATE_PASSENGER_AUTO',
