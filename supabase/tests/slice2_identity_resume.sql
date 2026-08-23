@@ -80,6 +80,9 @@ select lives_ok(
   'consumer can persist protected identity through checked RPC'
 );
 
+-- Inspect internal storage as the database owner; consumer RLS correctly hides prospects.
+reset role;
+
 select isnt(
   (
     select p.person_id
@@ -88,6 +91,17 @@ select isnt(
   ),
   null::uuid,
   'identity persistence links a Person to the Prospect'
+);
+
+set local role authenticated;
+select set_config(
+  'request.jwt.claims',
+  json_build_object(
+    'sub', '89000000-0000-0000-0000-000000000009',
+    'role', 'authenticated',
+    'aal', 'aal1'
+  )::text,
+  true
 );
 
 select throws_ok(
