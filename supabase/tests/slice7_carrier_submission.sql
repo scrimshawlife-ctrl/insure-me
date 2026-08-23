@@ -16,7 +16,7 @@ insert into public.quote_cases (
  jurisdiction,product_line,source_channel,state,prospect_id
 ) values (
  'c4000000-0000-0000-0000-000000000001','c0000000-0000-0000-0000-000000000001','c1000000-0000-0000-0000-000000000001',
- 'c2000000-0000-0000-0000-000000000001',1,'CA','PRIVATE_PASSENGER_AUTO','TEST','AGENT_REVIEW','c3000000-0000-0000-0000-000000000001'
+ 'c2000000-0000-0000-0000-000000000001',1,'CA','PRIVATE_PASSENGER_AUTO','TEST','REVIEW_REQUIRED','c3000000-0000-0000-0000-000000000001'
 );
 
 insert into public.carriers (carrier_id,tenant_id,agency_id,legal_name,display_name)
