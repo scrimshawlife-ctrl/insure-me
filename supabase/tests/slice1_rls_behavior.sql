@@ -1,6 +1,6 @@
 begin;
 
-select plan(11);
+select plan(13);
 
 -- Deterministic synthetic tenant fixtures.
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
@@ -165,6 +165,16 @@ select is(
   ),
   'DRAFT',
   'denied cross-tenant call leaves tenant B state unchanged'
+);
+
+select is(
+  (
+    select count(*)
+    from public.audit_events
+    where quote_case_id = '62000000-0000-0000-0000-000000000002'
+  ),
+  0::bigint,
+  'denied cross-tenant call emits no tenant B audit mutation'
 );
 
 select * from finish();
