@@ -12,6 +12,7 @@ export default async function ConsumerQuoteLayout({
 }) {
   const { id: quoteCaseId } = await params;
 
+  // Grant creation stays behind the authenticated, quote-scoped API boundary.
   return (
     <>
       {children}
