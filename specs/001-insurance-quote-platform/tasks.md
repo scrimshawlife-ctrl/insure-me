@@ -43,9 +43,9 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T204 Implement consumer secure session/resume flow.
 - [ ] T205 Implement KMS/secrets integration. — PARTIAL: server-only secrets and encrypted fields exist; production KMS lifecycle is not complete.
 - [x] T206 Implement sensitive-field encryption/tokenization.
-- [ ] T207 Implement secure headers, CSP, CSRF controls, rate limits.
-- [ ] T208 Implement privacy-safe structured logging.
-- [ ] T209 Implement security alerts for denied/excessive lookup behavior.
+- [x] T207 Implement secure headers, CSP, CSRF controls, rate limits.
+- [x] T208 Implement privacy-safe structured logging.
+- [x] T209 Implement security alerts for denied/excessive lookup behavior.
 
 ## Phase 3 — Consumer quote experience
 - [ ] T300 Build mobile-first quote landing/start flow.

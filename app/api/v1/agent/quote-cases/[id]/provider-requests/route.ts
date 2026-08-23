@@ -3,12 +3,15 @@ import { z } from 'zod';
 
 import { orchestrateProviderRequest } from '@/src/application/providers/orchestrate-provider-request';
 import type { ProviderCapability } from '@/src/domain/providers';
+import type { WorkforceContext } from '@/src/domain/auth/workforce';
 import { requireWorkforceContext } from '@/src/infrastructure/auth/workforce-context';
 import { resolveProviderAdapter } from '@/src/infrastructure/providers/provider-registry';
 import { resolveProviderRequestContext } from '@/src/infrastructure/providers/provider-request-context';
 import { SupabaseProviderOrchestrationPersistence } from '@/src/infrastructure/providers/supabase-provider-persistence';
 import { SupabaseProviderPreflightPolicy } from '@/src/infrastructure/providers/supabase-provider-preflight-policy';
 import { createSupabaseServerClient } from '@/src/infrastructure/supabase/server';
+import { logSecurityTelemetry } from '@/src/infrastructure/security/security-telemetry';
+import { recordWorkforceSecuritySignal } from '@/src/infrastructure/security/workforce-security-signals';
 
 const requestSchema = z.object({
   capability: z.enum(['IDENTITY', 'PREFILL', 'MVR', 'CLAIMS', 'VEHICLE']),
@@ -27,9 +30,23 @@ export async function POST(
   }
 
   const userClient = await createSupabaseServerClient();
+  let workforce: WorkforceContext | null = null;
 
   try {
-    const workforce = await requireWorkforceContext(userClient);
+    workforce = await requireWorkforceContext(userClient);
+    const rate = await recordWorkforceSecuritySignal({
+      workforce,
+      signalType: 'PROVIDER_ORDER_ATTEMPT',
+      limit: 20,
+      windowSeconds: 60,
+    });
+    if (!rate.allowed) {
+      logSecurityTelemetry({
+        eventType: 'PROVIDER_ORDER_RATE_LIMITED', outcome: 'DENIED', routeCategory: 'PROVIDER_ORDER',
+        tenantId: workforce.tenantId, actorId: workforce.userId, reasonCodes: ['RATE_LIMIT_EXCEEDED'],
+      });
+      return NextResponse.json({ error: 'RATE_LIMIT_EXCEEDED' }, { status: 429 });
+    }
     const resolved = await resolveProviderRequestContext({
       userClient,
       workforce,
@@ -74,10 +91,20 @@ export async function POST(
       return NextResponse.json({ error: message }, { status: 403 });
     }
     if (message.startsWith('PROVIDER_REQUEST_BLOCKED:')) {
+      const reasonCodes = message.slice('PROVIDER_REQUEST_BLOCKED:'.length).split(',').filter(Boolean);
+      if (workforce) {
+        await recordWorkforceSecuritySignal({
+          workforce, signalType: 'DENIED_LOOKUP', limit: 5, windowSeconds: 300, reasonCodes,
+        }).catch(() => undefined);
+        logSecurityTelemetry({
+          eventType: 'PROVIDER_ORDER_DENIED', outcome: 'DENIED', routeCategory: 'PROVIDER_ORDER',
+          tenantId: workforce.tenantId, actorId: workforce.userId, reasonCodes,
+        });
+      }
       return NextResponse.json(
         {
           error: 'PROVIDER_REQUEST_BLOCKED',
-          reasonCodes: message.slice('PROVIDER_REQUEST_BLOCKED:'.length).split(',').filter(Boolean),
+          reasonCodes,
         },
         { status: 409 },
       );
@@ -87,6 +114,12 @@ export async function POST(
       message === 'PROVIDER_BINDING_NOT_ACTIVE'
     ) {
       return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+    }
+    if (workforce) {
+      logSecurityTelemetry({
+        eventType: 'PROVIDER_ORDER_FAILED', outcome: 'FAILED', routeCategory: 'PROVIDER_ORDER',
+        tenantId: workforce.tenantId, actorId: workforce.userId, reasonCodes: ['PROVIDER_REQUEST_FAILED'],
+      });
     }
     return NextResponse.json({ error: 'PROVIDER_REQUEST_FAILED' }, { status: 500 });
   }
