@@ -9,6 +9,7 @@ import { requireConsumerQuoteContext } from '@/src/infrastructure/auth/consumer-
 import { createSupabaseServerClient } from '@/src/infrastructure/supabase/server';
 
 const vehicleSchema = z.object({
+  vehicleId: z.string().uuid().optional(),
   vin: z.string().trim().min(11).max(32).optional(),
   modelYear: z.number().int().min(1900).max(2100),
   make: z.string().trim().min(1).max(80),
