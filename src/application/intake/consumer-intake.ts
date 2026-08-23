@@ -161,3 +161,13 @@ export async function saveConsumerCoverageRequest(
     p_notes: input.notes ?? null,
   });
 }
+
+export async function completeConsumerIntake(
+  client: SupabaseClient<Database>,
+  quoteCaseId: string,
+): Promise<unknown> {
+  const data = await callRpc(client, 'complete_consumer_intake', {
+    p_quote_case_id: quoteCaseId,
+  });
+  return Array.isArray(data) ? (data[0] ?? null) : data;
+}
