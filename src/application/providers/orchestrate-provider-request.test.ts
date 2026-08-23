@@ -42,7 +42,7 @@ describe('orchestrateProviderRequest', () => {
       persistence,
       policy,
       context,
-      request: { fixture: 'SUCCESS' as const },
+      request: { scenario: 'SUCCESS' as const },
     });
 
     expect(result.status).toBe('SUCCESS');
@@ -74,7 +74,7 @@ describe('orchestrateProviderRequest', () => {
         persistence,
         policy,
         context: { ...context, consentRecordIds: [] },
-        request: { fixture: 'SUCCESS' as const },
+        request: { scenario: 'SUCCESS' as const },
       }),
     ).rejects.toThrow('PROVIDER_REQUEST_BLOCKED:MISSING_REQUIRED_AUTHORIZATION');
 
