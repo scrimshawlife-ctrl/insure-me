@@ -58,6 +58,16 @@
 .provenance summary { cursor: pointer; color: #173d9f; font-weight: 800; }
 .provenanceEntry { padding: 10px 0; border-bottom: 1px solid #edf0f4; }
 .provenanceEntry:last-child { border-bottom: 0; }
+.inlineActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.secondaryButton { padding: 9px 12px; border: 1px solid #b8c2cf; border-radius: 10px; background: #ffffff; color: #182230; font: inherit; font-weight: 800; cursor: pointer; }
+.actionEditor { display: grid; gap: 8px; margin-top: 12px; }
+.actionEditor label { font-size: .82rem; font-weight: 800; }
+.actionEditor textarea { min-height: 88px; resize: vertical; padding: 10px; border: 1px solid #b8c2cf; border-radius: 10px; font: inherit; }
+.timeline { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.timeline li { padding: 14px 0; border-bottom: 1px solid #edf0f4; }
+.timeline li:last-child { border-bottom: 0; }
+.timeline div { display: flex; justify-content: space-between; gap: 18px; }
+.timeline span, .timeline p { color: #667085; font-size: .84rem; }
 
 @media (max-width: 820px) {
   .header { padding-inline: 18px; }

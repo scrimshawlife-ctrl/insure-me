@@ -84,6 +84,30 @@ export interface AgentCaseIntake {
   coverageRequest: AgentCoverageView | null;
 }
 
+export interface AgentFollowUpView {
+  followUpRequestId: string;
+  readinessIssueId: string | null;
+  requestType: string;
+  message: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AgentAuditEventView {
+  auditEventId: string;
+  eventType: string;
+  outcome: string;
+  reasonCodes: string[];
+  occurredAt: string;
+}
+
+export interface AgentCaseActivity {
+  canWrite: boolean;
+  canViewAudit: boolean;
+  followUps: AgentFollowUpView[];
+  timeline: AgentAuditEventView[];
+}
+
 type ReadinessCountRow = {
   quote_case_id: string;
   severity: string;
@@ -107,6 +131,11 @@ type CaseIntakeRpc = (
   data: Json | null;
   error: { message: string } | null;
 }>;
+
+type CaseActivityRpc = (
+  functionName: 'get_workforce_case_activity',
+  args: { p_quote_case_id: string },
+) => PromiseLike<{ data: Json | null; error: { message: string } | null }>;
 
 export async function listAgentQueue(
   client: SupabaseClient<Database>,
@@ -223,5 +252,21 @@ export async function getAgentCaseIntake(
     coverageRequest: payload.coverageRequest && typeof payload.coverageRequest === 'object' && !Array.isArray(payload.coverageRequest)
       ? payload.coverageRequest as unknown as AgentCoverageView
       : null,
+  };
+}
+
+export async function getAgentCaseActivity(
+  client: SupabaseClient<Database>,
+  quoteCaseId: string,
+): Promise<AgentCaseActivity> {
+  const rpc = client.rpc as unknown as CaseActivityRpc;
+  const { data, error } = await rpc('get_workforce_case_activity', { p_quote_case_id: quoteCaseId });
+  if (error) throw new Error(`AGENT_CASE_ACTIVITY_FAILED:${error.message}`);
+  const payload = asObject(data);
+  return {
+    canWrite: payload.canWrite === true,
+    canViewAudit: payload.canViewAudit === true,
+    followUps: Array.isArray(payload.followUps) ? payload.followUps as unknown as AgentFollowUpView[] : [],
+    timeline: Array.isArray(payload.timeline) ? payload.timeline as unknown as AgentAuditEventView[] : [],
   };
 }

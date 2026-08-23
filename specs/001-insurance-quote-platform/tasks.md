@@ -1,7 +1,7 @@
 # Implementation Tasks
 
 ## Ledger status
-Reconciled against merged `main` acceptance evidence through PR #8. Checked items are implemented and evidenced by the accepted runtime/CI chain. Items marked `PARTIAL` have meaningful implementation but do not yet satisfy the full task wording. External legal/provider/carrier/launch decisions remain open by design.
+Reconciled against merged `main` acceptance evidence through PR #20 and the current T608–T610 implementation slice. Checked items are implemented and evidenced by the accepted runtime/CI chain. Items marked `PARTIAL` have meaningful implementation but do not yet satisfy the full task wording. External legal/provider/carrier/launch decisions remain open by design.
 
 ## Phase 0 — Governance and production prerequisites
 - [ ] T001 Define the first production operator model: agency, brokerage, carrier program, or white-label deployment.
@@ -91,17 +91,17 @@ Reconciled against merged `main` acceptance evidence through PR #8. Checked item
 - [x] T507 Implement carrier-program field requirement overlays without modifying canonical domain entities.
 
 ## Phase 6 — Agent workspace
-- [ ] T600 Build quote queue.
-- [ ] T601 Build case detail view.
-- [ ] T602 Build readiness/blocking issues panel.
-- [ ] T603 Build driver/vehicle/coverage sections.
-- [ ] T604 Build external-report status panel.
-- [ ] T605 Build underwriting observation panel.
-- [ ] T606 Build provenance drawer.
-- [ ] T607 Build permitted provider refresh controls.
-- [ ] T608 Build issue-resolution workflow.
-- [ ] T609 Build consumer follow-up request flow.
-- [ ] T610 Build case audit timeline.
+- [x] T600 Build quote queue.
+- [x] T601 Build case detail view.
+- [x] T602 Build readiness/blocking issues panel.
+- [x] T603 Build driver/vehicle/coverage sections.
+- [x] T604 Build external-report status panel.
+- [x] T605 Build underwriting observation panel.
+- [x] T606 Build provenance drawer.
+- [x] T607 Build permitted provider refresh controls.
+- [x] T608 Build issue-resolution workflow.
+- [x] T609 Build consumer follow-up request flow.
+- [x] T610 Build case audit timeline.
 - [ ] T611 Build configured carrier/program target selector where deployment permits multiple targets.
 
 ## Phase 7 — Carrier gateway
