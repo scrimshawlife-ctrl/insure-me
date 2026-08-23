@@ -1,5 +1,7 @@
 begin;
 
+select plan(11);
+
 -- Deterministic synthetic tenant fixtures.
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
 values
@@ -52,70 +54,87 @@ select set_config(
   true
 );
 
-do $$
-declare
-  visible_count integer;
-  visible_tenant uuid;
-begin
-  select count(*), min(tenant_id)
-  into visible_count, visible_tenant
-  from public.quote_cases;
-
-  if visible_count <> 1 or visible_tenant <> '00000000-0000-0000-0000-000000000001'::uuid then
-    raise exception 'SLICE1_ACTIVE_TENANT_ISOLATION_FAILED';
-  end if;
-end
-$$;
-
--- Atomic transition succeeds in the active tenant and creates exactly one audit event.
-select public.transition_quote_case_with_audit(
-  '61000000-0000-0000-0000-000000000001',
-  'NOTICE_REQUIRED',
-  'QUOTE_CASE_STATE_CHANGED',
-  array['TEST_TRANSITION']
+select is(
+  (select count(*) from public.quote_cases),
+  1::bigint,
+  'active tenant sees exactly one QuoteCase even when identity belongs to two tenants'
 );
 
-do $$
-declare
-  state_value public.quote_case_state;
-  audit_count integer;
-begin
-  select state into state_value
-  from public.quote_cases
-  where quote_case_id = '61000000-0000-0000-0000-000000000001';
+select is(
+  (select min(tenant_id)::text from public.quote_cases),
+  '00000000-0000-0000-0000-000000000001',
+  'visible QuoteCase belongs to active tenant A'
+);
 
-  if state_value <> 'NOTICE_REQUIRED' then
-    raise exception 'SLICE1_ATOMIC_TRANSITION_STATE_FAILED';
-  end if;
+select is(
+  (select count(*) from public.get_current_workforce_context()),
+  1::bigint,
+  'trusted workforce context resolves exactly once for active tenant'
+);
 
-  select count(*) into audit_count
-  from public.audit_events
-  where quote_case_id = '61000000-0000-0000-0000-000000000001'
-    and event_type = 'QUOTE_CASE_STATE_CHANGED';
+select lives_ok(
+  $$
+    select public.transition_quote_case_with_audit(
+      '61000000-0000-0000-0000-000000000001',
+      'NOTICE_REQUIRED',
+      'QUOTE_CASE_STATE_CHANGED',
+      array['TEST_TRANSITION']
+    )
+  $$,
+  'atomic transition RPC succeeds inside active tenant'
+);
 
-  if audit_count <> 1 then
-    raise exception 'SLICE1_ATOMIC_TRANSITION_AUDIT_FAILED';
-  end if;
-end
-$$;
+select is(
+  (
+    select state::text
+    from public.quote_cases
+    where quote_case_id = '61000000-0000-0000-0000-000000000001'
+  ),
+  'NOTICE_REQUIRED',
+  'atomic transition updates QuoteCase state'
+);
 
--- Same identity is also a member of Tenant B, but active tenant A MUST still deny Tenant B.
-do $$
-begin
-  begin
-    perform public.transition_quote_case_with_audit(
+select is(
+  (
+    select count(*)
+    from public.audit_events
+    where quote_case_id = '61000000-0000-0000-0000-000000000001'
+      and event_type = 'QUOTE_CASE_STATE_CHANGED'
+  ),
+  1::bigint,
+  'atomic transition creates exactly one audit event'
+);
+
+select throws_ok(
+  $$
+    select public.transition_quote_case_with_audit(
       '62000000-0000-0000-0000-000000000002',
       'NOTICE_REQUIRED',
       'QUOTE_CASE_STATE_CHANGED',
       array['MUST_DENY']
-    );
-    raise exception 'SLICE1_CROSS_TENANT_RPC_NOT_DENIED';
-  exception
-    when insufficient_privilege then
-      null;
-  end;
-end
-$$;
+    )
+  $$,
+  '42501',
+  'CASE_WRITE_NOT_PERMITTED',
+  'active tenant A cannot mutate tenant B through privileged RPC'
+);
+
+select lives_ok(
+  $$select public.claim_idempotency_key('quote-transition', 'same-request', 'hash-a')$$,
+  'first idempotency claim succeeds'
+);
+
+select lives_ok(
+  $$select public.claim_idempotency_key('quote-transition', 'same-request', 'hash-a')$$,
+  'same idempotency key and request hash returns the existing claim'
+);
+
+select throws_ok(
+  $$select public.claim_idempotency_key('quote-transition', 'same-request', 'hash-b')$$,
+  '22023',
+  'IDEMPOTENCY_KEY_REQUEST_MISMATCH',
+  'same idempotency key cannot be reused for a different request'
+);
 
 -- AAL1 cannot read tenant data even with valid membership and active tenant metadata.
 select set_config(
@@ -129,41 +148,24 @@ select set_config(
   true
 );
 
-do $$
-declare
-  visible_count integer;
-begin
-  select count(*) into visible_count from public.quote_cases;
-  if visible_count <> 0 then
-    raise exception 'SLICE1_AAL1_WORKFORCE_ACCESS_NOT_DENIED';
-  end if;
-end
-$$;
+select is(
+  (select count(*) from public.quote_cases),
+  0::bigint,
+  'AAL1 cannot read workforce QuoteCases'
+);
 
 reset role;
 
--- Verify the denied cross-tenant call did not partially mutate state or emit audit evidence.
-do $$
-declare
-  state_value public.quote_case_state;
-  audit_count integer;
-begin
-  select state into state_value
-  from public.quote_cases
-  where quote_case_id = '62000000-0000-0000-0000-000000000002';
+-- Cross-tenant denial must not partially mutate tenant B.
+select is(
+  (
+    select state::text
+    from public.quote_cases
+    where quote_case_id = '62000000-0000-0000-0000-000000000002'
+  ),
+  'DRAFT',
+  'denied cross-tenant call leaves tenant B state unchanged'
+);
 
-  if state_value <> 'DRAFT' then
-    raise exception 'SLICE1_CROSS_TENANT_PARTIAL_STATE_MUTATION';
-  end if;
-
-  select count(*) into audit_count
-  from public.audit_events
-  where quote_case_id = '62000000-0000-0000-0000-000000000002';
-
-  if audit_count <> 0 then
-    raise exception 'SLICE1_CROSS_TENANT_PARTIAL_AUDIT_WRITE';
-  end if;
-end
-$$;
-
+select * from finish();
 rollback;
