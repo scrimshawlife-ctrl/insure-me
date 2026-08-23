@@ -1,4 +1,27 @@
 -- Slice 1 completion: trusted tenant context, permissions, atomic quote/audit settlement.
+-- Auth claim helpers are defined here because this migration depends on them.
+
+create or replace function public.current_tenant_id()
+returns uuid
+language sql
+stable
+as $$
+  select nullif(
+    coalesce(
+      auth.jwt() ->> 'tenant_id',
+      auth.jwt() -> 'app_metadata' ->> 'active_tenant_id'
+    ),
+    ''
+  )::uuid
+$$;
+
+create or replace function public.workforce_mfa_satisfied()
+returns boolean
+language sql
+stable
+as $$
+  select coalesce(auth.jwt() ->> 'aal', '') = 'aal2'
+$$;
 
 create or replace function public.has_tenant_membership(target_tenant uuid)
 returns boolean
