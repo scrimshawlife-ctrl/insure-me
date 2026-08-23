@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const deploymentStageSchema = z.enum(['synthetic', 'pilot', 'production']);
 export type DeploymentStage = z.infer<typeof deploymentStageSchema>;
+export type EnvironmentSource = Record<string, string | undefined>;
 
 const liveEvidenceSchema = z.object({
   DEPLOYMENT_STAGE: deploymentStageSchema.default('synthetic'),
@@ -42,7 +43,7 @@ export type DeploymentReadiness = {
 };
 
 export function getDeploymentControlEnvironment(
-  source: NodeJS.ProcessEnv = process.env,
+  source: EnvironmentSource = process.env,
 ): DeploymentControlEnvironment {
   const parsed = liveEvidenceSchema.safeParse(source);
   if (!parsed.success) {
@@ -52,7 +53,7 @@ export function getDeploymentControlEnvironment(
 }
 
 export function assessDeploymentReadiness(
-  source: NodeJS.ProcessEnv = process.env,
+  source: EnvironmentSource = process.env,
 ): DeploymentReadiness {
   const environment = getDeploymentControlEnvironment(source);
   if (environment.DEPLOYMENT_STAGE === 'synthetic') {
@@ -81,16 +82,16 @@ export function assessDeploymentReadiness(
 
 export function assertAdapterAllowedForDeployment(
   adapterId: string,
-  source: NodeJS.ProcessEnv = process.env,
+  source: EnvironmentSource = process.env,
 ): void {
-  const { stage } = getDeploymentControlEnvironment(source);
-  if (stage !== 'synthetic' && adapterId.startsWith('synthetic-')) {
+  const environment = getDeploymentControlEnvironment(source);
+  if (environment.DEPLOYMENT_STAGE !== 'synthetic' && adapterId.startsWith('synthetic-')) {
     throw new Error('SYNTHETIC_ADAPTER_FORBIDDEN_IN_LIVE_STAGE');
   }
 }
 
 export function requireLiveDeploymentReady(
-  source: NodeJS.ProcessEnv = process.env,
+  source: EnvironmentSource = process.env,
 ): DeploymentReadiness {
   const readiness = assessDeploymentReadiness(source);
   if (readiness.stage !== 'synthetic' && !readiness.ready) {
