@@ -157,15 +157,6 @@ create index quote_cases_assigned_agent_idx on public.quote_cases (tenant_id, as
 create index audit_events_case_idx on public.audit_events (tenant_id, quote_case_id, occurred_at desc);
 create index purpose_decisions_case_idx on public.permissible_purpose_decisions (tenant_id, quote_case_id, evaluated_at desc);
 
--- Trusted tenant resolution helper. Tenant identity must be supplied through a signed JWT claim.
-create or replace function public.current_tenant_id()
-returns uuid
-language sql
-stable
-as $$
-  select nullif(auth.jwt() ->> 'tenant_id', '')::uuid
-$$;
-
 create or replace function public.has_tenant_membership(target_tenant uuid)
 returns boolean
 language sql
@@ -204,6 +195,16 @@ for select using (public.has_tenant_membership(tenant_id));
 
 create policy agency_users_tenant_select on public.agency_users
 for select using (public.has_tenant_membership(tenant_id));
+
+create policy agency_user_roles_tenant_select on public.agency_user_roles
+for select using (
+  exists (
+    select 1
+    from public.agency_users au
+    where au.agency_user_id = agency_user_roles.agency_user_id
+      and public.has_tenant_membership(au.tenant_id)
+  )
+);
 
 create policy prospects_tenant_all on public.prospects
 for all using (public.has_tenant_membership(tenant_id))
