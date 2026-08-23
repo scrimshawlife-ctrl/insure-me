@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import styles from '../../agent.module.css';
+import { CaseActions } from './case-actions';
 import { ProviderRefreshButton } from './provider-refresh-button';
 import { getAgentProviderContext } from '@/src/application/agent/provider-context';
-import { getAgentCaseIntake, getAgentCaseSummary } from '@/src/application/agent/workspace';
+import { getAgentCaseActivity, getAgentCaseIntake, getAgentCaseSummary } from '@/src/application/agent/workspace';
 import { assertWorkforcePermission } from '@/src/domain/auth/workforce';
 import { requireWorkforceContext } from '@/src/infrastructure/auth/workforce-context';
 import { createSupabaseServerClient } from '@/src/infrastructure/supabase/server';
@@ -25,13 +26,14 @@ async function loadCase(quoteCaseId: string) {
   try {
     const context = await requireWorkforceContext(supabase);
     assertWorkforcePermission(context, 'CASE_READ');
-    const [summary, intake, providers] = await Promise.all([
+    const [summary, intake, providers, activity] = await Promise.all([
       getAgentCaseSummary(supabase, quoteCaseId),
       getAgentCaseIntake(supabase, quoteCaseId),
       getAgentProviderContext(supabase, quoteCaseId),
+      getAgentCaseActivity(supabase, quoteCaseId),
     ]);
     if (!summary) return null;
-    return { summary, intake, providers };
+    return { summary, intake, providers, activity };
   } catch {
     return null;
   }
@@ -42,7 +44,7 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
   const loaded = await loadCase(quoteCaseId);
   if (!loaded) notFound();
 
-  const { summary, intake, providers } = loaded;
+  const { summary, intake, providers, activity } = loaded;
   const blockingCount = summary.readinessIssues.filter((issue) => issue.blocking).length;
   const warningCount = summary.readinessIssues.filter((issue) => !issue.blocking && issue.severity === 'WARNING').length;
 
@@ -74,6 +76,7 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
                     <p>{issue.issueType.replaceAll('_', ' ')}</p>
                     <span className={styles.issueCode}>{issue.reasonCode}</span>
                     {issue.subjectRef && <p>Subject: {issue.subjectRef}</p>}
+                    <CaseActions blocking={issue.blocking} enabled={activity.canWrite} quoteCaseId={quoteCaseId} readinessIssueId={issue.readinessIssueId} />
                   </li>
                 ))}
               </ul>
@@ -198,6 +201,36 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
                 </li>
               ))}
             </ul>
+          )}
+        </section>
+
+        <section className={styles.card} aria-labelledby="follow-up-heading">
+          <h2 id="follow-up-heading">Consumer follow-up</h2>
+          <p className={styles.subhead}>Pending requests are recorded for an approved transactional delivery channel. Creating a request does not claim it was delivered.</p>
+          {activity.followUps.length === 0 ? <p>No follow-up requests are recorded.</p> : (
+            <ul className={styles.issueList}>
+              {activity.followUps.map((followUp) => (
+                <li className={styles.issue} key={followUp.followUpRequestId}>
+                  <div className={styles.rowBetween}><strong>{followUp.requestType.replaceAll('_', ' ')}</strong><span className={styles.state}>{followUp.status}</span></div>
+                  <p>{followUp.message}</p>
+                  <span className={styles.issueCode}>{displayTime(followUp.createdAt)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className={styles.card} aria-labelledby="timeline-heading">
+          <h2 id="timeline-heading">Case audit timeline</h2>
+          {!activity.canViewAudit ? <p>AUDIT_READ permission is required to view the timeline.</p> : activity.timeline.length === 0 ? <p>No audit events are available.</p> : (
+            <ol className={styles.timeline}>
+              {activity.timeline.map((event) => (
+                <li key={event.auditEventId}>
+                  <div><strong>{event.eventType.replaceAll('_', ' ')}</strong><span>{displayTime(event.occurredAt)}</span></div>
+                  <p>{event.outcome}{event.reasonCodes.length > 0 ? ` · ${event.reasonCodes.join(' · ')}` : ''}</p>
+                </li>
+              ))}
+            </ol>
           )}
         </section>
       </section>
