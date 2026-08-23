@@ -6,7 +6,11 @@ import type { CanonicalSyntheticDataset } from './schema';
 import { materializeRuntimeSeed, uuidV5 } from './runtime-seed';
 
 export type HarnessProviderStatus = ProviderResultStatus | 'BLOCKED';
-export type HarnessReadiness = 'READY_FOR_CARRIER' | 'REVIEW_REQUIRED' | 'RETENTION_HOLD';
+export type HarnessReadiness =
+  | 'READY_FOR_CARRIER'
+  | 'NOTICE_REQUIRED'
+  | 'REVIEW_REQUIRED'
+  | 'RETENTION_HOLD';
 export type HarnessCarrierStatus = CarrierSubmissionResult['status'] | 'NOT_SUBMITTED';
 
 export interface CanonicalScenarioObservation {
@@ -31,6 +35,7 @@ export async function executeCanonicalScenario(
   const providerStatuses: Record<string, HarnessProviderStatus> = {};
   const normalizedFacts: CanonicalScenarioObservation['normalizedFacts'] = {};
   const noticeCategories = new Set(dataset.notices.map((notice) => notice.category));
+  let providerNoticeBlocked = false;
 
   for (const [index, request] of seed.providerRequests.entries()) {
     const adapter = new SyntheticProviderAdapter(request.capability);
@@ -42,6 +47,7 @@ export async function executeCanonicalScenario(
     );
 
     if (missingNotices.length > 0) {
+      providerNoticeBlocked = true;
       providerStatuses[request.capability] = 'BLOCKED';
       normalizedFacts[request.capability.toLowerCase()] = null;
       continue;
@@ -79,7 +85,7 @@ export async function executeCanonicalScenario(
     normalizedFacts[request.capability.toLowerCase()] = result.normalized?.facts ?? null;
   }
 
-  const readiness = deriveReadiness(dataset, providerStatuses);
+  const readiness = deriveReadiness(dataset, providerStatuses, providerNoticeBlocked);
   const carrierSubmissionAllowed = readiness === 'READY_FOR_CARRIER';
 
   if (!carrierSubmissionAllowed) {
@@ -136,8 +142,10 @@ export async function executeCanonicalScenario(
 function deriveReadiness(
   dataset: CanonicalSyntheticDataset,
   statuses: Record<string, HarnessProviderStatus>,
+  providerNoticeBlocked: boolean,
 ): HarnessReadiness {
   if (dataset.privacyActions.length > 0) return 'RETENTION_HOLD';
+  if (providerNoticeBlocked) return 'NOTICE_REQUIRED';
   if (dataset.conflicts.length > 0) return 'REVIEW_REQUIRED';
 
   const blockingStatuses = new Set<HarnessProviderStatus>([
