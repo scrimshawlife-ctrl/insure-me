@@ -1,5 +1,6 @@
 import type { CarrierAdapter } from '@/src/domain/carriers';
 import { SyntheticCarrierAdapter } from '@/src/infrastructure/carriers/synthetic-carrier';
+import { assertAdapterAllowedForDeployment } from '@/src/infrastructure/config/deployment';
 
 export function resolveCarrierAdapter(input: {
   carrierId: string;
@@ -7,6 +8,8 @@ export function resolveCarrierAdapter(input: {
   adapterId: string;
   adapterVersion: string;
 }): CarrierAdapter {
+  assertAdapterAllowedForDeployment(input.adapterId);
+
   const variant = input.adapterId.endsWith('-a')
     ? 'A'
     : input.adapterId.endsWith('-b')

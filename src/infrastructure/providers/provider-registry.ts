@@ -1,4 +1,5 @@
 import type { ProviderCapability } from '@/src/domain/providers';
+import { assertAdapterAllowedForDeployment } from '@/src/infrastructure/config/deployment';
 import {
   SyntheticProviderAdapter,
   type SyntheticProviderNormalized,
@@ -10,6 +11,8 @@ export function resolveProviderAdapter(input: {
   adapterVersion: string;
   capability: ProviderCapability;
 }): SyntheticProviderAdapter {
+  assertAdapterAllowedForDeployment(input.adapterId);
+
   const expectedId = `synthetic-${input.capability.toLowerCase()}`;
   if (input.adapterId !== expectedId || input.adapterVersion !== 'synthetic-provider-v1') {
     throw new Error('PROVIDER_ADAPTER_NOT_REGISTERED');
