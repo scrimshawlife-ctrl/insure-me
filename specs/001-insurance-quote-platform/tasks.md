@@ -31,7 +31,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T110 Implement DataUsePolicy and RatingInput boundary.
 - [x] T111 Implement ReadinessIssue.
 - [x] T112 Implement Carrier, CarrierProgram, CarrierSubmission, CarrierDecision.
-- [ ] T113 Implement PrivacyRequest and RetentionPolicy.
+- [x] T113 Implement PrivacyRequest and RetentionPolicy.
 - [x] T114 Implement append-only AuditEvent pipeline.
 - [x] T115 Create full synthetic fixture library.
 
