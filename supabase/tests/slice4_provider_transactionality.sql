@@ -1,6 +1,6 @@
 begin;
 
-select plan(14);
+select plan(15);
 
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name)
 values ('a1000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000001','Synthetic Provider Agency','Provider Agency');
