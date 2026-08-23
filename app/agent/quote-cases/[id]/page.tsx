@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import styles from '../../agent.module.css';
+import { ProviderRefreshButton } from './provider-refresh-button';
+import { getAgentProviderContext } from '@/src/application/agent/provider-context';
 import { getAgentCaseIntake, getAgentCaseSummary } from '@/src/application/agent/workspace';
 import { assertWorkforcePermission } from '@/src/domain/auth/workforce';
 import { requireWorkforceContext } from '@/src/infrastructure/auth/workforce-context';
@@ -12,7 +14,7 @@ function displayTime(value: string): string {
 }
 
 function jsonSummary(value: unknown): string {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return 'Not specified';
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return String(value ?? 'Not specified');
   const entries = Object.entries(value as Record<string, unknown>);
   if (entries.length === 0) return 'Not specified';
   return entries.map(([key, item]) => `${key}: ${String(item)}`).join(' · ');
@@ -23,12 +25,13 @@ async function loadCase(quoteCaseId: string) {
   try {
     const context = await requireWorkforceContext(supabase);
     assertWorkforcePermission(context, 'CASE_READ');
-    const [summary, intake] = await Promise.all([
+    const [summary, intake, providers] = await Promise.all([
       getAgentCaseSummary(supabase, quoteCaseId),
       getAgentCaseIntake(supabase, quoteCaseId),
+      getAgentProviderContext(supabase, quoteCaseId),
     ]);
     if (!summary) return null;
-    return { summary, intake };
+    return { summary, intake, providers };
   } catch {
     return null;
   }
@@ -39,7 +42,7 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
   const loaded = await loadCase(quoteCaseId);
   if (!loaded) notFound();
 
-  const { summary, intake } = loaded;
+  const { summary, intake, providers } = loaded;
   const blockingCount = summary.readinessIssues.filter((issue) => issue.blocking).length;
   const warningCount = summary.readinessIssues.filter((issue) => !issue.blocking && issue.severity === 'WARNING').length;
 
@@ -136,6 +139,66 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
               <div><dt>Updated</dt><dd>{displayTime(intake.coverageRequest.updatedAt)}</dd></div>
             </dl>
           ) : <p>No coverage request is available.</p>}
+        </section>
+
+        <section className={styles.card} aria-labelledby="provider-status-heading">
+          <h2 id="provider-status-heading">External report status</h2>
+          <p className={styles.subhead}>Provider status is operational metadata only. Raw provider payloads are not shown here.</p>
+          {providers.reports.length === 0 ? <p>No active provider bindings apply to this case.</p> : (
+            <ul className={styles.issueList}>
+              {providers.reports.map((report) => (
+                <li className={styles.issue} key={report.providerBindingId}>
+                  <div className={styles.rowBetween}>
+                    <div>
+                      <strong>{report.capability}</strong>
+                      <p>{report.reportStatus ?? report.requestStatus ?? 'NOT_REQUESTED'}{report.requiredForReadiness ? ' · required for readiness' : ''}</p>
+                      <span className={styles.issueCode}>{report.adapterId}@{report.adapterVersion}</span>
+                    </div>
+                    <ProviderRefreshButton
+                      capability={report.capability}
+                      enabled={report.canRefresh}
+                      quoteCaseId={quoteCaseId}
+                      subjectIds={report.subjectIds}
+                    />
+                  </div>
+                  {report.retrievedAt && <p>Retrieved {displayTime(report.retrievedAt)}{report.freshUntil ? ` · fresh until ${displayTime(report.freshUntil)}` : ''}</p>}
+                  {report.warnings.length > 0 && <p className={styles.warning}>{report.warnings.join(' · ')}</p>}
+                  {!providers.canRefreshProviders && <p className={styles.context}>REPORT_RETRIEVE permission is required to refresh.</p>}
+                  {providers.canRefreshProviders && report.subjectIds.length === 0 && <p className={styles.context}>No prior subject context is available for a safe refresh.</p>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className={styles.card} aria-labelledby="observations-heading">
+          <h2 id="observations-heading">Underwriting observations</h2>
+          <p className={styles.subhead}>Only observations admitted by the active data-use policy for agent display are projected.</p>
+          {providers.observations.length === 0 ? <p>No policy-displayable observations are available.</p> : (
+            <ul className={styles.issueList}>
+              {providers.observations.map((observation) => (
+                <li className={styles.issue} key={observation.observationId}>
+                  <strong>{observation.observationType.replaceAll('_', ' ')}</strong>
+                  <p>{jsonSummary(observation.normalizedValue)}</p>
+                  <span className={styles.issueCode}>{observation.freshnessState} · {observation.conflictState} · {observation.dataUseClassification}</span>
+                  <details className={styles.provenance}>
+                    <summary>Provenance ({observation.provenance.length})</summary>
+                    {observation.provenance.length === 0 ? <p>No provenance entries are linked.</p> : (
+                      <ul className={styles.issueList}>
+                        {observation.provenance.map((entry) => (
+                          <li className={styles.provenanceEntry} key={entry.provenanceEntryId}>
+                            <strong>{entry.factKey}</strong>
+                            <p>{entry.sourceType} · {entry.sourceId}</p>
+                            <span className={styles.issueCode}>{entry.transformationVersion}{entry.confidenceState ? ` · ${entry.confidenceState}` : ''}{entry.confirmationState ? ` · ${entry.confirmationState}` : ''}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </details>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </section>
     </main>
