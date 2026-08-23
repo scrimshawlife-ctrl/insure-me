@@ -35,10 +35,10 @@ insert into public.vehicles (
 );
 
 insert into public.coverage_requests (
- coverage_request_id,tenant_id,agency_id,quote_case_id,schema_version,requested_limits,preferences,source_type
+ coverage_request_id,tenant_id,agency_id,quote_case_id,schema_version,requested_limits,preferences
 ) values (
  'd7000000-0000-0000-0000-000000000001','d0000000-0000-0000-0000-000000000001','d1000000-0000-0000-0000-000000000001','d4000000-0000-0000-0000-000000000001',
- 1,'{}'::jsonb,'{}'::jsonb,'CONSUMER'
+ 1,'{}'::jsonb,'{}'::jsonb
 );
 
 insert into public.provider_bindings (
