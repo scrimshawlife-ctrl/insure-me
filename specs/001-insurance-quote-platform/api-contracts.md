@@ -1,0 +1,322 @@
+# API Contracts
+
+## Contract principles
+- Version every public contract.
+- Require idempotency on externally consequential writes.
+- Do not expose provider- or carrier-specific response shapes to consumers.
+- Do not place sensitive identifiers in paths, query strings, logs, or analytics.
+- Return machine-readable reason codes for blocked regulated operations.
+- Provider and carrier adapters are internal interfaces, not consumer APIs.
+- Tenant context MUST be resolved by trusted routing/session context; public clients MUST NOT be able to switch tenants by supplying arbitrary tenant IDs.
+- Core APIs MUST remain stable when carriers or data providers are replaced.
+
+## Public/consumer API
+
+### `POST /v1/quote-cases`
+Creates a QuoteCase in the tenant context resolved by the server.
+
+Request:
+```json
+{
+  "jurisdiction": "CA",
+  "productLine": "PRIVATE_PASSENGER_AUTO",
+  "sourceChannel": "WEB"
+}
+```
+
+Response:
+```json
+{
+  "quoteCaseId": "qc_...",
+  "state": "DRAFT",
+  "nextAction": "IDENTITY"
+}
+```
+
+The response MUST NOT expose internal tenant configuration, provider bindings, or carrier credentials.
+
+### `PATCH /v1/quote-cases/{id}/identity`
+Stores minimum identity/contact fields. Sensitive fields MUST use secure request bodies and field protection at rest.
+
+### `GET /v1/quote-cases/{id}/required-notices`
+Returns the current notice/authorization sequence for the case and requested next step.
+
+### `POST /v1/quote-cases/{id}/consents`
+Records acknowledgment/authorization. Required fields include `noticeDefinitionId`, `actionType`, and an idempotency key.
+
+### `GET /v1/quote-cases/{id}/drivers`
+Returns current driver candidates with provenance-safe display fields.
+
+### `PUT /v1/quote-cases/{id}/drivers`
+Confirms/adds/edits drivers.
+
+### `GET /v1/quote-cases/{id}/vehicles`
+Returns vehicle candidates and verification state.
+
+### `PUT /v1/quote-cases/{id}/vehicles`
+Confirms/adds/edits vehicles.
+
+### `PUT /v1/quote-cases/{id}/coverage-request`
+Stores requested coverage preferences and configured program-required inputs that are permitted at this stage.
+
+### `POST /v1/quote-cases/{id}/complete-consumer-intake`
+Validates the consumer portion and transitions to enrichment/review as appropriate.
+
+### `GET /v1/quote-cases/{id}/status`
+Returns consumer-safe status and next action. MUST NOT disclose internal risk observations or prohibited report details.
+
+## Agent API
+All routes require workforce authentication, MFA state, tenant/agency scope, and permission checks.
+
+### `GET /v1/agent/quote-cases`
+Filters cases by state, assignment, freshness, and operational flags.
+
+### `GET /v1/agent/quote-cases/{id}`
+Returns normalized case workspace data, readiness, observations, conflicts, and provenance references subject to display policy.
+
+### `POST /v1/agent/quote-cases/{id}/provider-requests`
+Requests an approved provider capability.
+
+Request:
+```json
+{
+  "capability": "MVR",
+  "subjectIds": ["drv_..."],
+  "purpose": "INSURANCE_UNDERWRITING",
+  "idempotencyKey": "..."
+}
+```
+
+The server MUST independently evaluate purpose, notice/authorization, jurisdiction, tenant provider binding, provider capability, data minimization, case state, and caller permission. Client assertions do not establish permission.
+
+Blocked response example:
+```json
+{
+  "error": "PROVIDER_REQUEST_BLOCKED",
+  "reasonCodes": ["MISSING_REQUIRED_AUTHORIZATION"]
+}
+```
+
+### `POST /v1/agent/quote-cases/{id}/resolve-issue`
+Records a human resolution with source/evidence where required.
+
+### `GET /v1/agent/carrier-programs?quoteCaseId={id}`
+Returns carrier programs configured for the tenant that are eligible for the case's jurisdiction/product context. Returned data MUST be operational capability metadata only and MUST NOT expose secrets.
+
+Example:
+```json
+{
+  "programs": [
+    {
+      "carrierProgramId": "cp_...",
+      "carrierDisplayName": "Synthetic Carrier A",
+      "programDisplayName": "CA Auto",
+      "mode": "STUB",
+      "readiness": "READY",
+      "blockingIssueCodes": []
+    }
+  ]
+}
+```
+
+### `PUT /v1/agent/quote-cases/{id}/carrier-program`
+Selects a configured CarrierProgram for the case. Selection MUST be auditable and MUST trigger program-specific readiness recalculation. It MUST NOT mutate canonical person/driver/vehicle facts.
+
+### `POST /v1/agent/quote-cases/{id}/carrier-submissions`
+Creates an idempotent carrier handoff only when readiness, data-use policy, and selected CarrierProgram prerequisites pass.
+
+Request:
+```json
+{
+  "carrierProgramId": "cp_...",
+  "idempotencyKey": "..."
+}
+```
+
+The server builds the carrier payload from approved canonical facts/RatingInputs. Clients MUST NOT submit arbitrary rating fields to bypass allowlists.
+
+### `GET /v1/agent/quote-cases/{id}/carrier-submissions`
+Returns submission/decision summaries with carrier/program provenance subject to permission.
+
+### `GET /v1/agent/quote-cases/{id}/audit`
+Returns a redacted, permission-filtered timeline.
+
+## Administrative APIs
+Elevated administration MUST be separated from ordinary agent permissions.
+
+Required capability areas:
+- tenant configuration inspection/versioning;
+- workforce users/roles;
+- provider capability bindings;
+- Carrier/CarrierProgram registry;
+- certification and kill-switch state;
+- notice definitions;
+- data-use policies;
+- retention policies;
+- compliance evidence export.
+
+Production secret material MUST NOT be returned through administrative read APIs.
+
+## Privacy APIs
+
+### `POST /v1/privacy/requests`
+Creates a privacy request. It MUST NOT expose whether a person exists before identity verification.
+
+### `GET /v1/privacy/requests/{id}`
+Returns requester-safe request status.
+
+Administrative completion routes MUST require elevated permissions and evidence.
+
+## Internal provider adapter interface
+
+```ts
+interface ProviderRequestContext {
+  quoteCaseId: string;
+  tenantId: string;
+  agencyId: string;
+  tenantConfigurationVersion: string;
+  jurisdiction: "CA";
+  productLine: "PRIVATE_PASSENGER_AUTO";
+  capability: ProviderCapability;
+  providerBindingId: string;
+  permissiblePurposeDecisionId: string;
+  consentRecordIds: string[];
+  subjectIds: string[];
+  traceId: string;
+  idempotencyKey: string;
+}
+
+interface ProviderAdapter<TReq, TNormalized> {
+  capabilities(): ProviderCapabilityDescriptor[];
+  validate(ctx: ProviderRequestContext, req: TReq): Promise<void>;
+  execute(ctx: ProviderRequestContext, req: TReq): Promise<ProviderResult<TNormalized>>;
+}
+```
+
+Capability descriptor MUST include jurisdiction, product line, required subject fields, required notice/authorization types, raw-payload storage permission, freshness semantics, contractual purpose codes, and adapter version.
+
+## Normalized provider result
+
+```ts
+interface ProviderResult<T> {
+  status: "SUCCESS" | "NO_HIT" | "PARTIAL" | "STALE" | "ERROR";
+  providerRequestId?: string;
+  providerReportId?: string;
+  retrievedAt: string;
+  normalized: T | null;
+  provenance: ProvenanceEntry[];
+  warnings: string[];
+}
+```
+
+## Carrier adapter contracts
+
+```ts
+type CarrierMode =
+  | "STUB"
+  | "API"
+  | "DEEPLINK"
+  | "AMS_BRIDGE"
+  | "STRUCTURED_EXPORT"
+  | "MANUAL";
+
+interface CarrierCapabilityDescriptor {
+  carrierId: string;
+  carrierProgramId: string;
+  adapterId: string;
+  adapterVersion: string;
+  mode: CarrierMode;
+  jurisdictions: string[];
+  productLines: string[];
+  requiredFieldPolicyVersion: string;
+  ratingInputPolicyVersion: string;
+  responseMappingVersion: string;
+  supportsAsyncStatus: boolean;
+  certificationState: "SYNTHETIC" | "SANDBOX" | "CERTIFIED" | "SUSPENDED" | "RETIRED";
+}
+
+interface CarrierRequestContext {
+  quoteCaseId: string;
+  tenantId: string;
+  agencyId: string;
+  tenantConfigurationVersion: string;
+  carrierProgramId: string;
+  carrierProgramVersion: string;
+  traceId: string;
+  idempotencyKey: string;
+}
+
+interface CarrierAdapter {
+  descriptor(): CarrierCapabilityDescriptor;
+  validateSubmission(
+    ctx: CarrierRequestContext,
+    input: CarrierSubmissionInput
+  ): Promise<ValidationResult>;
+  submit(
+    ctx: CarrierRequestContext,
+    input: CarrierSubmissionInput
+  ): Promise<CarrierSubmissionResult>;
+  getStatus?(
+    ctx: CarrierRequestContext,
+    externalReference: string
+  ): Promise<CarrierStatus>;
+}
+```
+
+`StubCarrierAdapter` MUST implement this same contract in local/CI/staging. No live carrier selection is required for synthetic end-to-end acceptance.
+
+A CarrierProgram selects an allowed mode/configuration. The adapter layer may map canonical fields to carrier-specific payloads, but carrier-specific fields MUST NOT leak back into the canonical domain model.
+
+## Carrier submission safety
+Before execution the server MUST verify:
+- selected program belongs to the tenant configuration;
+- program is enabled for jurisdiction/product;
+- environment certification state permits execution;
+- kill switch is off;
+- required-field readiness passes;
+- every RatingInput is allowed by the program's policy version;
+- the adapter ID/version matches the configured program;
+- idempotency constraints pass.
+
+## Error taxonomy
+- `AUTHENTICATION_REQUIRED`
+- `MFA_REQUIRED`
+- `PERMISSION_DENIED`
+- `TENANT_CONTEXT_INVALID`
+- `CASE_NOT_FOUND`
+- `INVALID_CASE_STATE`
+- `PURPOSE_NOT_PERMITTED`
+- `MISSING_REQUIRED_NOTICE`
+- `MISSING_REQUIRED_AUTHORIZATION`
+- `JURISDICTION_NOT_SUPPORTED`
+- `PROVIDER_CAPABILITY_NOT_ALLOWED`
+- `PROVIDER_VALIDATION_ERROR`
+- `PROVIDER_NO_HIT`
+- `PROVIDER_PARTIAL`
+- `PROVIDER_UNAVAILABLE`
+- `PROVIDER_RATE_LIMITED`
+- `CARRIER_PROGRAM_NOT_CONFIGURED`
+- `CARRIER_CAPABILITY_NOT_ALLOWED`
+- `CARRIER_NOT_CERTIFIED`
+- `CARRIER_KILL_SWITCHED`
+- `CARRIER_VALIDATION_ERROR`
+- `CARRIER_UNAVAILABLE`
+- `CARRIER_STATUS_AMBIGUOUS`
+- `CARRIER_HANDOFF_BLOCKED`
+- `CONFLICT_REQUIRES_REVIEW`
+- `RETENTION_RESTRICTION`
+- `LEGAL_HOLD`
+
+## API security
+- TLS only.
+- No sensitive GET query parameters.
+- SameSite/HttpOnly/Secure cookies where cookies are used.
+- CSRF protection for browser sessions.
+- Request-size limits.
+- Rate limits and abuse detection.
+- Strict CORS origins.
+- Content Security Policy for web surfaces.
+- Trace IDs MUST be opaque and non-sensitive.
+- API responses MUST use field-level authorization, not only route-level authorization.
+- Tenant isolation MUST be enforced server-side on every object lookup.
+- Secrets and provider/carrier credentials MUST never appear in API responses.

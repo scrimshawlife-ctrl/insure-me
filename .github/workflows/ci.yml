@@ -1,0 +1,132 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - runtime/**
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct canonical lockfile
+        shell: bash
+        run: |
+          cat .ci/lock-snapshot/part-*.b64 | base64 --decode | gzip --decompress > pnpm-lock.yaml
+      - name: Verify canonical lockfile
+        shell: bash
+        run: |
+          expected="$(tr -d '[:space:]' < .ci/pnpm-lock.sha256)"
+          actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
+          test "$actual" = "$expected" || {
+            echo "canonical lock snapshot is invalid"
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            exit 1
+          }
+      - name: Upload canonical lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-pnpm-lock
+          path: pnpm-lock.yaml
+          if-no-files-found: error
+          retention-days: 7
+
+  verify:
+    needs: dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: canonical-pnpm-lock
+          path: .
+      - name: Install from verified lockfile
+        run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Run canonical synthetic scenario suite
+        run: pnpm scenario:run
+        env:
+          CANONICAL_SCENARIO_REPORT_PATH: artifacts/canonical-scenario-report-v1.json
+      - name: Verify canonical scenario report
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync('artifacts/canonical-scenario-report-v1.json', 'utf8'));
+          if (report.schemaVersion !== 'canonical-scenario-report-v1') throw new Error('unexpected scenario report schema');
+          if (report.total !== 12 || report.passed !== 12 || report.failed !== 0) {
+            throw new Error(`canonical scenario report is not clean: ${JSON.stringify({ total: report.total, passed: report.passed, failed: report.failed })}`);
+          }
+          NODE
+      - name: Upload canonical scenario report
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-scenario-report-v1
+          path: artifacts/canonical-scenario-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
+      - run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_synthetic_ci_key_000000000000000000
+
+  database:
+    needs: dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: canonical-pnpm-lock
+          path: .
+      - name: Install from verified lockfile
+        run: pnpm install --frozen-lockfile
+      - name: Start local Supabase
+        run: pnpm db:start
+      - name: Rebuild database from migrations
+        run: pnpm db:reset
+      - name: Run pgTAP database tests
+        run: pnpm db:test
+      - name: Lint database
+        run: pnpm db:lint
+      - name: Generate database types
+        run: pnpm exec supabase gen types typescript --local --schema public > generated-database.types.ts
+      - name: Verify generated database contract
+        shell: bash
+        run: |
+          expected="$(tr -d '[:space:]' < .ci/database-types.sha256)"
+          actual="$(sha256sum generated-database.types.ts | awk '{print $1}')"
+          test "$actual" = "$expected" || {
+            echo "generated database type drift detected"
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            exit 1
+          }
+      - name: Upload verified database types
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: generated-database.types.ts
+          if-no-files-found: error
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm db:stop
