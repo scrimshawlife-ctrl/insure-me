@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
+  dependencies:
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,7 +21,8 @@ jobs:
       - name: Install pnpm
         run: npm install --global pnpm@10.0.0
       - run: pnpm --version
-      - run: pnpm install --no-frozen-lockfile
+      - name: Resolve dependency graph
+        run: pnpm install --no-frozen-lockfile
       - name: Verify resolved dependency graph
         shell: bash
         run: |
@@ -33,12 +34,30 @@ jobs:
             echo "actual:   $actual"
             exit 1
           }
-      - name: Upload verified lockfile
+      - name: Upload canonical lockfile
         uses: actions/upload-artifact@v4
         with:
-          name: pnpm-lock
+          name: canonical-pnpm-lock
           path: pnpm-lock.yaml
           if-no-files-found: error
+          retention-days: 7
+
+  verify:
+    needs: dependencies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: canonical-pnpm-lock
+          path: .
+      - name: Install from verified lockfile
+        run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
@@ -48,7 +67,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_synthetic_ci_key_000000000000000000
 
   database:
-    runs-on: ubuntu-latest
+    needs: dependencies
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,19 +76,12 @@ jobs:
           node-version: 22
       - name: Install pnpm
         run: npm install --global pnpm@10.0.0
-      - run: pnpm --version
-      - run: pnpm install --no-frozen-lockfile
-      - name: Verify resolved dependency graph
-        shell: bash
-        run: |
-          expected="$(tr -d '[:space:]' < .ci/pnpm-lock.sha256)"
-          actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
-          test "$actual" = "$expected" || {
-            echo "pnpm-lock.yaml drift detected"
-            echo "expected: $expected"
-            echo "actual:   $actual"
-            exit 1
-          }
+      - uses: actions/download-artifact@v4
+        with:
+          name: canonical-pnpm-lock
+          path: .
+      - name: Install from verified lockfile
+        run: pnpm install --frozen-lockfile
       - name: Start local Supabase
         run: pnpm db:start
       - name: Rebuild database from migrations
