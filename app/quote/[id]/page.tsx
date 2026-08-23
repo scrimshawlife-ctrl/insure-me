@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { IdentityForm } from './identity-form';
@@ -21,7 +22,7 @@ export default async function ConsumerQuotePage({ params }: { params: Promise<{ 
           <p className="eyebrow">Your auto quote</p>
           <h1>We’ll keep this simple.</h1>
         </div>
-        <a className="brand" href="/" aria-label="Insure Me home"><span className="brand-mark">I</span>Insure Me</a>
+        <Link className="brand" href="/" aria-label="Insure Me home"><span className="brand-mark">I</span>Insure Me</Link>
       </div>
 
       <section className="card progress-card" aria-label="Quote progress">
