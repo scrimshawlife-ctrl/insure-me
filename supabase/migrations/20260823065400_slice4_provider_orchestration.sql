@@ -30,7 +30,7 @@ create table public.external_requests (
   provider_binding_id uuid not null references public.provider_bindings(provider_binding_id),
   capability public.provider_capability not null,
   subject_ids uuid[] not null default '{}',
-  permissible_purpose_decision_id uuid not null references public.permissible_purpose_decisions(permissible_purpose_decision_id),
+  permissible_purpose_decision_id uuid not null references public.permissible_purpose_decisions(decision_id),
   consent_record_ids uuid[] not null default '{}',
   idempotency_key text not null,
   request_hash text not null,
