@@ -1,5 +1,12 @@
 # Canonical Synthetic Datasets v1
 
+## Status
+
+`CANONICAL_SYNTHETIC_DATASETS_V1_ACCEPTED`
+
+Acceptance implementation head: `ec7793552c081d3454f9ac3c524a6c4020fab8c7`
+Acceptance CI: `32656049104`
+
 ## Purpose
 
 This directory is the canonical deterministic test corpus for the Insure Me synthetic platform boundary. It satisfies FR-025 and is intended to drive unit, integration, API, database, staging, and future E2E tests without live consumer-report, carrier, or production credentials.
@@ -43,7 +50,7 @@ This directory is the canonical deterministic test corpus for the Insure Me synt
 - `canonical-synthetic-datasets.v1.json` — human-readable canonical source catalog.
 - `schema.ts` — executable Zod source-catalog contract.
 - `runtime-seed.ts` — deterministic materializer for database/runtime identifiers and VIN-shaped values.
-- `manifest.v1.json` — pinned inventory and source-blob provenance.
+- `manifest.v1.json` — pinned inventory, source-blob provenance, and acceptance provenance.
 - `tests/contract/canonical-synthetic-datasets.test.ts` — inventory, safety, and semantic conformance.
 - `tests/contract/canonical-runtime-seed.test.ts` — database-seed determinism and UUID/VIN conformance.
 
@@ -52,6 +59,25 @@ This directory is the canonical deterministic test corpus for the Insure Me synt
 The JSON catalog deliberately keeps readable semantic IDs such as `qc-happy-path` and `driver-multiple-drivers-02`. Tests and humans can reason about those values directly. Code that must seed UUID-backed runtime tables MUST call `materializeRuntimeSeed()` and MUST NOT invent a second mapping scheme.
 
 The materializer preserves source meaning while deriving stable UUIDv5 values for tenant, agency, tenant configuration, QuoteCase, prospect, person/subject, driver, vehicle, carrier, and CarrierProgram identities. Re-running the same dataset produces the same values.
+
+## Acceptance evidence
+
+CI run `32656049104` passed:
+
+- canonical dependency reconstruction and verification;
+- frozen-lockfile install;
+- lint;
+- TypeScript;
+- source-catalog contract tests;
+- runtime-seed UUID/VIN materialization tests;
+- full unit/contract suite;
+- Next.js production build;
+- complete Supabase migration rebuild;
+- pgTAP database tests;
+- database lint;
+- generated database types;
+- generated database-contract verification;
+- clean Supabase shutdown.
 
 ## Change policy
 
