@@ -3,11 +3,14 @@ import { notFound } from 'next/navigation';
 
 import styles from '../../agent.module.css';
 import { CaseActions } from './case-actions';
+import { CarrierProgramSelector } from './carrier-program-selector';
 import { ProviderRefreshButton } from './provider-refresh-button';
 import { getAgentProviderContext } from '@/src/application/agent/provider-context';
+import { buildCarrierProgramSelectionModel } from '@/src/application/agent/carrier-program-selection';
 import { getAgentCaseActivity, getAgentCaseIntake, getAgentCaseSummary } from '@/src/application/agent/workspace';
 import { assertWorkforcePermission } from '@/src/domain/auth/workforce';
 import { requireWorkforceContext } from '@/src/infrastructure/auth/workforce-context';
+import { listCarrierProgramsForCase } from '@/src/infrastructure/carriers/carrier-program-context';
 import { createSupabaseServerClient } from '@/src/infrastructure/supabase/server';
 
 function displayTime(value: string): string {
@@ -26,14 +29,17 @@ async function loadCase(quoteCaseId: string) {
   try {
     const context = await requireWorkforceContext(supabase);
     assertWorkforcePermission(context, 'CASE_READ');
-    const [summary, intake, providers, activity] = await Promise.all([
+    const [summary, intake, providers, activity, carrierPrograms] = await Promise.all([
       getAgentCaseSummary(supabase, quoteCaseId),
       getAgentCaseIntake(supabase, quoteCaseId),
       getAgentProviderContext(supabase, quoteCaseId),
       getAgentCaseActivity(supabase, quoteCaseId),
+      context.permissions.includes('CARRIER_SUBMIT')
+        ? listCarrierProgramsForCase({ userClient: supabase, workforce: context, quoteCaseId })
+        : Promise.resolve([]),
     ]);
     if (!summary) return null;
-    return { summary, intake, providers, activity };
+    return { summary, intake, providers, activity, carrierPrograms, canSelectCarrierProgram: context.permissions.includes('CARRIER_SUBMIT') };
   } catch {
     return null;
   }
@@ -44,7 +50,9 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
   const loaded = await loadCase(quoteCaseId);
   if (!loaded) notFound();
 
-  const { summary, intake, providers, activity } = loaded;
+  const { summary, intake, providers, activity, carrierPrograms, canSelectCarrierProgram } = loaded;
+  const carrierProgramSelection = buildCarrierProgramSelectionModel(carrierPrograms, summary.selectedCarrierProgramId);
+  const carrierProgramSelectionEnabled = ['REVIEW_REQUIRED', 'READY_FOR_CARRIER', 'SUBMITTED_TO_CARRIER'].includes(summary.state);
   const blockingCount = summary.readinessIssues.filter((issue) => issue.blocking).length;
   const warningCount = summary.readinessIssues.filter((issue) => !issue.blocking && issue.severity === 'WARNING').length;
 
@@ -64,6 +72,14 @@ export default async function AgentQuoteCasePage({ params }: { params: Promise<{
           <div className={styles.metric}><strong>{blockingCount}</strong><span>Open blockers</span></div>
           <div className={styles.metric}><strong>{warningCount}</strong><span>Open warnings</span></div>
         </div>
+
+        <section className={styles.card} aria-labelledby="carrier-target-heading">
+          <h2 id="carrier-target-heading">Carrier program target</h2>
+          <p className={styles.subhead}>Targets come from the active tenant configuration for this jurisdiction and product. Selection does not submit the case or create a carrier decision.</p>
+          {canSelectCarrierProgram
+            ? <CarrierProgramSelector model={carrierProgramSelection} quoteCaseId={quoteCaseId} selectionEnabled={carrierProgramSelectionEnabled} />
+            : <p>CARRIER_SUBMIT permission is required to select a target.</p>}
+        </section>
 
         <div className={styles.grid}>
           <section className={styles.card} aria-labelledby="readiness-heading">

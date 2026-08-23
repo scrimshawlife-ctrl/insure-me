@@ -89,6 +89,9 @@ export async function resolveCarrierProgramContext(input: {
   const resolved = row as Record<string, unknown>;
 
   if (Boolean(resolved.kill_switch_enabled)) throw new Error('CARRIER_KILL_SWITCHED');
+  if (!['SYNTHETIC', 'SANDBOX', 'CERTIFIED'].includes(String(resolved.certification_state))) {
+    throw new Error('CARRIER_NOT_CERTIFIED');
+  }
 
   return {
     context: {
