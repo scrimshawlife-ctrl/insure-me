@@ -1,5 +1,6 @@
 -- Workforce-safe case intake projection for agent review.
 -- Protected identifier ciphertext and lookup hashes never leave SQL.
+-- Authorization remains at the existing AAL2 + active-tenant CASE_READ boundary.
 
 create or replace function private.get_workforce_case_intake_impl(p_quote_case_id uuid)
 returns jsonb
