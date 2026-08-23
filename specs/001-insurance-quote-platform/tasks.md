@@ -1,9 +1,12 @@
 # Implementation Tasks
 
+## Ledger status
+Reconciled against merged `main` acceptance evidence through PR #8. Checked items are implemented and evidenced by the accepted runtime/CI chain. Items marked `PARTIAL` have meaningful implementation but do not yet satisfy the full task wording. External legal/provider/carrier/launch decisions remain open by design.
+
 ## Phase 0 — Governance and production prerequisites
 - [ ] T001 Define the first production operator model: agency, brokerage, carrier program, or white-label deployment.
-- [ ] T002 Define generic CarrierAdapter contract and carrier capability registry.
-- [ ] T003 Define generic agency/tenant configuration and branding model.
+- [x] T002 Define generic CarrierAdapter contract and carrier capability registry.
+- [x] T003 Define generic agency/tenant configuration and branding model.
 - [ ] T004 Select and contract candidate MVR provider.
 - [ ] T005 Select and contract candidate claims-history/CRA provider.
 - [ ] T006 Select identity/prefill/vehicle providers as needed.
@@ -12,34 +15,34 @@
 - [ ] T009 Approve data-use matrix.
 - [ ] T010 Approve retention schedule.
 - [ ] T011 Assign security incident and privacy-rights owners.
-- [ ] T012 Define carrier onboarding/certification checklist independent of carrier name.
+- [x] T012 Define carrier onboarding/certification checklist independent of carrier name.
 
 ## Phase 1 — Repository and domain kernel
-- [ ] T100 Create runtime repository and link this specs repo as canonical requirement source.
-- [ ] T101 Establish CI: typecheck, unit tests, lint, secret scan, dependency scan, SAST baseline.
-- [ ] T102 Implement environment separation: local/CI/staging/production.
-- [ ] T103 Implement canonical IDs and timestamps.
-- [ ] T104 Implement QuoteCase state machine.
-- [ ] T105 Implement Agency, AgencyUser, Role, Permission, TenantConfiguration.
-- [ ] T106 Implement Prospect, Person, Driver, Vehicle, CoverageRequest.
-- [ ] T107 Implement NoticeDefinition and ConsentRecord.
-- [ ] T108 Implement PermissiblePurposeDecision.
-- [ ] T109 Implement ExternalRequest, ExternalReport, UnderwritingObservation.
-- [ ] T110 Implement DataUsePolicy and RatingInput boundary.
-- [ ] T111 Implement ReadinessIssue.
-- [ ] T112 Implement Carrier, CarrierProgram, CarrierSubmission, CarrierDecision.
+- [x] T100 Create runtime repository and link this specs repo as canonical requirement source. — Satisfied by the intentionally colocated runtime/spec layout and canonical read order; a second repository was not created.
+- [ ] T101 Establish CI: typecheck, unit tests, lint, secret scan, dependency scan, SAST baseline. — PARTIAL: typecheck, tests, lint, deterministic dependency verification, build, database rebuild, pgTAP, DB lint, generated-type drift checks, and canonical scenario artifacts are implemented; secret scan/dependency-vulnerability scan/SAST baseline remain.
+- [x] T102 Implement environment separation: local/CI/staging/production.
+- [x] T103 Implement canonical IDs and timestamps.
+- [x] T104 Implement QuoteCase state machine.
+- [x] T105 Implement Agency, AgencyUser, Role, Permission, TenantConfiguration.
+- [x] T106 Implement Prospect, Person, Driver, Vehicle, CoverageRequest.
+- [x] T107 Implement NoticeDefinition and ConsentRecord.
+- [x] T108 Implement PermissiblePurposeDecision.
+- [x] T109 Implement ExternalRequest, ExternalReport, UnderwritingObservation.
+- [x] T110 Implement DataUsePolicy and RatingInput boundary.
+- [x] T111 Implement ReadinessIssue.
+- [x] T112 Implement Carrier, CarrierProgram, CarrierSubmission, CarrierDecision.
 - [ ] T113 Implement PrivacyRequest and RetentionPolicy.
-- [ ] T114 Implement append-only AuditEvent pipeline.
-- [ ] T115 Create full synthetic fixture library.
+- [x] T114 Implement append-only AuditEvent pipeline.
+- [x] T115 Create full synthetic fixture library.
 
 ## Phase 2 — Authentication and security baseline
-- [ ] T200 Implement agency workforce identity provider abstraction.
-- [ ] T201 Enforce MFA.
-- [ ] T202 Implement RBAC + tenant/agency object scope.
-- [ ] T203 Implement service principal authentication.
-- [ ] T204 Implement consumer secure session/resume flow.
-- [ ] T205 Implement KMS/secrets integration.
-- [ ] T206 Implement sensitive-field encryption/tokenization.
+- [ ] T200 Implement agency workforce identity provider abstraction. — PARTIAL: Supabase workforce context exists, but a provider abstraction is not yet complete.
+- [x] T201 Enforce MFA.
+- [x] T202 Implement RBAC + tenant/agency object scope.
+- [x] T203 Implement service principal authentication.
+- [x] T204 Implement consumer secure session/resume flow.
+- [ ] T205 Implement KMS/secrets integration. — PARTIAL: server-only secrets and encrypted fields exist; production KMS lifecycle is not complete.
+- [x] T206 Implement sensitive-field encryption/tokenization.
 - [ ] T207 Implement secure headers, CSP, CSRF controls, rate limits.
 - [ ] T208 Implement privacy-safe structured logging.
 - [ ] T209 Implement security alerts for denied/excessive lookup behavior.
@@ -60,32 +63,32 @@
 - [ ] T312 Implement tenant/agency theming without carrier-specific core components.
 
 ## Phase 4 — Provider gateway
-- [ ] T400 Define ProviderAdapter and capability descriptor contracts.
-- [ ] T401 Implement purpose/notice/jurisdiction policy preflight.
-- [ ] T402 Implement provider request idempotency.
-- [ ] T403 Implement provider job queue/retry/circuit breaker.
-- [ ] T404 Implement normalized result/provenance envelope.
-- [ ] T405 Implement synthetic StubIdentityAdapter.
-- [ ] T406 Implement synthetic StubPrefillAdapter.
-- [ ] T407 Implement synthetic StubMvrAdapter.
-- [ ] T408 Implement synthetic StubClaimsAdapter.
-- [ ] T409 Implement synthetic StubVehicleAdapter.
+- [x] T400 Define ProviderAdapter and capability descriptor contracts.
+- [x] T401 Implement purpose/notice/jurisdiction policy preflight.
+- [x] T402 Implement provider request idempotency.
+- [ ] T403 Implement provider job queue/retry/circuit breaker. — PARTIAL: durable claim/retry/idempotent settlement exists; queue and circuit-breaker execution remain.
+- [x] T404 Implement normalized result/provenance envelope.
+- [x] T405 Implement synthetic StubIdentityAdapter.
+- [x] T406 Implement synthetic StubPrefillAdapter.
+- [x] T407 Implement synthetic StubMvrAdapter.
+- [x] T408 Implement synthetic StubClaimsAdapter.
+- [x] T409 Implement synthetic StubVehicleAdapter.
 - [ ] T410 Add approved identity provider sandbox adapter.
 - [ ] T411 Add approved prefill provider sandbox adapter.
 - [ ] T412 Add approved MVR provider sandbox adapter.
 - [ ] T413 Add approved claims provider sandbox adapter.
 - [ ] T414 Add approved vehicle provider sandbox adapter.
-- [ ] T415 Add contract tests for every adapter failure mode.
+- [ ] T415 Add contract tests for every adapter failure mode. — PARTIAL: synthetic adapter and canonical scenario failure contracts exist; live/sandbox adapters do not yet exist.
 
 ## Phase 5 — Normalization and readiness
-- [ ] T500 Implement field-level provenance.
-- [ ] T501 Implement UnderwritingObservation construction.
-- [ ] T502 Implement data-use policy enforcement.
-- [ ] T503 Implement conflict detection.
-- [ ] T504 Implement freshness/stale-report rules.
-- [ ] T505 Implement completeness-only readiness engine.
-- [ ] T506 Verify no observation can bypass RatingInput allowlist.
-- [ ] T507 Implement carrier-program field requirement overlays without modifying canonical domain entities.
+- [x] T500 Implement field-level provenance.
+- [x] T501 Implement UnderwritingObservation construction.
+- [x] T502 Implement data-use policy enforcement.
+- [x] T503 Implement conflict detection.
+- [x] T504 Implement freshness/stale-report rules.
+- [x] T505 Implement completeness-only readiness engine.
+- [x] T506 Verify no observation can bypass RatingInput allowlist.
+- [x] T507 Implement carrier-program field requirement overlays without modifying canonical domain entities.
 
 ## Phase 6 — Agent workspace
 - [ ] T600 Build quote queue.
@@ -102,17 +105,17 @@
 - [ ] T611 Build configured carrier/program target selector where deployment permits multiple targets.
 
 ## Phase 7 — Carrier gateway
-- [ ] T700 Implement synthetic StubCarrierAdapter as the default build target.
-- [ ] T701 Implement CarrierAdapter capability descriptor.
-- [ ] T702 Implement carrier submission allowlist/schema mapping.
-- [ ] T703 Implement carrier submission idempotency.
-- [ ] T704 Implement carrier response/decision provenance.
-- [ ] T705 Implement per-carrier kill switch/disable control.
-- [ ] T706 Implement adapter modes: API, deep link, AMS/comparative-rater bridge, structured export, manual handoff.
-- [ ] T707 Implement carrier-program configuration and versioning.
-- [ ] T708 Add generic carrier adapter contract test suite.
+- [x] T700 Implement synthetic StubCarrierAdapter as the default build target.
+- [x] T701 Implement CarrierAdapter capability descriptor.
+- [x] T702 Implement carrier submission allowlist/schema mapping.
+- [x] T703 Implement carrier submission idempotency.
+- [x] T704 Implement carrier response/decision provenance.
+- [x] T705 Implement per-carrier kill switch/disable control.
+- [ ] T706 Implement adapter modes: API, deep link, AMS/comparative-rater bridge, structured export, manual handoff. — PARTIAL: capability/configuration model supports multiple modes; concrete mode implementations are not complete.
+- [x] T707 Implement carrier-program configuration and versioning.
+- [ ] T708 Add generic carrier adapter contract test suite. — PARTIAL: deterministic synthetic carrier contract/portability tests exist; reusable live-adapter certification suite remains.
 - [ ] T709 Certify first live carrier adapter when a production partner is selected.
-- [ ] T710 Verify switching carrier adapters does not require core-domain code changes.
+- [x] T710 Verify switching carrier adapters does not require core-domain code changes.
 
 ## Phase 8 — Compliance operations
 - [ ] T800 Build privacy request intake.
@@ -139,7 +142,7 @@
 - [ ] T907 FCRA/adverse-action synthetic rehearsal.
 - [ ] T908 Penetration test/independent security assessment.
 - [ ] T909 Resolve all critical/high findings.
-- [ ] T910 Run full P0 acceptance suite against synthetic providers and StubCarrierAdapter.
+- [x] T910 Run full P0 acceptance suite against synthetic providers and StubCarrierAdapter.
 - [ ] T911 Obtain legal/compliance launch approval for the selected deployment.
 - [ ] T912 Complete first live agency/carrier/provider production certification.
 - [ ] T913 Production deployment and smoke test.
