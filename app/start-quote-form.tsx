@@ -4,7 +4,13 @@ import { useState, type FormEvent } from 'react';
 
 import { createSupabaseBrowserClient } from '@/src/infrastructure/supabase/browser';
 
-export function StartQuoteForm() {
+export function StartQuoteForm({
+  nextPath = '/quote',
+  submitLabel = 'Start my auto quote',
+}: {
+  nextPath?: string;
+  submitLabel?: string;
+}) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
@@ -12,8 +18,9 @@ export function StartQuoteForm() {
     event.preventDefault();
     setStatus('sending');
 
+    const safeNext = nextPath.startsWith('/') && !nextPath.startsWith('//') ? nextPath : '/quote';
     const supabase = createSupabaseBrowserClient();
-    const redirectTo = `${window.location.origin}/auth/confirm?next=/quote`;
+    const redirectTo = `${window.location.origin}/auth/confirm?next=${encodeURIComponent(safeNext)}`;
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -42,7 +49,7 @@ export function StartQuoteForm() {
         />
       </div>
       <button className="primary-button" type="submit" disabled={status === 'sending' || status === 'sent'}>
-        {status === 'sending' ? 'Sending secure link…' : status === 'sent' ? 'Check your email' : 'Start my auto quote'}
+        {status === 'sending' ? 'Sending secure link…' : status === 'sent' ? 'Check your email' : submitLabel}
       </button>
       <p
         id="quote-start-message"
@@ -55,7 +62,7 @@ export function StartQuoteForm() {
         {status === 'error' && 'We could not send the secure link. Please try again.'}
       </p>
       <p className="fine-print">
-        Starting a quote does not authorize consumer reports. Required notices and permissions are shown separately before any regulated report request.
+        Signing in does not authorize consumer reports. Required notices and permissions are shown separately before any regulated report request.
       </p>
     </form>
   );
