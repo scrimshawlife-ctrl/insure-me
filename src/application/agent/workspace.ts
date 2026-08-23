@@ -38,6 +38,22 @@ export interface AgentCaseSummary {
   readinessIssues: AgentReadinessIssue[];
 }
 
+type ReadinessCountRow = {
+  quote_case_id: string;
+  severity: string;
+  blocking: boolean;
+};
+
+type ReadinessDetailRow = {
+  readiness_issue_id: string;
+  issue_type: string;
+  severity: string;
+  blocking: boolean;
+  reason_code: string;
+  subject_ref: string | null;
+  created_at: string;
+};
+
 export async function listAgentQueue(
   client: SupabaseClient<Database>,
 ): Promise<AgentQueueItem[]> {
@@ -60,7 +76,7 @@ export async function listAgentQueue(
   if (issueError) throw new Error(`AGENT_QUEUE_READINESS_FAILED:${issueError.message}`);
 
   const counts = new Map<string, { blocking: number; warning: number }>();
-  for (const issue of issues ?? []) {
+  for (const issue of (issues ?? []) as ReadinessCountRow[]) {
     const current = counts.get(issue.quote_case_id) ?? { blocking: 0, warning: 0 };
     if (issue.blocking) current.blocking += 1;
     else if (issue.severity === 'WARNING') current.warning += 1;
@@ -117,7 +133,7 @@ export async function getAgentCaseSummary(
     selectedCarrierProgramId: quoteCase.selected_carrier_program_id,
     createdAt: quoteCase.created_at,
     updatedAt: quoteCase.updated_at,
-    readinessIssues: (issues ?? []).map((issue) => ({
+    readinessIssues: ((issues ?? []) as ReadinessDetailRow[]).map((issue) => ({
       readinessIssueId: issue.readiness_issue_id,
       issueType: issue.issue_type,
       severity: issue.severity,
