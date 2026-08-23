@@ -1,0 +1,101 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - runtime/**
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - run: pnpm --version
+      - run: pnpm install --no-frozen-lockfile
+      - name: Verify resolved dependency graph
+        shell: bash
+        run: |
+          expected="$(tr -d '[:space:]' < .ci/pnpm-lock.sha256)"
+          actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
+          test "$actual" = "$expected" || {
+            echo "pnpm-lock.yaml drift detected"
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            exit 1
+          }
+      - name: Upload verified lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-lock
+          path: pnpm-lock.yaml
+          if-no-files-found: error
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_synthetic_ci_key_000000000000000000
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pnpm
+        run: npm install --global pnpm@10.0.0
+      - run: pnpm --version
+      - run: pnpm install --no-frozen-lockfile
+      - name: Verify resolved dependency graph
+        shell: bash
+        run: |
+          expected="$(tr -d '[:space:]' < .ci/pnpm-lock.sha256)"
+          actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
+          test "$actual" = "$expected" || {
+            echo "pnpm-lock.yaml drift detected"
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            exit 1
+          }
+      - name: Start local Supabase
+        run: pnpm db:start
+      - name: Rebuild database from migrations
+        run: pnpm db:reset
+      - name: Run pgTAP database tests
+        run: pnpm db:test
+      - name: Lint database
+        run: pnpm db:lint
+      - name: Generate database types
+        run: pnpm exec supabase gen types typescript --local --schema public > generated-database.types.ts
+      - name: Verify generated database contract
+        shell: bash
+        run: |
+          expected="$(tr -d '[:space:]' < .ci/database-types.sha256)"
+          actual="$(sha256sum generated-database.types.ts | awk '{print $1}')"
+          test "$actual" = "$expected" || {
+            echo "generated database type drift detected"
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            exit 1
+          }
+      - name: Upload verified database types
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: generated-database.types.ts
+          if-no-files-found: error
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm db:stop
