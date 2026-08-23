@@ -3,9 +3,10 @@ import {
   assessDeploymentReadiness,
   assertAdapterAllowedForDeployment,
   requireLiveDeploymentReady,
+  type EnvironmentSource,
 } from '@/src/infrastructure/config/deployment';
 
-function liveEnvironment(overrides: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
+function liveEnvironment(overrides: EnvironmentSource = {}): EnvironmentSource {
   return {
     DEPLOYMENT_STAGE: 'pilot',
     PUBLIC_BASE_URL: 'https://pilot.example.com',
