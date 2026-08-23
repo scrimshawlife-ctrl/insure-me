@@ -20,8 +20,8 @@ insert into public.agency_users (
 
 insert into public.roles (role_id, tenant_id, agency_id, name, permissions)
 values
-  ('41000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'agent', array['CASE_READ','CASE_WRITE']::public.permission_code[]),
-  ('42000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000002', 'agent', array['CASE_READ','CASE_WRITE']::public.permission_code[]);
+  ('41000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'agent', array['CASE_READ','CASE_WRITE','AUDIT_READ']::public.permission_code[]),
+  ('42000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000002', 'agent', array['CASE_READ','CASE_WRITE','AUDIT_READ']::public.permission_code[]);
 
 insert into public.agency_user_roles (agency_user_id, role_id)
 values
@@ -46,7 +46,7 @@ select set_config(
   json_build_object(
     'sub', '90000000-0000-0000-0000-000000000009',
     'role', 'authenticated',
-    'tenant_id', '00000000-0000-0000-0000-000000000001',
+    'app_metadata', json_build_object('active_tenant_id', '00000000-0000-0000-0000-000000000001'),
     'aal', 'aal2'
   )::text,
   true
@@ -114,6 +114,29 @@ begin
     when insufficient_privilege then
       null;
   end;
+end
+$$;
+
+-- AAL1 cannot read tenant data even with valid membership and active tenant metadata.
+select set_config(
+  'request.jwt.claims',
+  json_build_object(
+    'sub', '90000000-0000-0000-0000-000000000009',
+    'role', 'authenticated',
+    'app_metadata', json_build_object('active_tenant_id', '00000000-0000-0000-0000-000000000001'),
+    'aal', 'aal1'
+  )::text,
+  true
+);
+
+do $$
+declare
+  visible_count integer;
+begin
+  select count(*) into visible_count from public.quote_cases;
+  if visible_count <> 0 then
+    raise exception 'SLICE1_AAL1_WORKFORCE_ACCESS_NOT_DENIED';
+  end if;
 end
 $$;
 
