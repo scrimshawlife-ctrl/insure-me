@@ -1,0 +1,26 @@
+{
+  "catalogId": "insure-me-canonical-synthetic-v1",
+  "schemaVersion": "canonical-synthetic-dataset-v1",
+  "sourcePath": "testdata/canonical/v1/canonical-synthetic-datasets.v1.json",
+  "sourceGitBlobSha1": "6bcd11db3fc14e4e407413af9ba56dc841a21de9",
+  "datasetCount": 12,
+  "clock": "2026-08-23T00:00:00.000Z",
+  "randomness": "NONE",
+  "runtimeIdStrategy": "UUIDv5",
+  "containsRealPII": false,
+  "productionUse": "FORBIDDEN",
+  "scenarioIds": [
+    "happy-path",
+    "provider-no-hit",
+    "multiple-drivers",
+    "multiple-vehicles",
+    "conflicting-records",
+    "stale-report",
+    "provider-outage",
+    "consumer-correction",
+    "adverse-action-handoff",
+    "privacy-deletion",
+    "unauthorized-lookup",
+    "carrier-adapter-failure"
+  ]
+}
