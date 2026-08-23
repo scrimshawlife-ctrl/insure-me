@@ -47,6 +47,29 @@ begin
 end
 $$;
 
+-- Verify every RLS-enabled Slice 1 table has at least one policy.
+do $$
+declare
+  missing_policy text;
+begin
+  select c.relname into missing_policy
+  from pg_class c
+  where c.relnamespace = 'public'::regnamespace
+    and c.relname in (
+      'agencies','tenant_configurations','roles','agency_users','agency_user_roles',
+      'prospects','quote_cases','permissible_purpose_decisions','audit_events','idempotency_keys'
+    )
+    and not exists (
+      select 1 from pg_policy p where p.polrelid = c.oid
+    )
+  limit 1;
+
+  if missing_policy is not null then
+    raise exception 'SLICE1_RLS_POLICY_MISSING:%', missing_policy;
+  end if;
+end
+$$;
+
 -- Verify idempotency uniqueness at the database boundary.
 insert into public.idempotency_keys (
   tenant_id, scope, idempotency_key, request_hash, status
