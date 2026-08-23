@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import styles from './resume-dock.module.css';
 import { SaveResumeControl } from './save-resume-control';
 
 export default async function ConsumerQuoteLayout({
@@ -14,7 +15,7 @@ export default async function ConsumerQuoteLayout({
   return (
     <>
       {children}
-      <aside className="resume-dock" aria-label="Save quote for later">
+      <aside className={styles.dock} aria-label="Save quote for later">
         <SaveResumeControl quoteCaseId={quoteCaseId} />
       </aside>
     </>
