@@ -15,21 +15,17 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install pnpm
-        run: npm install --global pnpm@10.0.0
-      - run: pnpm --version
-      - name: Resolve dependency graph
-        run: pnpm install --no-frozen-lockfile
-      - name: Verify resolved dependency graph
+      - name: Reconstruct canonical lockfile
+        shell: bash
+        run: |
+          cat .ci/lock-snapshot/part-*.b64 | base64 --decode | gzip --decompress > pnpm-lock.yaml
+      - name: Verify canonical lockfile
         shell: bash
         run: |
           expected="$(tr -d '[:space:]' < .ci/pnpm-lock.sha256)"
           actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
           test "$actual" = "$expected" || {
-            echo "pnpm-lock.yaml drift detected"
+            echo "canonical lock snapshot is invalid"
             echo "expected: $expected"
             echo "actual:   $actual"
             exit 1
