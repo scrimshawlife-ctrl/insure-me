@@ -1,155 +1,216 @@
-# Data Model
+# Canonical Data Model
 
-## Design rule
-`ExternalReport != UnderwritingObservation != RatingInput != CarrierDecision`.
+## Modeling rules
+- Canonical entities MUST use provider- and carrier-neutral names.
+- Every material externally derived value MUST preserve provenance.
+- Tenant, provider, and carrier configuration MUST be versioned so historical actions can be reconstructed.
+- `ExternalReport != UnderwritingObservation != RatingInput != CarrierDecision`.
+- Carrier-specific mappings belong at the carrier boundary, not in canonical entities.
+- Raw vendor payloads are not canonical domain state.
 
-The model MUST preserve provenance, legal-use classification, jurisdiction, ownership, and lifecycle state.
+## Tenant and agency
 
-## Core entities
+### TenantConfiguration
+Versioned configuration that controls one deployable agency/tenant context.
+
+Minimum fields:
+- `tenant_configuration_id`
+- `tenant_id`
+- `agency_id`
+- `version`
+- `status`: `DRAFT | ACTIVE | RETIRED`
+- `brand_configuration_ref`
+- `enabled_jurisdictions[]`
+- `enabled_product_lines[]`
+- `provider_capability_binding_ids[]`
+- `carrier_program_ids[]`
+- `notice_policy_set_id`
+- `data_use_policy_set_id`
+- `retention_policy_set_id`
+- `effective_at`
+- `retired_at?`
+- `created_at`
+- `created_by`
+
+A QuoteCase MUST retain the TenantConfiguration version that governed its regulated actions. Later configuration edits MUST NOT rewrite historical policy context.
 
 ### Agency
-- `id`
+Minimum fields:
+- `agency_id`
+- `tenant_id`
 - `legal_name`
 - `display_name`
-- `carrier_relationships[]`
-- `jurisdictions[]`
+- `license_metadata_ref?`
 - `status`
 - `created_at`
 
 ### AgencyUser
-- `id`
+Minimum fields:
+- `agency_user_id`
 - `agency_id`
-- `identity_subject`
-- `name`
-- `email`
-- `role_ids[]`
-- `license_metadata` (when required)
-- `mfa_state`
+- `workforce_identity_id`
 - `status`
-- `last_login_at`
-
-### Role / Permission
-Permissions MUST be capability-specific, including:
-- quote.read
-- quote.write
-- provider.request.mvr
-- provider.request.claims
-- provider.request.identity
-- carrier.submit
-- privacy.review
-- audit.read
-- admin.users
-- admin.integrations
-
-### Prospect
-- `id`
-- `agency_id`
-- `canonical_person_id`
-- `contact_preferences`
+- `role_ids[]`
 - `created_at`
 
-### Person
-- `id`
-- `name`
-- `dob_encrypted`
-- `address_ids[]`
-- `phone_encrypted`
-- `email`
-- `identity_status`
-- `source_provenance[]`
+### Role / Permission
+Permissions MUST be explicit and agency/tenant-scoped. Sensitive functions such as report retrieval, privacy administration, exports, carrier submission, and policy administration MUST have separate permissions.
+
+## Carrier model
+
+### Carrier
+Represents an insurer or other authorized carrier endpoint without embedding workflow details.
+
+Minimum fields:
+- `carrier_id`
+- `legal_name`
+- `display_name`
+- `status`: `CANDIDATE | CONFIGURED | ACTIVE | DISABLED | RETIRED`
+- `created_at`
+
+### CarrierProgram
+A versioned carrier-specific capability/configuration unit. A carrier can have multiple programs by state, product, channel, or integration contract.
+
+Minimum fields:
+- `carrier_program_id`
+- `carrier_id`
+- `program_code`
+- `version`
+- `jurisdictions[]`
+- `product_lines[]`
+- `adapter_id`
+- `handoff_mode`: `STUB | API | DEEPLINK | AMS_BRIDGE | STRUCTURED_EXPORT | MANUAL`
+- `required_field_policy_version`
+- `rating_input_policy_version`
+- `response_mapping_version`
+- `notice_ownership_policy_version`
+- `retention_constraint_version?`
+- `authentication_config_ref?`
+- `certification_state`: `SYNTHETIC | SANDBOX | CERTIFIED | SUSPENDED | RETIRED`
+- `kill_switch_enabled`
+- `effective_at`
+- `retired_at?`
+
+No carrier name or program code may drive core branching logic.
+
+## Quote domain
 
 ### QuoteCase
-- `id`
+Minimum fields:
+- `quote_case_id`
+- `tenant_id`
 - `agency_id`
-- `prospect_id`
+- `tenant_configuration_id`
+- `tenant_configuration_version`
 - `jurisdiction`
-- `product_line` = `CA_PRIVATE_PASSENGER_AUTO`
+- `product_line`
 - `source_channel`
 - `state`
-- `assigned_agent_id`
-- `started_at`
-- `consumer_completed_at`
-- `submitted_at`
-- `closed_at`
-- `retention_policy_id`
-- `legal_hold_state`
+- `prospect_id`
+- `assigned_agent_id?`
+- `selected_carrier_program_id?`
+- `selected_carrier_program_version?`
+- `created_at`
+- `updated_at`
+- `closed_at?`
+
+Carrier selection MAY remain null until the agent or configured workflow chooses a program. Selection is context, not ownership of the canonical facts.
+
+### Prospect
+Represents the consumer relationship for a quote case.
+
+Minimum fields:
+- `prospect_id`
+- `person_id`
+- contact preference fields permitted by policy
+- source classification
+- created/updated timestamps
+
+### Person
+Canonical person record scoped to the quote workflow. Sensitive identity attributes MUST use the approved field-protection strategy.
 
 ### Driver
-- `id`
+Minimum logical attributes:
+- `driver_id`
 - `quote_case_id`
 - `person_id`
-- `relationship_to_applicant`
-- `license_number_encrypted`
-- `license_state`
-- `license_status`
-- `first_licensed_date_or_year`
-- `driver_role`
-- `provenance[]`
+- relationship/role
+- license jurisdiction
+- protected license identifier
+- license status when sourced/permitted
+- years-licensed/first-issued signal when sourced/permitted
+- confirmation state
+- source/provenance references
 
 ### Vehicle
-- `id`
+Minimum logical attributes:
+- `vehicle_id`
 - `quote_case_id`
-- `vin_encrypted_or_tokenized`
-- `year`
-- `make`
-- `model`
-- `trim`
-- `ownership_type`
-- `garaging_address_id`
-- `annual_mileage`
-- `primary_use`
-- `primary_driver_id`
-- `provenance[]`
+- protected or appropriately displayed VIN
+- year/make/model/trim
+- ownership/lease state where required
+- garaging reference
+- usage
+- annual mileage
+- confirmation state
+- source/provenance references
 
 ### CoverageRequest
-- `id`
-- `quote_case_id`
-- `requested_effective_date`
-- `coverage_selections`
-- `deductible_preferences`
-- `current_coverage_context`
-- `consumer_priorities`
+Contains consumer/agent-requested coverage preferences and permitted underwriting inputs. It is not a carrier quote.
+
+## Notice, purpose, and policy
 
 ### NoticeDefinition
-- `id`
-- `notice_type`
-- `version`
-- `effective_at`
-- `jurisdiction`
-- `content_hash`
-- `content_location`
-- `approved_by`
-- `approval_reference`
+Versioned immutable text/metadata for a notice, disclosure, acknowledgment, or authorization.
 
 ### ConsentRecord
-- `id`
+Minimum fields:
+- `consent_record_id`
 - `quote_case_id`
-- `person_id`
+- `subject_id`
 - `notice_definition_id`
-- `action_type` (`ACKNOWLEDGE`, `AUTHORIZE`, `OPT_IN`, `OPT_OUT`, `WITHDRAW`)
-- `purpose`
+- `notice_version`
+- `action_type`
 - `presented_at`
 - `acted_at`
 - `channel`
-- `evidence_hash`
-- `ip_or_device_evidence` only if approved/minimized
+- `evidence_ref`
 
 ### PermissiblePurposeDecision
-- `id`
+Every regulated provider request MUST reference a server-created decision.
+
+Minimum fields:
+- `decision_id`
 - `quote_case_id`
-- `request_type`
-- `legal_basis_code`
-- `contract_basis_code`
+- `tenant_configuration_version`
+- `actor_id`
 - `jurisdiction`
-- `decision` (`ALLOW`, `DENY`, `REVIEW`)
-- `rule_version`
-- `evaluated_at`
+- `capability`
+- `purpose_code`
+- `outcome`: `ALLOW | DENY`
 - `reason_codes[]`
+- `policy_version`
+- `evaluated_at`
+
+### DataUsePolicy
+Versioned policy that classifies a field/observation for:
+- collection;
+- agent display;
+- underwriting use;
+- rating/submission use;
+- carrier-only use;
+- prohibited use.
+
+The rating/submission decision MUST be carrier-program-aware when a target program is selected.
+
+## External data and provenance
 
 ### ExternalRequest
-- `id`
+Minimum fields:
+- `external_request_id`
 - `quote_case_id`
-- `provider_id`
+- `tenant_configuration_version`
+- `provider_binding_id`
 - `capability`
 - `subject_ids[]`
 - `permissible_purpose_decision_id`
@@ -157,180 +218,155 @@ Permissions MUST be capability-specific, including:
 - `idempotency_key`
 - `status`
 - `requested_at`
-- `completed_at`
-- `provider_request_id`
-- `error_class`
+- `completed_at?`
+- provider request reference
+- failure/reason codes
 
 ### ExternalReport
-- `id`
+Represents provider-returned report metadata and approved normalized snapshot.
+
+Minimum fields:
+- `external_report_id`
 - `external_request_id`
 - `provider_id`
-- `provider_report_id`
-- `report_type`
-- `jurisdiction`
+- `provider_product_id`
+- `provider_report_ref?`
+- `status`: `SUCCESS | NO_HIT | PARTIAL | STALE | ERROR`
 - `retrieved_at`
-- `freshness_expires_at`
-- `normalized_schema_version`
-- `normalized_payload`
-- `raw_payload_location` nullable and disabled by default
-- `raw_payload_retention_policy_id` nullable
-- `content_hash`
-- `status`
+- `fresh_until?`
+- normalized snapshot/version
+- raw-payload reference only when explicitly allowed
+- contractual/legal metadata references
+
+### ProvenanceEntry
+Field- or fact-level lineage.
+
+Minimum fields:
+- `provenance_entry_id`
+- source type/id
+- source field/path or normalized fact key
+- source timestamp
+- transformation/version
+- match/confidence state when supplied by source
+- consumer confirmation/correction state when applicable
 
 ### UnderwritingObservation
-- `id`
-- `quote_case_id`
-- `subject_type`
-- `subject_id`
-- `observation_type`
-- `value`
-- `source_external_report_id`
-- `source_path`
-- `observed_at`
-- `confidence_or_status`
-- `data_use_policy_id`
-- `review_state`
+A source-backed normalized fact available to authorized workflow logic. It is not itself a rating factor.
 
-### DataUsePolicy
-- `id`
-- `attribute_or_observation_type`
-- `jurisdiction`
-- `product_line`
-- `collect_state`
-- `display_state`
-- `underwriting_state`
-- `rating_state`
-- `carrier_only_state`
-- `prohibited_state`
-- `source_authority`
-- `effective_at`
-- `expires_at`
+Minimum fields:
+- `observation_id`
+- `quote_case_id`
+- `observation_type`
+- `subject_id`
+- normalized value
+- provenance entries
+- data-use classification/version
+- freshness state
+- conflict state
+- created_at
 
 ### RatingInput
-Used only where the carrier explicitly approves platform transmission of a field for rating.
-- `id`
+A deliberate carrier-program-specific projection of permitted canonical data.
+
+Minimum fields:
+- `rating_input_id`
 - `quote_case_id`
-- `field_name`
-- `value`
-- `source_type`
-- `source_id`
-- `carrier_id`
-- `approval_rule_version`
+- `carrier_program_id`
+- `carrier_program_version`
+- `source_observation_or_field_refs[]`
+- `input_key`
+- `approved_value`
+- `data_use_policy_version`
+- `mapping_version`
+- `created_at`
+
+No UnderwritingObservation may become a RatingInput without explicit allowlist evaluation for the selected CarrierProgram.
+
+## Readiness and conflict model
 
 ### ReadinessIssue
-- `id`
+Represents missing, stale, conflicting, unauthorized, or program-required work that prevents a defined next step.
+
+Minimum fields:
+- `readiness_issue_id`
 - `quote_case_id`
-- `severity` (`BLOCKING`, `WARNING`, `INFO`)
-- `type`
-- `message_code`
-- `subject_id`
-- `source_ids[]`
-- `state`
-- `resolution`
-- `resolved_by`
-- `resolved_at`
+- optional `carrier_program_id`
+- type/severity
+- blocking state
+- subject/reference
+- reason code
+- resolution state/evidence
+- timestamps
+
+Readiness is a workflow-completeness concept, not a risk or insurability score.
+
+## Carrier handoff
 
 ### CarrierSubmission
-- `id`
+Minimum fields:
+- `carrier_submission_id`
 - `quote_case_id`
+- `tenant_configuration_version`
 - `carrier_id`
-- `adapter_type`
-- `schema_version`
-- `submission_hash`
+- `carrier_program_id`
+- `carrier_program_version`
+- `adapter_id`
+- `handoff_mode`
+- `mapping_version`
+- `rating_input_ids[]`
 - `idempotency_key`
-- `submitted_by`
-- `submitted_at`
 - `status`
-- `external_reference`
+- `external_reference?`
+- `submitted_at`
+- `completed_at?`
+
+Each submission is immutable evidence. A retry MUST be idempotent or create an explicitly linked new attempt according to the adapter contract.
 
 ### CarrierDecision
-- `id`
-- `carrier_submission_id`
-- `decision_type`
-- `premium` nullable
-- `eligibility_state` nullable
-- `bind_state` nullable
-- `reason_codes[]`
-- `effective_date` nullable
-- `received_at`
-- `carrier_reference`
-- `raw_response_location` nullable per contract
+Carrier-owned result data.
 
-### AdverseActionCase
-- `id`
-- `quote_case_id`
+Minimum fields:
 - `carrier_decision_id`
-- `responsible_party`
-- `consumer_report_source_ids[]`
-- `trigger_state`
-- `notice_required`
-- `notice_status`
-- `notice_sent_at`
-- `dispute_route`
+- `carrier_submission_id`
+- `carrier_program_id`
+- `decision_type/status`
+- premium/term data when returned and permitted
+- eligibility/bind state when returned
+- reason codes when returned
+- external reference
+- response mapping version
+- received_at
+
+Insure Me MUST NOT manufacture missing carrier reason codes or reinterpret a carrier result as its own decision.
+
+## Privacy, retention, and audit
 
 ### PrivacyRequest
-- `id`
-- `person_id`
-- `request_type`
-- `jurisdiction`
-- `received_at`
-- `identity_verification_state`
-- `scope`
-- `exceptions[]`
-- `due_at`
-- `status`
-- `completed_at`
-- `evidence_location`
+Tracks applicable access, correction, deletion, restriction/opt-out, and related identity-verification workflow.
 
 ### RetentionPolicy
-- `id`
-- `record_class`
-- `jurisdiction`
-- `retention_basis`
-- `duration_or_rule`
-- `disposition`
-- `approved_by`
-- `effective_at`
+Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 
 ### AuditEvent
-Append-only logical model:
-- `id`
-- `occurred_at`
-- `actor_type`
-- `actor_id`
-- `agency_id`
-- `quote_case_id` nullable
-- `event_type`
-- `resource_type`
-- `resource_id`
-- `action`
-- `result`
-- `reason_codes[]`
-- `trace_id`
-- `metadata_redacted`
-- `previous_event_hash` or equivalent tamper-evidence mechanism
+Append-only event evidence for sensitive reads/writes, regulated provider requests, consent actions, policy/configuration changes, carrier submissions, privacy actions, exports, and security-relevant denials.
 
-## Provenance envelope
-Any canonical field derived from outside user input SHOULD use:
+Each event SHOULD include:
+- event ID/type;
+- opaque actor/subject/case references;
+- tenant/agency;
+- applicable configuration/policy versions;
+- timestamp;
+- outcome/reason codes;
+- integrity/tamper-evidence metadata.
 
-```json
-{
-  "value": "...",
-  "source_type": "EXTERNAL_REPORT",
-  "source_id": "...",
-  "source_path": "...",
-  "retrieved_at": "...",
-  "jurisdiction": "CA",
-  "data_use_policy_id": "..."
-}
-```
+## Cross-tenant isolation invariants
+- Every QuoteCase belongs to exactly one tenant/agency context.
+- Provider credentials/bindings and carrier credentials/programs MUST be tenant/environment scoped.
+- A tenant MUST NOT observe another tenant's prospects, reports, configuration, audit events, or carrier submissions.
+- Branding is presentation configuration and MUST NOT modify canonical data semantics.
 
-## Deletion model
-Deletion MUST be policy-driven. A privacy or retention action may result in:
-- hard delete;
-- cryptographic erasure;
-- irreversible anonymization;
-- deletion of raw report while preserving minimum audit metadata;
-- legal/contractual hold.
-
-The disposition and basis MUST be auditable.
+## Portability invariants
+- Adding or replacing a carrier requires a Carrier/CarrierProgram configuration and adapter, not a canonical schema fork.
+- Adding or replacing a provider requires a capability binding and adapter, not a canonical schema fork.
+- Historical records retain the exact provider/carrier/configuration versions used at execution time.
+- Synthetic adapters implement the same internal contracts as live adapters.
