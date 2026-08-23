@@ -57,6 +57,28 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Run canonical synthetic scenario suite
+        run: pnpm scenario:run
+        env:
+          CANONICAL_SCENARIO_REPORT_PATH: artifacts/canonical-scenario-report-v1.json
+      - name: Verify canonical scenario report
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync('artifacts/canonical-scenario-report-v1.json', 'utf8'));
+          if (report.schemaVersion !== 'canonical-scenario-report-v1') throw new Error('unexpected scenario report schema');
+          if (report.total !== 12 || report.passed !== 12 || report.failed !== 0) {
+            throw new Error(`canonical scenario report is not clean: ${JSON.stringify({ total: report.total, passed: report.passed, failed: report.failed })}`);
+          }
+          NODE
+      - name: Upload canonical scenario report
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-scenario-report-v1
+          path: artifacts/canonical-scenario-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - run: pnpm build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
