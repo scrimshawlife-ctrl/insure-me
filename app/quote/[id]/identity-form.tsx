@@ -1,8 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
 export function IdentityForm({ quoteCaseId }: { quoteCaseId: string }) {
+  const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -28,7 +30,13 @@ export function IdentityForm({ quoteCaseId }: { quoteCaseId: string }) {
       }),
     });
 
-    setStatus(response.ok ? 'saved' : 'error');
+    if (!response.ok) {
+      setStatus('error');
+      return;
+    }
+
+    setStatus('saved');
+    router.push(`/quote/${quoteCaseId}/notices`);
   }
 
   return (
@@ -55,10 +63,10 @@ export function IdentityForm({ quoteCaseId }: { quoteCaseId: string }) {
       </div>
 
       <button className="primary-button" type="submit" disabled={status === 'saving'}>
-        {status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved' : 'Save and continue'}
+        {status === 'saving' ? 'Saving…' : 'Save and continue'}
       </button>
       <p className="form-message" role="status" aria-live="polite" data-tone={status === 'error' ? 'error' : status === 'saved' ? 'success' : undefined}>
-        {status === 'saved' && 'Your information is saved. The next step is privacy notices and permissions.'}
+        {status === 'saved' && 'Saved. Opening privacy notices…'}
         {status === 'error' && 'We could not save this information. Check the fields and try again.'}
       </p>
     </form>
