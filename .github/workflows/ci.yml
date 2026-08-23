@@ -24,6 +24,12 @@ jobs:
           corepack prepare pnpm@10.0.0 --activate
           pnpm --version
       - run: pnpm install --no-frozen-lockfile
+      - name: Upload generated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-lock
+          path: pnpm-lock.yaml
+          if-no-files-found: error
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
@@ -53,6 +59,14 @@ jobs:
         run: pnpm db:test
       - name: Lint database
         run: pnpm db:lint
+      - name: Generate database types
+        run: pnpm exec supabase gen types typescript --local --schema public > generated-database.types.ts
+      - name: Upload generated database types
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: generated-database.types.ts
+          if-no-files-found: error
       - name: Stop local Supabase
         if: always()
         run: pnpm db:stop
