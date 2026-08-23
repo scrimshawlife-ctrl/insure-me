@@ -16,3 +16,6 @@ alter function private.create_consumer_quote_case_impl(
 alter function private.upsert_consumer_identity_impl(
   uuid, bytea, text, text, text
 ) set search_path = public, private, extensions;
+
+alter function private.advance_quote_after_required_notices()
+  set search_path = public, private, extensions;
