@@ -4,34 +4,42 @@ import type { CanonicalSyntheticDataset } from './schema';
 const UUID_NAMESPACE = '3c1d5bc7-17b0-4d3f-b641-4be6dc1f6f35';
 const VIN_ALPHABET = 'ABCDEFGHJKLMNPRSTUVWXYZ0123456789';
 
+type SourceTenant = CanonicalSyntheticDataset['tenant'];
+type SourceQuoteCase = CanonicalSyntheticDataset['quoteCase'];
+type SourceConsumer = CanonicalSyntheticDataset['consumer'];
+type SourceDriver = CanonicalSyntheticDataset['drivers'][number];
+type SourceVehicle = CanonicalSyntheticDataset['vehicles'][number];
+type SourceProviderRequest = CanonicalSyntheticDataset['providerRequests'][number];
+type SourceCarrier = CanonicalSyntheticDataset['carrier'];
+
 export interface RuntimeSeedDataset extends Omit<CanonicalSyntheticDataset, 'tenant' | 'quoteCase' | 'consumer' | 'drivers' | 'vehicles' | 'providerRequests' | 'carrier'> {
-  tenant: CanonicalSyntheticDataset['tenant'] & {
+  tenant: Omit<SourceTenant, 'tenantId' | 'agencyId' | 'configurationVersion'> & {
     tenantId: string;
     agencyId: string;
     tenantConfigurationId: string;
     configurationVersion: number;
   };
-  quoteCase: CanonicalSyntheticDataset['quoteCase'] & {
+  quoteCase: Omit<SourceQuoteCase, 'quoteCaseId'> & {
     quoteCaseId: string;
     prospectId: string;
   };
-  consumer: CanonicalSyntheticDataset['consumer'] & {
+  consumer: SourceConsumer & {
     personId: string;
     subjectId: string;
   };
-  drivers: Array<CanonicalSyntheticDataset['drivers'][number] & {
+  drivers: Array<SourceDriver & {
     driverId: string;
     personId: string;
     subjectId: string;
   }>;
-  vehicles: Array<CanonicalSyntheticDataset['vehicles'][number] & {
+  vehicles: Array<SourceVehicle & {
     vehicleId: string;
     vin: string;
   }>;
-  providerRequests: Array<CanonicalSyntheticDataset['providerRequests'][number] & {
+  providerRequests: Array<Omit<SourceProviderRequest, 'subjectIds'> & {
     subjectIds: string[];
   }>;
-  carrier: CanonicalSyntheticDataset['carrier'] & {
+  carrier: SourceCarrier & {
     carrierId: string;
     carrierProgramId: string;
   };
