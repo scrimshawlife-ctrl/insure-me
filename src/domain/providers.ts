@@ -29,6 +29,7 @@ export interface ProviderRequestContext {
   quoteCaseId: string;
   tenantId: string;
   agencyId: string;
+  actorId: string;
   tenantConfigurationVersion: string;
   jurisdiction: 'CA';
   productLine: 'PRIVATE_PASSENGER_AUTO';
