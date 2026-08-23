@@ -230,7 +230,6 @@ grant execute on function private.transition_quote_case_with_audit_impl(uuid, pu
 grant execute on function private.claim_idempotency_key_impl(text, text, text) to authenticated;
 grant execute on function private.get_current_workforce_context_impl() to authenticated;
 
--- Replace exposed privileged functions with invoker wrappers.
 create or replace function public.transition_quote_case_with_audit(
   p_quote_case_id uuid,
   p_to_state public.quote_case_state,
@@ -282,7 +281,7 @@ as $$
   select * from private.get_current_workforce_context_impl()
 $$;
 
--- Remove obsolete exposed security-definer helpers after policies are replaced below.
+-- Remove policies that depended on the obsolete exposed helpers before dropping them.
 drop policy if exists agencies_tenant_select on public.agencies;
 drop policy if exists tenant_configurations_tenant_select on public.tenant_configurations;
 drop policy if exists roles_tenant_select on public.roles;
@@ -292,6 +291,12 @@ drop policy if exists quote_cases_tenant_all on public.quote_cases;
 drop policy if exists purpose_decisions_tenant_all on public.permissible_purpose_decisions;
 drop policy if exists audit_events_tenant_select on public.audit_events;
 drop policy if exists idempotency_tenant_all on public.idempotency_keys;
+
+-- Drop dependent public helper first, then its dependency.
+revoke all on function public.has_permission(uuid, uuid, public.permission_code) from public, anon, authenticated;
+drop function public.has_permission(uuid, uuid, public.permission_code);
+revoke all on function public.has_tenant_membership(uuid) from public, anon, authenticated;
+drop function public.has_tenant_membership(uuid);
 
 create policy agencies_tenant_select on public.agencies
 for select to authenticated
@@ -309,6 +314,17 @@ create policy agency_users_tenant_select on public.agency_users
 for select to authenticated
 using (private.has_tenant_membership(tenant_id));
 
+create policy agency_user_roles_tenant_select on public.agency_user_roles
+for select to authenticated
+using (
+  exists (
+    select 1
+    from public.agency_users au
+    where au.agency_user_id = agency_user_roles.agency_user_id
+      and private.has_tenant_membership(au.tenant_id)
+  )
+);
+
 create policy prospects_tenant_select on public.prospects
 for select to authenticated
 using (private.has_tenant_membership(tenant_id));
@@ -319,9 +335,13 @@ using (private.has_tenant_membership(tenant_id));
 
 create policy purpose_decisions_tenant_select on public.permissible_purpose_decisions
 for select to authenticated
-using (private.has_permission(tenant_id, (
-  select qc.agency_id from public.quote_cases qc where qc.quote_case_id = permissible_purpose_decisions.quote_case_id
-), 'REPORT_RETRIEVE'));
+using (
+  private.has_permission(
+    tenant_id,
+    (select qc.agency_id from public.quote_cases qc where qc.quote_case_id = permissible_purpose_decisions.quote_case_id),
+    'REPORT_RETRIEVE'
+  )
+);
 
 create policy audit_events_tenant_select on public.audit_events
 for select to authenticated
@@ -330,7 +350,11 @@ using (
   and private.has_permission(tenant_id, agency_id, 'AUDIT_READ')
 );
 
--- Public Data API access is intentionally read-only for the Slice 1 workforce tables.
+create policy idempotency_keys_tenant_select on public.idempotency_keys
+for select to authenticated
+using (private.has_tenant_membership(tenant_id));
+
+-- Public Data API access is intentionally read-only for selected Slice 1 workforce tables.
 -- Mutations happen only through checked RPCs or later explicitly specified consumer flows.
 revoke all on public.agencies from anon, authenticated;
 revoke all on public.tenant_configurations from anon, authenticated;
@@ -351,11 +375,6 @@ grant select on public.prospects to authenticated;
 grant select on public.quote_cases to authenticated;
 grant select on public.permissible_purpose_decisions to authenticated;
 grant select on public.audit_events to authenticated;
-
-revoke all on function public.has_tenant_membership(uuid) from public, anon, authenticated;
-revoke all on function public.has_permission(uuid, uuid, public.permission_code) from public, anon, authenticated;
-drop function public.has_tenant_membership(uuid);
-drop function public.has_permission(uuid, uuid, public.permission_code);
 
 revoke all on function public.transition_quote_case_with_audit(uuid, public.quote_case_state, text, text[]) from public, anon;
 grant execute on function public.transition_quote_case_with_audit(uuid, public.quote_case_state, text, text[]) to authenticated;
