@@ -34,7 +34,7 @@ begin
     raise exception 'QUOTE_CASE_NOT_FOUND' using errcode='P0002';
   end if;
 
-  if v_case.state not in ('DATA_ENRICHMENT','AGENT_REVIEW','READY_FOR_HANDOFF') then
+  if v_case.state not in ('DATA_ENRICHMENT','REVIEW_REQUIRED','READY_FOR_CARRIER') then
     raise exception 'PROVIDER_REQUEST_INVALID_CASE_STATE' using errcode='42501';
   end if;
 
