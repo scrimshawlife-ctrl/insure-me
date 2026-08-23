@@ -14,7 +14,9 @@ This directory is the canonical deterministic test corpus for the Insure Me synt
 - Classification: `SYNTHETIC_TEST_ONLY`
 - Real PII: forbidden
 - Production use: forbidden
-- Dataset IDs and QuoteCase IDs are stable API-like test identifiers. Renaming or reinterpreting them is a breaking test-data change.
+- Dataset IDs and semantic fixture IDs are stable human-readable test identifiers.
+- Database-facing IDs are materialized deterministically as UUIDv5 values by `runtime-seed.ts`.
+- Synthetic VIN labels are materialized into stable 17-character VIN-shaped values with forbidden VIN characters excluded.
 - Expected results are part of each dataset. A fixture is not canonical if it contains only input data.
 - Material conflicts must remain explicit until a test exercises an authorized resolution path.
 - Adverse-action data represents workflow handoff/recording only. It does not encode independent Insure Me underwriting logic.
@@ -38,9 +40,18 @@ This directory is the canonical deterministic test corpus for the Insure Me synt
 
 ## Files
 
-- `canonical-synthetic-datasets.v1.json` — canonical data catalog.
-- `schema.ts` — executable Zod contract.
-- `canonical-synthetic-datasets.test.ts` — inventory, safety, and semantic conformance tests.
+- `canonical-synthetic-datasets.v1.json` — human-readable canonical source catalog.
+- `schema.ts` — executable Zod source-catalog contract.
+- `runtime-seed.ts` — deterministic materializer for database/runtime identifiers and VIN-shaped values.
+- `manifest.v1.json` — pinned inventory and source-blob provenance.
+- `tests/contract/canonical-synthetic-datasets.test.ts` — inventory, safety, and semantic conformance.
+- `tests/contract/canonical-runtime-seed.test.ts` — database-seed determinism and UUID/VIN conformance.
+
+## Source vs runtime materialization
+
+The JSON catalog deliberately keeps readable semantic IDs such as `qc-happy-path` and `driver-multiple-drivers-02`. Tests and humans can reason about those values directly. Code that must seed UUID-backed runtime tables MUST call `materializeRuntimeSeed()` and MUST NOT invent a second mapping scheme.
+
+The materializer preserves source meaning while deriving stable UUIDv5 values for tenant, agency, tenant configuration, QuoteCase, prospect, person/subject, driver, vehicle, carrier, and CarrierProgram identities. Re-running the same dataset produces the same values.
 
 ## Change policy
 
@@ -51,3 +62,5 @@ Treat this corpus like a public contract inside the repository.
 3. If a product/specification change legitimately changes expected behavior, revise the specification first and create a new dataset version when backward compatibility would be broken.
 4. Never copy production records into this directory, even after redaction.
 5. Synthetic provider/carrier behavior and this corpus must remain mutually consistent.
+6. Do not bypass `runtime-seed.ts` for database seeding.
+7. A changed canonical JSON blob requires an intentional manifest update and review.
