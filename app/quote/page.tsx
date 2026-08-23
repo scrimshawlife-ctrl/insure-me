@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { QuoteStartClient } from './start-client';
@@ -19,7 +20,7 @@ export default async function QuoteStartPage() {
           <p className="eyebrow">Secure quote workspace</p>
           <h1>Let’s get your quote ready.</h1>
         </div>
-        <a className="brand" href="/" aria-label="Insure Me home"><span className="brand-mark">I</span>Insure Me</a>
+        <Link className="brand" href="/" aria-label="Insure Me home"><span className="brand-mark">I</span>Insure Me</Link>
       </div>
       <div className="quote-grid">
         <QuoteStartClient />
