@@ -111,6 +111,23 @@ export interface PrivacyRequest {
 
 export type RetentionDisposition = 'DELETE' | 'ANONYMIZE' | 'REVIEW';
 
+export type LegalHoldScopeType = 'PERSON' | 'QUOTE_CASE' | 'PRIVACY_REQUEST';
+export type LegalHoldStatus = 'ACTIVE' | 'RELEASED';
+
+export interface LegalHold {
+  legalHoldId: string;
+  tenantId: string;
+  agencyId: string;
+  scopeType: LegalHoldScopeType;
+  scopeRef: string;
+  status: LegalHoldStatus;
+  authorityRef: string;
+  evidenceRef: string;
+  reasonCodes: string[];
+  placedAt: string;
+  releasedAt?: string;
+}
+
 export type RetentionRunStatus =
   | 'PREPARED'
   | 'IN_PROGRESS'

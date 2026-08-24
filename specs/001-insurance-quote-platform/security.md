@@ -92,6 +92,7 @@ AuditEvent MUST cover:
 - privacy-rights execution preparation, correction settlement, exemptions, restrictions, and disposition work;
 - downstream privacy propagation preparation, adapter binding, attempts, failures, and completion;
 - retention scheduling, policy resolution, blocked/held work, disposition attempts, and completion;
+- legal-hold placement, scope, authority/evidence references, release, and post-release reevaluation;
 - carrier submissions;
 - role/config changes;
 - secret/integration changes;

@@ -73,7 +73,7 @@ Verified synthetic consumer requests access; system discovers all in-scope recor
 System resolves exact synthetic policies, destroys protected identity lookup/key material, anonymizes direct consumer identifiers, preserves explicit exceptions, and records opaque append-only evidence. Missing or incompatible policies remain blocked.
 
 ### F021 Legal hold
-Retention expiration occurs while a `RETENTION_HOLD` signal is active; T805 rechecks the signal immediately before disposition, does not mutate held records, and records blocked work. T806 owns the complete legal-hold lifecycle and administration model.
+Retention expiration occurs while a formal Person-scoped hold is active; T805 rechecks the signal immediately before disposition, does not mutate held records, and records blocked work. An authorized administrator releases the hold with separate authority/evidence, the lifecycle remains immutable, and destructive work remains blocked until a new scheduler evaluation. The legacy `RETENTION_HOLD` QuoteCase signal remains a compatible fail-closed input.
 
 ### F022 Marketing separation
 Consumer declines optional marketing consent but continues quote transaction normally.

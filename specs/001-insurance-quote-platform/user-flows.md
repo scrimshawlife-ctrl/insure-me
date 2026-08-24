@@ -134,6 +134,9 @@ Queue with request type, verified state, due date, scope, exceptions, downstream
 
 Deletion remains `IN_PROGRESS` while a policy, interval, hold signal, review, failure, local disposition item, or downstream target is unresolved. The authenticated internal worker returns aggregate status only. Completed identity disposition destroys protected lookup/key material; consumer-input anonymization removes direct identifiers while exempt audit and external-source evidence remains intact.
 
+### Legal holds
+An MFA-authenticated privacy or policy administrator selects one tenant-scoped Person, QuoteCase, or PrivacyRequest, provides authority/evidence references and categorized reasons, and places the hold idempotently. Matching pending disposition becomes blocked. A later release requires separate authority/evidence and preserves the full lifecycle; the operator must wait for a new scheduler evaluation before any destructive disposition can proceed.
+
 ### Audit
 Search by QuoteCase, actor, event type, provider, result, time range. Sensitive details remain permission-filtered.
 

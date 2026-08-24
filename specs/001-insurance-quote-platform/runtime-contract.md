@@ -254,6 +254,7 @@ Use database transactions for state transitions that must settle atomically, inc
 - CarrierSubmission idempotency claim + state transition;
 - CarrierDecision settlement + follow-up/readiness state;
 - privacy/retention disposition state + AuditEvent.
+- legal-hold placement/release + immutable LegalHoldEvent + AuditEvent.
 
 Do not implement critical state transitions as unrelated best-effort writes.
 
