@@ -52,6 +52,15 @@ begin
     or old.status = 'RETIRED' and new.status <> 'RETIRED' then
     raise exception using errcode = '22023', message = 'NOTICE_STATUS_TRANSITION_INVALID';
   end if;
+  if old.status in ('APPROVED','RETIRED') and (
+    new.effective_at is distinct from old.effective_at
+    or new.approved_at is distinct from old.approved_at
+    or new.approved_by is distinct from old.approved_by
+    or new.approval_ref is distinct from old.approval_ref
+    or new.approval_reason_codes is distinct from old.approval_reason_codes
+  ) then
+    raise exception using errcode = '22023', message = 'NOTICE_APPROVAL_EVIDENCE_IMMUTABLE';
+  end if;
   if new.status = old.status and (
     new.effective_at is distinct from old.effective_at
     or new.retired_at is distinct from old.retired_at
@@ -61,15 +70,6 @@ begin
     or new.approval_reason_codes is distinct from old.approval_reason_codes
   ) then
     raise exception using errcode = '22023', message = 'NOTICE_LIFECYCLE_EVIDENCE_IMMUTABLE';
-  end if;
-  if old.status in ('APPROVED','RETIRED') and (
-    new.effective_at is distinct from old.effective_at
-    or new.approved_at is distinct from old.approved_at
-    or new.approved_by is distinct from old.approved_by
-    or new.approval_ref is distinct from old.approval_ref
-    or new.approval_reason_codes is distinct from old.approval_reason_codes
-  ) then
-    raise exception using errcode = '22023', message = 'NOTICE_APPROVAL_EVIDENCE_IMMUTABLE';
   end if;
   if old.status = 'DRAFT' and new.status = 'APPROVED' and (
     new.effective_at is null or new.approved_at is null or new.approved_by is null
