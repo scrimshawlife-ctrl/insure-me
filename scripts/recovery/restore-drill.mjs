@@ -83,9 +83,15 @@ try {
     '--no-owner', '--exit-on-error', dumpPath);
 
   const values = sql(targetDatabase, `select concat_ws('|',
-    (select count(*) from public.agencies where agency_id='${fixtureAgencyId}'),
+    (select count(*) from public.agencies where agency_id='${fixtureAgencyId}'
+      and tenant_id='${fixtureTenantId}' and legal_name='Synthetic Restore Drill Agency'
+      and display_name='Restore Drill'),
     (select count(*) from public.audit_events where audit_event_id='${fixtureAuditId}'
-      and integrity_hash='${fixtureIntegrityHash}' and metadata->>'fixture'='restore-drill-v1'),
+      and tenant_id='${fixtureTenantId}' and agency_id='${fixtureAgencyId}'
+      and event_type='RESTORE_DRILL_SENTINEL' and actor_id is null
+      and subject_ref='recovery:synthetic-sentinel' and outcome='SUCCEEDED'
+      and reason_codes=array['SYNTHETIC_RESTORE_DRILL']::text[]
+      and integrity_hash='${fixtureIntegrityHash}' and metadata=jsonb_build_object('fixture','restore-drill-v1')),
     (select relrowsecurity from pg_class where oid='public.audit_events'::regclass),
     has_table_privilege('authenticated','public.audit_events','UPDATE'),
     to_regprocedure('public.list_retention_policies()') is not null,
