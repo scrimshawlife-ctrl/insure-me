@@ -11,6 +11,13 @@
     "critical": { "assessed": 0, "open": 0, "remediationImplemented": 0, "retestVerified": 0, "closed": 0, "acceptedRisk": 0 },
     "high": { "assessed": 1, "open": 1, "remediationImplemented": 0, "retestVerified": 0, "closed": 0, "acceptedRisk": 0 }
   },
-  "independentClosureAttestation": { "independent": false, "attestationRef": "UNVERIFIED", "attestedAt": "UNVERIFIED", "allCriticalHighRetested": false },
+  "independentClosureAttestation": {
+    "independent": false,
+    "attestationRef": "UNVERIFIED",
+    "attestedAt": "UNVERIFIED",
+    "allCriticalHighRetested": false,
+    "selectedDeployment": { "environment": "synthetic-ci", "deploymentRef": "synthetic-selected-deployment-v1", "configurationVersion": "tenant-config-synthetic-v1" },
+    "findingRegisterRef": "synthetic-finding-register-v1"
+  },
   "externalEvidence": { "assessmentBindingReceived": true, "findingRegisterReceived": true, "remediationEvidenceReceived": false, "independentRetestEvidenceReceived": false, "closureAttestationReceived": false }
 }

@@ -73,6 +73,8 @@ describe('T909 security findings disposition readiness validator', () => {
     ['INCOMPLETE_REMEDIATION_COVERAGE', withHigh({ remediationImplemented: 0 })],
     ['INCOMPLETE_INDEPENDENT_RETEST_COVERAGE', withHigh({ retestVerified: 0 })],
     ['MISSING_INDEPENDENT_CLOSURE_ATTESTATION', { ...readyMetadata, independentClosureAttestation: { ...readyMetadata.independentClosureAttestation, independent: false } }],
+    ['CLOSURE_ATTESTATION_BINDING_MISMATCH', { ...readyMetadata, independentClosureAttestation: { ...readyMetadata.independentClosureAttestation, selectedDeployment: { ...readyMetadata.independentClosureAttestation.selectedDeployment, deploymentRef: 'different-deployment' } } }],
+    ['CLOSURE_ATTESTATION_BINDING_MISMATCH', { ...readyMetadata, independentClosureAttestation: { ...readyMetadata.independentClosureAttestation, findingRegisterRef: 'different-finding-register' } }],
     ['MISSING_EXTERNAL_DISPOSITION_EVIDENCE', { ...readyMetadata, externalEvidence: { ...readyMetadata.externalEvidence, independentRetestEvidenceReceived: false } }],
     ['FORBIDDEN_RAW_EVIDENCE_KEY', { ...readyMetadata, rawFindings: ['must-not-enter-report'] }],
   ])('fails closed with %s and does not leak unvalidated input', (errorCode, metadata) => {
@@ -81,6 +83,26 @@ describe('T909 security findings disposition readiness validator', () => {
     expect(report.verdict).toBe('BLOCKED');
     expect(report.errorCode).toBe(errorCode);
     expect(raw).not.toContain('must-not-enter-report');
+  });
+
+  it('replaces invalid sensitive-looking closure attestation strings on blocked paths', () => {
+    const sensitiveRef = 'credential=synthetic-secret';
+    const sensitiveTimestamp = '2026-08-24T01:00:00Z token=synthetic-secret';
+    const { result, report, raw } = runMetadata({
+      ...readyMetadata,
+      selectedDeployment: { ...readyMetadata.selectedDeployment, exactBinding: false },
+      independentClosureAttestation: {
+        ...readyMetadata.independentClosureAttestation,
+        attestationRef: sensitiveRef,
+        attestedAt: sensitiveTimestamp,
+      },
+    });
+    expect(result.status).toBe(1);
+    expect(report.errorCode).toBe('MISSING_EXACT_SELECTED_DEPLOYMENT_BINDING');
+    expect(report.independentClosureAttestation.attestationRef).toBe('UNVERIFIED');
+    expect(report.independentClosureAttestation.attestedAt).toBe('UNVERIFIED');
+    expect(raw).not.toContain(sensitiveRef);
+    expect(raw).not.toContain(sensitiveTimestamp);
   });
 
   it('fails closed and writes a sanitized artifact when metadata is missing or malformed', () => {

@@ -88,10 +88,23 @@ function sanitized(metadata) {
     aggregateDispositionCounts: validDispositionCounts(metadata?.aggregateDispositionCounts) ? metadata.aggregateDispositionCounts : blankCounts(),
     independentClosureAttestation: metadata?.independentClosureAttestation && isPlainObject(metadata.independentClosureAttestation) ? {
       independent: metadata.independentClosureAttestation.independent === true,
-      attestationRef: String(metadata.independentClosureAttestation.attestationRef ?? 'UNVERIFIED'),
-      attestedAt: String(metadata.independentClosureAttestation.attestedAt ?? 'UNVERIFIED'),
+      attestationRef: isSafeOpaqueValue(metadata.independentClosureAttestation.attestationRef) ? metadata.independentClosureAttestation.attestationRef : 'UNVERIFIED',
+      attestedAt: isValidTimestamp(metadata.independentClosureAttestation.attestedAt) ? metadata.independentClosureAttestation.attestedAt : 'UNVERIFIED',
       allCriticalHighRetested: metadata.independentClosureAttestation.allCriticalHighRetested === true,
-    } : { independent: false, attestationRef: 'UNVERIFIED', attestedAt: 'UNVERIFIED', allCriticalHighRetested: false },
+      selectedDeployment: metadata.independentClosureAttestation.selectedDeployment && isPlainObject(metadata.independentClosureAttestation.selectedDeployment) ? {
+        environment: String(metadata.independentClosureAttestation.selectedDeployment.environment ?? 'UNVERIFIED'),
+        deploymentRef: String(metadata.independentClosureAttestation.selectedDeployment.deploymentRef ?? 'UNVERIFIED'),
+        configurationVersion: String(metadata.independentClosureAttestation.selectedDeployment.configurationVersion ?? 'UNVERIFIED'),
+      } : { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
+      findingRegisterRef: isSafeOpaqueValue(metadata.independentClosureAttestation.findingRegisterRef) ? metadata.independentClosureAttestation.findingRegisterRef : 'UNVERIFIED',
+    } : {
+      independent: false,
+      attestationRef: 'UNVERIFIED',
+      attestedAt: 'UNVERIFIED',
+      allCriticalHighRetested: false,
+      selectedDeployment: { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
+      findingRegisterRef: 'UNVERIFIED',
+    },
     externalEvidence: metadata?.externalEvidence && isPlainObject(metadata.externalEvidence) ? {
       assessmentBindingReceived: metadata.externalEvidence.assessmentBindingReceived === true,
       findingRegisterReceived: metadata.externalEvidence.findingRegisterReceived === true,
@@ -141,6 +154,7 @@ function validate(metadata) {
   if (severities.some((severity) => counts[severity].closed !== counts[severity].assessed)) return block('DISPOSITION_COUNT_MISMATCH', metadata);
   const closure = metadata.independentClosureAttestation;
   if (closure?.independent !== true || closure.allCriticalHighRetested !== true || !isSafeOpaqueValue(closure.attestationRef) || !isValidTimestamp(closure.attestedAt)) return block('MISSING_INDEPENDENT_CLOSURE_ATTESTATION');
+  if (!sameDeployment(deployment, closure.selectedDeployment) || closure.findingRegisterRef !== assessment.findingRegisterRef) return block('CLOSURE_ATTESTATION_BINDING_MISMATCH', metadata);
   const evidence = metadata.externalEvidence;
   if (!evidence?.assessmentBindingReceived || !evidence?.findingRegisterReceived || !evidence?.remediationEvidenceReceived || !evidence?.independentRetestEvidenceReceived || !evidence?.closureAttestationReceived) return block('MISSING_EXTERNAL_DISPOSITION_EVIDENCE');
   return buildReport('READY_FOR_DISPOSITION_REVIEW', null, metadata);
