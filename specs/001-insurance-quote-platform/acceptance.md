@@ -145,6 +145,9 @@ The canonical F009 provider-outage fixture MUST execute through the provider-neu
 ### A-045 Provider credential rotation drill
 A provider-neutral synthetic credential MUST rotate through distinct current and standby versions. The standby credential MUST validate before activation; the newly active credential MUST validate before the previous credential is revoked. Failed standby validation MUST preserve the current credential, and failed post-activation verification MUST roll back before revocation. Every successful state change MUST emit audit evidence. CI MUST upload a versioned aggregate report on success or failure containing versions, categorized states, sequence, timing, and verdict only—never credential material. Passing the synthetic drill MUST NOT claim live-provider credential validity, hosted secret-store behavior, vendor revocation, or production audit delivery.
 
+### A-046 Incident-response tabletop
+The canonical synthetic suspected provider-credential exposure MUST be classified as a P0 confidentiality and regulated-data-access incident. The rehearsal MUST freeze ordinary releases and live provider/carrier execution, preserve forensic evidence, rotate or revoke the suspected credential, inventory affected systems, route legal/compliance and notification decisions to explicit human review, rehearse controlled recovery, validate controls, and record corrective actions in the mandated order. Recovery traffic MUST remain unauthorized until incident-owner approval. CI MUST upload a versioned low-risk aggregate report on success or failure. Passing the synthetic tabletop MUST NOT claim production detection, containment, evidence custody, notification compliance, named-owner readiness, vendor coordination, or production recovery.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

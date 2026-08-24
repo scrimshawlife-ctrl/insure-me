@@ -100,6 +100,12 @@ T904 exercises a provider-neutral two-slot credential contract. A new version is
 
 CI uploads `provider-credential-rotation-drill-report-v1.json` on success or failure. Evidence is limited to opaque version labels, categorized steps/results, timing, audit-event count, and verdict. Credential material, raw provider responses, endpoints, tenant/case/subject identifiers, and secret fingerprints are prohibited. This synthetic control-shape test does not verify a hosted secret manager, Supabase key rotation, a live provider credential, vendor-side revocation, production audit persistence, or zero-downtime production behavior; those remain `UNVERIFIED` launch gates.
 
+### Canonical incident-response tabletop
+
+T905 rehearses a suspected provider-credential exposure with possible regulated-data access. The scenario is P0 and immediately freezes ordinary releases plus live provider/carrier execution. The response follows the ten security-contract stages in order: detect, contain, preserve evidence, revoke/rotate credentials, identify affected scope, legal/compliance assessment, notification decision, eradicate/recover, validate controls, and record corrective actions. Legal/compliance and notification outcomes remain `PENDING_LEGAL_REVIEW`; recovery traffic remains blocked pending incident-owner authority.
+
+CI uploads `incident-response-tabletop-report-v1.json` on success or failure. The report contains only scenario identity, impact categories, aggregate system counts, categorized actions, timing, and verdict. It prohibits PII, credential material/fingerprints, raw evidence, endpoint details, subject/case identifiers, and legal conclusions. This synthetic rehearsal does not verify production alerts, evidence custody, named responders, counsel/insurer/regulator/vendor contacts, notification deadlines, or production recovery; those remain `UNVERIFIED` launch gates.
+
 ## Operational metrics
 Track without raw PII:
 - quote starts/completions;
