@@ -103,6 +103,9 @@ Quote notices/consent MUST NOT imply marketing consent. Transactional and market
 ### A-031 Privacy discovery and export safety
 Given a verified privacy request, discovery MUST be idempotent, tenant/agency scoped, auditable, and based only on protected lookup material. A unique match may create an encrypted access export. No match or multiple matches MUST reveal no candidate identity or record count, attach no Person, and require applicability review. Anonymous/authenticated roles MUST have no direct access to discovery or export artifacts.
 
+### A-032 Privacy rights execution safety
+Given a verified and completed discovery, correction MUST update only requester-maintained protected identity data and retain no plaintext change evidence. Deletion MUST apply a processing restriction and produce explicit disposition/exemption work without deleting audit or external-source evidence. Restriction/opt-out MUST create a person-scoped enforcement record. All actions MUST be tenant-scoped, idempotent, atomic, audited, inaccessible to direct anonymous/authenticated writes, and remain `IN_PROGRESS` while deletion or downstream propagation work is pending.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

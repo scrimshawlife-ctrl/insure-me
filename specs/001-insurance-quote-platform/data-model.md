@@ -390,6 +390,14 @@ Minimum fields:
 
 The artifact MUST have no direct anonymous or authenticated Data API access. Export access requires the request status credential and creates AuditEvent evidence.
 
+### PrivacyRightsExecution / PrivacyRightsAction
+`PrivacyRightsExecution` is the idempotent, policy-versioned evidence envelope for a post-discovery correction, deletion, restriction, or opt-out. It stores only the keyed request hash, corrected field names, outcome, disposition summary, and timestamps. It MUST NOT store plaintext corrections, prior identity values, lookup hashes, or ambiguous candidates.
+
+Append-only `PrivacyRightsAction` rows classify each affected data category as `CORRECTED`, `RESTRICTED`, `DELETE_QUEUED`, `EXEMPT`, `PROPAGATION_PENDING`, or `NO_RECORDS`, with record count and reason codes. `DELETE_QUEUED` is disposition work for T805 and never means legal/contractual evidence was silently erased.
+
+### PrivacyProcessingRestriction
+Person-scoped enforcement state for `ALL_PROCESSING`, `SALE_SHARING`, or `TARGETED_MARKETING`, linked to the originating request and policy version. Active restrictions MUST be checked by later processing/provider boundaries; ordinary Data API roles cannot write them.
+
 ### RetentionPolicy
 Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 

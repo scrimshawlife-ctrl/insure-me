@@ -63,6 +63,8 @@ If external data conflicts with user input:
 7. Request tracking ID and requester-safe status.
 8. Access export is delivered through an authenticated no-store download and audited.
 9. Other actions continue through the approved correction/deletion/restriction workflow.
+10. Corrections apply only to requester-maintained protected data; source-backed disputes are routed separately.
+11. Deletion/restriction shows processing state while exemption, retention, or downstream work remains, without promising immediate erasure.
 
 ## Agent workspace
 ### Queue

@@ -240,6 +240,15 @@ Returns the completed encrypted-at-rest access export through an authenticated, 
 
 Every successful download MUST emit an AuditEvent. The response MUST NOT contain internal tenant IDs, lookup hashes, idempotency material, encryption metadata, service credentials, or records outside the matched Person's tenant/agency-scoped QuoteCases.
 
+### `POST /v1/privacy/requests/{id}/execution`
+Executes or idempotently replays a verified, discovered `CORRECTION`, `DELETION`, `RESTRICTION`, or `OPT_OUT` request. The caller MUST provide the request status token and a UUID `idempotencyKey`. `CORRECTION` requires a non-empty `corrections` object containing only requester-maintained identity fields; other request types MUST omit corrections.
+
+The trusted server MUST decrypt and re-encrypt corrected identity data. Plaintext corrections, prior identity values, lookup hashes, and matched record identifiers MUST NOT be persisted in execution evidence or returned. External-report facts MUST remain source-backed and are exempt from local correction. Deletion MUST create category-level disposition work and immediately restrict further processing; it MUST NOT bypass retention, audit-integrity, contract, legal-hold, or downstream-verification rules. Restriction/opt-out MUST create an enforceable person-scoped restriction record.
+
+The response exposes only workflow state, `executionOutcome` (`APPLIED | PARTIALLY_APPLIED | NO_RECORDS`), and disposition counts. `IN_PROGRESS` means deletion disposition or T804 downstream propagation remains. The synthetic execution policy is allowed only with `DEPLOYMENT_STAGE=synthetic` and `PRIVACY_RIGHTS_EXECUTION_POLICY_VERSION=synthetic-privacy-rights-v1`; all other configurations fail closed.
+
+Missing, malformed, unknown, cross-tenant, wrong-state, ambiguous-match, mismatched-token, and incompatible request-type inputs MUST share the generic not-found response. Preparation, protected correction settlement, disposition creation, restriction creation, and workflow transitions MUST be atomic and audited.
+
 Administrative completion routes MUST require elevated permissions and evidence.
 
 ## Internal provider adapter interface

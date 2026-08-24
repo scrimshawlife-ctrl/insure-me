@@ -26,6 +26,16 @@ export type PrivacyIdentityVerificationOutcome = 'VERIFIED' | 'FAILED';
 
 export type PrivacyDiscoveryOutcome = 'MATCHED' | 'NO_MATCH' | 'AMBIGUOUS';
 
+export type PrivacyRightsExecutionOutcome =
+  | 'APPLIED'
+  | 'PARTIALLY_APPLIED'
+  | 'NO_RECORDS';
+
+export interface PrivacyRightsExecutionPolicyDescriptor {
+  policyVersion: string;
+  certificationState: 'SYNTHETIC' | 'APPROVED';
+}
+
 export interface PrivacyExportPolicyDescriptor {
   policyVersion: string;
   exportSchemaVersion: string;
