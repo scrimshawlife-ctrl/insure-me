@@ -87,6 +87,9 @@ function errorCode(error: unknown): string {
   if (error instanceof Error && error.message) {
     return error.message.slice(0, 120).replace(/[^A-Z0-9_:-]/gi, '_').toUpperCase();
   }
+  if (typeof error === 'string' && error) {
+    return error.slice(0, 120).replace(/[^A-Z0-9_:-]/gi, '_').toUpperCase();
+  }
   return 'PROVIDER_EXECUTION_FAILED';
 }
 
