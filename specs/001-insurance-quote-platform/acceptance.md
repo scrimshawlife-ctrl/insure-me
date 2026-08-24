@@ -142,6 +142,9 @@ A disposable local Supabase database MUST produce a custom-format logical snapsh
 ### A-044 Provider outage and recovery drill
 The canonical F009 provider-outage fixture MUST execute through the provider-neutral MVR boundary and demonstrate that a transient unavailable result preserves the QuoteCase for review, emits no normalized provider facts, prevents carrier submission, schedules a categorized bounded retry, and marks the required provider capability plus aggregate quote-completion health blocked. A later deterministic successful attempt MUST settle the same logical request and return provider capability health to ready. CI MUST upload a versioned, PII-free aggregate evidence artifact on success or failure. Passing the synthetic drill MUST NOT claim live-provider availability, production alert delivery, provider credential validity, or production retry-queue durability.
 
+### A-045 Provider credential rotation drill
+A provider-neutral synthetic credential MUST rotate through distinct current and standby versions. The standby credential MUST validate before activation; the newly active credential MUST validate before the previous credential is revoked. Failed standby validation MUST preserve the current credential, and failed post-activation verification MUST roll back before revocation. Every successful state change MUST emit audit evidence. CI MUST upload a versioned aggregate report on success or failure containing versions, categorized states, sequence, timing, and verdict only—never credential material. Passing the synthetic drill MUST NOT claim live-provider credential validity, hosted secret-store behavior, vendor revocation, or production audit delivery.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
