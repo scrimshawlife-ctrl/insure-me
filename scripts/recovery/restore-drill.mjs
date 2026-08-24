@@ -28,11 +28,16 @@ function asSupabaseAdmin(...args) {
   return docker('exec', '--env', `PGPASSWORD=${databasePassword}`, container, ...args);
 }
 
+function adminSql(database, statement) {
+  return asSupabaseAdmin('psql', '--username', 'supabase_admin', '--dbname', database,
+    '--no-psqlrc', '--tuples-only', '--no-align', '--set', 'ON_ERROR_STOP=1', '--command', statement);
+}
+
 function cleanup() {
   try {
     sql('postgres', `delete from public.audit_events where audit_event_id='${fixtureAuditId}'; delete from public.agencies where agency_id='${fixtureAgencyId}'`);
     sql('postgres', `select pg_terminate_backend(pid) from pg_stat_activity where datname='${targetDatabase}' and pid <> pg_backend_pid()`);
-    docker('exec', container, 'dropdb', '--username', 'postgres', '--if-exists', targetDatabase);
+    asSupabaseAdmin('dropdb', '--username', 'supabase_admin', '--if-exists', targetDatabase);
     docker('exec', container, 'rm', '-f', dumpPath);
   } catch {
     // Cleanup failure is captured without replacing the primary drill verdict.
@@ -66,7 +71,7 @@ try {
   dumpSha256 = docker('exec', container, 'sha256sum', dumpPath).split(/\s+/)[0];
 
   asSupabaseAdmin('createdb', '--username', 'supabase_admin', '--template', 'template0', targetDatabase);
-  sql(targetDatabase, `
+  adminSql(targetDatabase, `
     drop schema public cascade;
     create schema auth;
     create function auth.uid() returns uuid language sql stable as 'select null::uuid';
