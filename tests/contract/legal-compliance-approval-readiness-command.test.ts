@@ -11,7 +11,7 @@ const allowed = [
 ].sort();
 const forbiddenArtifactPattern = /rawEvidence|evidencePayload|noticeBody|legalOpinion|contractBody|providerResponse|carrierResponse|password|jwt|stackTrace|deadline|certification/i;
 const readyMetadata = JSON.parse(readFileSync('testdata/legal-compliance/synthetic-ready-metadata-v1.json', 'utf8'));
-const reservedSentinels = ['UNVERIFIED', 'UNKNOWN', 'BLOCKED', 'NOT_COMPUTABLE'];
+const reservedSentinels = ['UNVERIFIED', 'UNKNOWN', 'BLOCKED', 'NOT_COMPUTABLE', 'unverified'];
 
 function run(input: string) {
   const dir = mkdtempSync(join(tmpdir(), 't911-'));

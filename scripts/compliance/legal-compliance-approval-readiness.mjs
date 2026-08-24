@@ -52,7 +52,7 @@ function isSafeOpaque(value) {
   return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value);
 }
 function isValidOpaqueInput(value) {
-  return isSafeOpaque(value) && !reservedOpaqueSentinels.has(value);
+  return isSafeOpaque(value) && !reservedOpaqueSentinels.has(value.toUpperCase());
 }
 function safeOpaque(value) {
   return isValidOpaqueInput(value) ? value : 'UNVERIFIED';
