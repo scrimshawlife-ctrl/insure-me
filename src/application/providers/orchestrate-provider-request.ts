@@ -87,6 +87,9 @@ function errorCode(error: unknown): string {
   if (error instanceof Error && error.message) {
     return error.message.slice(0, 120).replace(/[^A-Z0-9_:-]/gi, '_').toUpperCase();
   }
+  if (typeof error === 'string' && error) {
+    return error.slice(0, 120).replace(/[^A-Z0-9_:-]/gi, '_').toUpperCase();
+  }
   return 'PROVIDER_EXECUTION_FAILED';
 }
 
@@ -152,6 +155,15 @@ export async function orchestrateProviderRequest<TRequest, TNormalized>(input: {
       permissiblePurposeDecisionId: purposeDecision.decisionId,
     };
     const result = await input.adapter.execute(executionContext, input.request);
+
+    if (result.status === 'ERROR') {
+      await input.persistence.markExternalRequestRetry({
+        externalRequestId: externalRequest.externalRequestId,
+        errorCode: errorCode(result.warnings[0] ?? 'PROVIDER_UNAVAILABLE'),
+        backoffSeconds: 60,
+      });
+      return result;
+    }
 
     await input.persistence.settleExternalResult({
       context: executionContext,

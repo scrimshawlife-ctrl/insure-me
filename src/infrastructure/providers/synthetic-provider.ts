@@ -81,7 +81,7 @@ export class SyntheticProviderAdapter
         retrievedAt,
         normalized: null,
         provenance: [],
-        warnings: ['SYNTHETIC_PROVIDER_ERROR'],
+        warnings: ['PROVIDER_UNAVAILABLE'],
       };
     }
 

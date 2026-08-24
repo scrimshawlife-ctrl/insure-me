@@ -34,6 +34,7 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-024a Reliability objectives | `reliability-v1` SLO/error-budget and recovery contract | T900, T902 | A-041 |
 | FR-024b Synthetic performance regression | versioned production-build load profile and CI evidence | T901 | A-042 |
 | FR-024c Recovery verification | isolated logical snapshot/restore and control-integrity evidence | T902 | A-041, A-043 |
+| FR-024d Provider outage resilience | deterministic F009 outage, retry, health, carrier-block, and recovery evidence | T903 | A-044 |
 | FR-025 Synthetic fixtures | deterministic fixture library | T115, T405-T409 | A-016-A-021 |
 | FR-026 Tenant/branding configuration | `TenantConfiguration` | T105, T312 | A-005, A-027, A-028 |
 | FR-027 Carrier capability registry | `Carrier`, `CarrierProgram`, capability descriptor | T112, T701, T707 | A-018, A-028 |

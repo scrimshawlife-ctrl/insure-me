@@ -139,6 +139,9 @@ The production build in synthetic mode MUST pass a reproducible `load-test-repor
 ### A-043 Isolated backup and restore drill
 A disposable local Supabase database MUST produce a custom-format logical snapshot of the application-owned `public` and `private` schemas plus migration history and restore it into a separate empty database. The restored target MUST preserve exact synthetic agency and AuditEvent integrity sentinels, AuditEvent RLS, denial of authenticated AuditEvent updates, current checked RPC presence and authenticated execute grant, and latest migration identity. The versioned evidence artifact MUST record snapshot hash, timing, aggregate verification results, hosted-PITR status, and verdict without containing the dump or row payloads, and MUST be uploaded after success or failure. Passing this drill MUST NOT claim hosted PITR, Supabase-managed schema recovery, Auth/Storage recovery, geographic failover, or production-volume RTO proof.
 
+### A-044 Provider outage and recovery drill
+The canonical F009 provider-outage fixture MUST execute through the provider-neutral MVR boundary and demonstrate that a transient unavailable result preserves the QuoteCase for review, emits no normalized provider facts, prevents carrier submission, schedules a categorized bounded retry, and marks the required provider capability plus aggregate quote-completion health blocked. A later deterministic successful attempt MUST settle the same logical request and return provider capability health to ready. CI MUST upload a versioned, PII-free aggregate evidence artifact on success or failure. Passing the synthetic drill MUST NOT claim live-provider availability, production alert delivery, provider credential validity, or production retry-queue durability.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
