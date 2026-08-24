@@ -17,6 +17,7 @@
     "test:e2e": "playwright test",
     "scenario:run": "vitest run tests/contract/canonical-scenario-command.test.ts --reporter=verbose",
     "test:load": "node scripts/performance/load-test.mjs",
+    "test:restore-drill": "node scripts/recovery/restore-drill.mjs",
     "db:start": "supabase start",
     "db:stop": "supabase stop --no-backup",
     "db:reset": "supabase db reset",
