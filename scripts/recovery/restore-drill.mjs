@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 const container = process.env.RESTORE_DRILL_DB_CONTAINER ?? 'supabase_db_insure-me';
+const databasePassword = process.env.RESTORE_DRILL_DB_PASSWORD ?? 'postgres';
 const targetDatabase = 'insure_me_restore_drill';
 const dumpPath = '/tmp/insure-me-restore-drill.dump';
 const reportPath = process.env.RESTORE_DRILL_REPORT_PATH ?? 'artifacts/restore-drill-report-v1.json';
@@ -21,6 +22,10 @@ function docker(...args) {
 function sql(database, statement) {
   return docker('exec', container, 'psql', '--username', 'postgres', '--dbname', database,
     '--no-psqlrc', '--tuples-only', '--no-align', '--set', 'ON_ERROR_STOP=1', '--command', statement);
+}
+
+function asSupabaseAdmin(...args) {
+  return docker('exec', '--env', `PGPASSWORD=${databasePassword}`, container, ...args);
 }
 
 function cleanup() {
@@ -60,7 +65,7 @@ try {
     '--file', dumpPath);
   dumpSha256 = docker('exec', container, 'sha256sum', dumpPath).split(/\s+/)[0];
 
-  docker('exec', container, 'createdb', '--username', 'supabase_admin', '--template', 'template0', targetDatabase);
+  asSupabaseAdmin('createdb', '--username', 'supabase_admin', '--template', 'template0', targetDatabase);
   sql(targetDatabase, `
     drop schema public cascade;
     create schema auth;
@@ -69,7 +74,7 @@ try {
     create schema extensions;
     create extension pgcrypto with schema extensions;
   `);
-  docker('exec', container, 'pg_restore', '--username', 'supabase_admin', '--dbname', targetDatabase,
+  asSupabaseAdmin('pg_restore', '--username', 'supabase_admin', '--dbname', targetDatabase,
     '--no-owner', '--exit-on-error', dumpPath);
 
   const values = sql(targetDatabase, `select concat_ws('|',
