@@ -5,7 +5,10 @@ import catalogJson from '../../testdata/canonical/v1/canonical-synthetic-dataset
 import { executeCanonicalScenario } from '../../testdata/canonical/v1/scenario-harness';
 import { canonicalSyntheticCatalogSchema } from '../../testdata/canonical/v1/schema';
 import { assessProviderHealth } from '../../src/application/operations/provider-health';
-import { orchestrateProviderRequest } from '../../src/application/providers/orchestrate-provider-request';
+import {
+  orchestrateProviderRequest,
+  type ProviderOrchestrationPersistence,
+} from '../../src/application/providers/orchestrate-provider-request';
 import type { ProviderRequestContext, ProviderResult } from '../../src/domain/providers';
 import { SyntheticProviderAdapter, type SyntheticProviderNormalized } from '../../src/infrastructure/providers/synthetic-provider';
 
@@ -29,7 +32,7 @@ describe('provider outage drill operator command', () => {
       retry: { errorCode: string; backoffSeconds: number } | null;
       settled: ProviderResult<SyntheticProviderNormalized> | null;
     } = { requestStatus: 'PENDING', requestCreated: false, retry: null, settled: null };
-    const persistence = {
+    const persistence: ProviderOrchestrationPersistence = {
       createPurposeDecision: vi.fn(async () => ({ decisionId: 'synthetic-purpose-decision' })),
       createExternalRequest: vi.fn(async () => {
         const reused = drillState.requestCreated;
@@ -41,9 +44,12 @@ describe('provider outage drill operator command', () => {
         drillState.retry = { errorCode: input.errorCode, backoffSeconds: input.backoffSeconds };
         drillState.requestStatus = 'PENDING';
       }),
-      getExternalRequestResult: vi.fn(async () => ({ requestStatus: drillState.requestStatus, result: drillState.settled })),
-      settleExternalResult: vi.fn(async (input: { result: ProviderResult<SyntheticProviderNormalized> }) => {
-        drillState.settled = input.result;
+      getExternalRequestResult: vi.fn(async <T,>() => ({
+        requestStatus: drillState.requestStatus,
+        result: drillState.settled as ProviderResult<T> | null,
+      })),
+      settleExternalResult: vi.fn(async <T,>(input: { result: ProviderResult<T> }) => {
+        drillState.settled = input.result as ProviderResult<SyntheticProviderNormalized>;
         drillState.requestStatus = 'SUCCEEDED';
       }),
     };
