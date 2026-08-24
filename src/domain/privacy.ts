@@ -24,6 +24,14 @@ export type PrivacyIdentityState =
 
 export type PrivacyIdentityVerificationOutcome = 'VERIFIED' | 'FAILED';
 
+export type PrivacyDiscoveryOutcome = 'MATCHED' | 'NO_MATCH' | 'AMBIGUOUS';
+
+export interface PrivacyExportPolicyDescriptor {
+  policyVersion: string;
+  exportSchemaVersion: string;
+  certificationState: 'SYNTHETIC' | 'APPROVED';
+}
+
 export interface PrivacyIdentityVerifierDescriptor {
   adapterId: string;
   adapterVersion: string;

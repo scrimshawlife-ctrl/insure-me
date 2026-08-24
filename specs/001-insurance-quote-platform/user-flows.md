@@ -58,9 +58,11 @@ If external data conflicts with user input:
 2. Request type selection.
 3. Contact information.
 4. Identity verification.
-5. Request tracking ID.
-6. Status updates without leaking record existence before verification.
-7. Response/delivery through approved secure channel.
+5. Controlled tenant-scoped record discovery after verification.
+6. Ambiguous or no-match results route to applicability review without candidate disclosure.
+7. Request tracking ID and requester-safe status.
+8. Access export is delivered through an authenticated no-store download and audited.
+9. Other actions continue through the approved correction/deletion/restriction workflow.
 
 ## Agent workspace
 ### Queue

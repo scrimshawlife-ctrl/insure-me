@@ -120,7 +120,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 ## Phase 8 — Compliance operations
 - [x] T800 Build privacy request intake.
 - [x] T801 Build identity verification for privacy requests.
-- [ ] T802 Build data discovery/export pipeline.
+- [x] T802 Build data discovery/export pipeline.
 - [ ] T803 Build correction/deletion/restriction execution workflow.
 - [ ] T804 Implement downstream vendor propagation tracking.
 - [ ] T805 Build retention scheduler/disposition worker.
