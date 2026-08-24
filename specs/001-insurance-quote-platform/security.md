@@ -184,7 +184,7 @@ Runbook stages:
 - backup access restricted;
 - retention aligned with record policy;
 - deletion strategy accounts for backups and legal obligations;
-- RPO/RTO targets remain TBD until hosting architecture is selected.
+- `reliability-v1` requires a 5-minute maximum RPO and 4-hour maximum RTO for the PostgreSQL system of record, durable queues, and identity state; application/versioned configuration requires zero data-loss RPO and 1-hour RTO. These remain `UNVERIFIED` production blockers until the selected Vercel/Supabase plans and T902 restore drill prove them.
 
 ## Security launch blockers
 - unresolved critical/high findings;
