@@ -44,14 +44,17 @@ describe('provider outage drill operator command', () => {
         drillState.retry = { errorCode: input.errorCode, backoffSeconds: input.backoffSeconds };
         drillState.requestStatus = 'PENDING';
       }),
-      getExternalRequestResult: vi.fn(async <T,>(_input: { externalRequestId: string }) => ({
+      getExternalRequestResult: async <T,>(_input: { externalRequestId: string }): Promise<{
+        requestStatus: 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'BLOCKED';
+        result: ProviderResult<T> | null;
+      } | null> => ({
         requestStatus: drillState.requestStatus,
         result: drillState.settled as ProviderResult<T> | null,
-      })),
-      settleExternalResult: vi.fn(async <T,>(input: { result: ProviderResult<T> }) => {
+      }),
+      settleExternalResult: async <T,>(input: { result: ProviderResult<T> }) => {
         drillState.settled = input.result as ProviderResult<SyntheticProviderNormalized>;
         drillState.requestStatus = 'SUCCEEDED';
-      }),
+      },
     };
     const policy = { evaluate: vi.fn(async () => ({
       allowed: true,
