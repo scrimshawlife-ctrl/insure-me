@@ -153,6 +153,19 @@ jobs:
             echo "actual:   $actual"
             exit 1
           }
+      - name: Run isolated backup and restore drill
+        run: pnpm test:restore-drill
+        env:
+          RESTORE_DRILL_DB_CONTAINER: supabase_db_insure-me
+          RESTORE_DRILL_REPORT_PATH: artifacts/restore-drill-report-v1.json
+      - name: Upload restore drill evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-drill-report-v1
+          path: artifacts/restore-drill-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload verified database types
         uses: actions/upload-artifact@v4
         with:

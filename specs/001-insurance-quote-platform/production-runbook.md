@@ -123,4 +123,6 @@ Before pilot traffic, operators must attach evidence that:
 - restoration follows the canonical dependency order and includes integrity, tenant-isolation, policy-version, idempotency, and audit checks;
 - provider/carrier bindings remain disabled until independently revalidated after recovery.
 
+The canonical local T902 artifact proves procedure integrity only. Production promotion additionally requires evidence from the selected Supabase project that PITR is enabled with a recovery window and WAL cadence compatible with the five-minute RPO, plus an isolated hosted restore rehearsal at representative data volume. Daily backups alone do not satisfy the five-minute RPO.
+
 Missing or stale evidence keeps production readiness `UNVERIFIED`; an endpoint being reachable is not sufficient recovery proof.

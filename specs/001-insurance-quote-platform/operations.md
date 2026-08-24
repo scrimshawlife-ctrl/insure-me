@@ -170,6 +170,21 @@ RPO is the maximum acceptable committed-data loss measured from the incident bou
 
 DNS/edge recovery, secret rotation, and third-party revalidation run in parallel only when they cannot violate this dependency order. Lost secret material has no data RPO; it must be reissued or rotated, never reconstructed from logs or backups.
 
+### Canonical restore drill
+
+T902 runs `scripts/recovery/restore-drill.mjs` against the disposable local Supabase database after all migrations and pgTAP tests. It inserts synthetic agency and audit sentinels, creates a custom-format logical snapshot of the application-owned `public` and `private` schemas plus `supabase_migrations`, and restores it into a separate database created from `template0`. The target receives only the Supabase compatibility prerequisites needed by application objects (`auth.uid()`, `auth.jwt()`, and `pgcrypto`), not Auth rows or managed-schema payloads. The drill then verifies:
+
+- the exact synthetic agency and AuditEvent integrity evidence survived;
+- AuditEvent RLS remains enabled;
+- `authenticated` still cannot update AuditEvents;
+- a current checked policy-inspection RPC and its authenticated execute grant exist;
+- the latest migration identity matches the canonical migration set;
+- the snapshot recovery point and measured restore duration stay within `reliability-v1` targets.
+
+CI uploads `restore-drill-report-v1.json` on success or failure. The report contains timing, dump SHA-256, aggregate verification values, and verdict only; it never uploads the database dump or row payloads. The target database and dump are deleted after every attempt.
+
+This proves the repository's logical backup/restore procedure and control preservation on an isolated Supabase-compatible PostgreSQL instance. It does not prove hosted backup availability, physical backup restoration, Supabase Auth user recovery, Storage object recovery, geographic failover, production-size restore time, or hosted PITR. Production therefore remains `UNVERIFIED` until the selected plan shows PITR enabled and a protected hosted rehearsal demonstrates the current database volume within the four-hour RTO.
+
 ## Provider kill switch
 Each real provider capability MUST have an independently operable kill switch. Disabling a capability MUST:
 - block new orders;

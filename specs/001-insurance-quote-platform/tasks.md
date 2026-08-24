@@ -134,7 +134,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 ## Phase 9 — Operations and production hardening
 - [x] T900 Define SLOs, RPO, RTO.
 - [x] T901 Add canonical synthetic load/performance test. Production-scale and stateful certification remain launch-gated.
-- [ ] T902 Restore/backup drill.
+- [x] T902 Run isolated logical backup/restore drill. Hosted PITR and production-volume recovery remain launch-gated.
 - [ ] T903 Provider outage drill.
 - [ ] T904 Provider credential rotation drill.
 - [ ] T905 Incident-response tabletop.

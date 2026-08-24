@@ -136,6 +136,9 @@ An MFA-authenticated `POLICY_ADMIN` MAY inspect exact data-use rule versions for
 ### A-042 Canonical load profile
 The production build in synthetic mode MUST pass a reproducible `load-test-report-v1` profile of 1,000 post-warm-up requests across the public homepage and dynamic readiness endpoint at concurrency 20, with at least 99.9% successful responses and combined p95 latency no greater than 750 ms. The artifact MUST record exact profile, targets, aggregate and per-route observations, throughput, failures, and verdict. This synthetic gate MUST NOT be represented as production capacity, stateful workflow, external dependency, saturation, or regional recovery certification.
 
+### A-043 Isolated backup and restore drill
+A disposable local Supabase database MUST produce a custom-format logical snapshot of the application-owned `public` and `private` schemas plus migration history and restore it into a separate empty database. The restored target MUST preserve exact synthetic agency and AuditEvent integrity sentinels, AuditEvent RLS, denial of authenticated AuditEvent updates, current checked RPC presence and authenticated execute grant, and latest migration identity. The versioned evidence artifact MUST record snapshot hash, timing, aggregate verification results, hosted-PITR status, and verdict without containing the dump or row payloads, and MUST be uploaded after success or failure. Passing this drill MUST NOT claim hosted PITR, Supabase-managed schema recovery, Auth/Storage recovery, geographic failover, or production-volume RTO proof.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
