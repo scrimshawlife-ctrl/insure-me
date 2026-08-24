@@ -129,6 +129,8 @@ An MFA-authenticated policy administrator lists exact agency-scoped notice versi
 ### Data policy
 Authorized reviewer can inspect the data-use matrix and retention policies. Changes require controlled deployment/versioning.
 
+Inspection is read-only and non-cacheable. A policy administrator sees exact data-use rule versions for one MFA-backed active agency. A policy or privacy administrator sees exact retention versions, including unresolved durations and certification state without inferred approval. Ambiguous agency scope and direct table access fail closed; the interface has no policy mutation control.
+
 ### Privacy requests
 Queue with request type, verified state, due date, scope, exceptions, downstream completion, evidence.
 

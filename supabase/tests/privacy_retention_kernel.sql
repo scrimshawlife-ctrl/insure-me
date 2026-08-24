@@ -94,7 +94,7 @@ select set_config(
 
 select is((select count(*) from public.privacy_requests), 1::bigint, 'privacy admin sees only active-tenant requests');
 select is((select min(tenant_id::text) from public.privacy_requests), 'a0000000-0000-0000-0000-000000000001', 'privacy request RLS preserves tenant isolation');
-select is((select count(*) from public.retention_policies), 1::bigint, 'privacy admin sees only active-tenant retention policies');
+select is((select count(*) from public.list_retention_policies()), 1::bigint, 'privacy admin sees only active-tenant retention policies');
 
 select set_config(
   'request.jwt.claims',
@@ -108,7 +108,12 @@ select set_config(
 );
 
 select is((select count(*) from public.privacy_requests), 0::bigint, 'AAL1 cannot inspect privacy requests');
-select is((select count(*) from public.retention_policies), 0::bigint, 'AAL1 cannot inspect retention policies');
+select throws_ok(
+  $$select public.list_retention_policies()$$,
+  'P0002',
+  'POLICY_INSPECTION_SCOPE_NOT_FOUND',
+  'AAL1 cannot inspect retention policies'
+);
 
 reset role;
 

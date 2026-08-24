@@ -127,6 +127,9 @@ An MFA-authenticated workforce user MAY create or download a QuoteCase complianc
 ### A-039 Notice/version administration safety
 An MFA-authenticated `POLICY_ADMIN` MAY create immutable draft notice versions, list the active agency's exact versions, approve a draft only with explicit legal/compliance evidence and effective time, and retire only an approved or synthetic-fixture version with separate evidence. PostgreSQL MUST assign increasing versions, compute exact body hashes, derive replay hashes, preserve append-only lifecycle evidence, and audit every successful transition. Runtime callers MUST NOT create synthetic or pre-approved notices, choose hashes/versions, rewrite content, delete history, cross tenant/agency scope, retire drafts, or reuse idempotency keys with changed evidence.
 
+### A-040 Policy inspection safety
+An MFA-authenticated `POLICY_ADMIN` MAY inspect exact data-use rule versions for one active agency; an MFA-authenticated `POLICY_ADMIN` or `PRIVACY_ADMIN` MAY inspect exact retention policy versions for one active agency. Responses MUST preserve configured flags, unresolved durations, authority references, certification state, and lifecycle times without inference or secret material, and each successful inspection MUST emit an AuditEvent. Both tables MUST deny direct anonymous/authenticated reads, both APIs MUST be read-only and non-cacheable, and insufficient permission, AAL1, cross-agency data, or multiple eligible agency contexts MUST fail closed.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

@@ -94,6 +94,10 @@ An MFA-authenticated synthetic administrator holding `AUDIT_READ` and `EXPORT_DA
 
 An MFA-authenticated synthetic `POLICY_ADMIN` creates two versions of one notice key. PostgreSQL assigns versions 1 and 2 and hashes the exact bodies. Version 1 receives explicit approval evidence and an effective time, then retires with separate evidence; version 2 remains draft. Lifecycle commands replay idempotently and emit one append-only event plus AuditEvent each. Changed replay, draft retirement, direct content mutation/deletion, and a non-policy user all fail closed.
 
+### F028 Data-use/retention policy inspection
+
+One synthetic agency has a versioned data-use rule and an approved retention policy with explicit duration and legal authority; a second agency has distinct policy records. An MFA-backed policy administrator receives only the first agency's exact records. A privacy-only administrator receives only retention records. Direct table reads, privacy-only data-use inspection, ordinary-agent access, AAL1, and an identity with eligible roles in two agencies all fail closed.
+
 ## Fixture schema requirements
 Each fixture MUST declare:
 - fixture ID/version;
