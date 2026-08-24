@@ -65,7 +65,7 @@ export async function deliverAdverseActionNotice(
 ): Promise<AdverseActionNoticeDelivery> {
   const adapter = resolveNoticeDeliveryAdapter(environment);
   const descriptor = adapter.descriptor();
-  const rpc = client.rpc as unknown as Rpc;
+  const rpc = client.rpc.bind(client) as unknown as Rpc;
   const preparationHash = hash(['PREPARE', command.adverseActionCaseId,
     command.noticeDefinitionId, command.noticeContentHash, command.channel,
     command.recipientRef, descriptor]);

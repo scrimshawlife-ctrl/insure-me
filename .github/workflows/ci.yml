@@ -225,6 +225,24 @@ jobs:
           path: artifacts/privacy-rights-rehearsal-report-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run adverse-action rehearsal
+        run: |
+          eval "$(pnpm exec supabase status -o env)"
+          NEXT_PUBLIC_SUPABASE_URL="${API_URL:-$SUPABASE_URL}" \
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-$ANON_KEY}" \
+          SUPABASE_JWT_SECRET="${JWT_SECRET:-$SUPABASE_JWT_SECRET}" \
+          SUPABASE_DB_URL="${DB_URL:-$SUPABASE_DB_URL}" \
+          pnpm test:adverse-action-rehearsal
+        env:
+          ADVERSE_ACTION_REHEARSAL_REPORT_PATH: artifacts/adverse-action-rehearsal-report-v1.json
+      - name: Upload adverse-action rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: adverse-action-rehearsal-report-v1
+          path: artifacts/adverse-action-rehearsal-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload verified database types
         uses: actions/upload-artifact@v4
         with:

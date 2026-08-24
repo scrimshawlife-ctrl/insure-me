@@ -54,10 +54,11 @@ export async function createAdverseActionCase(client: SupabaseClient<Database>, 
   }>;
   idempotencyKey: string;
 }): Promise<AdverseActionCase> {
+  const rpc = client.rpc.bind(client) as unknown as Rpc;
   const requestHash = hash(['DETERMINE', command.quoteCaseId, command.carrierDecisionId,
     command.ownerType, command.ownerRef, command.determinationAuthorityRef,
     command.determinationEvidenceRef, command.reasonCodes, command.reportSources]);
-  const { data, error } = await (client.rpc as unknown as Rpc)('create_adverse_action_case', {
+  const { data, error } = await rpc('create_adverse_action_case', {
     p_quote_case_id: command.quoteCaseId,
     p_carrier_decision_id: command.carrierDecisionId,
     p_owner_type: command.ownerType,
@@ -80,9 +81,10 @@ export async function recordAdverseActionHandoff(client: SupabaseClient<Database
   reasonCodes: string[];
   idempotencyKey: string;
 }): Promise<AdverseActionCase> {
+  const rpc = client.rpc.bind(client) as unknown as Rpc;
   const requestHash = hash(['HANDOFF', command.adverseActionCaseId, command.recipientRef,
     command.evidenceRef, command.reasonCodes]);
-  const { data, error } = await (client.rpc as unknown as Rpc)('record_adverse_action_handoff', {
+  const { data, error } = await rpc('record_adverse_action_handoff', {
     p_adverse_action_case_id: command.adverseActionCaseId,
     p_recipient_ref: command.recipientRef,
     p_evidence_ref: command.evidenceRef,
