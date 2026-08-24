@@ -57,7 +57,7 @@ export async function placeLegalHold(
     idempotencyKey: string;
   },
 ): Promise<LegalHold> {
-  const rpc = client.rpc as unknown as LegalHoldRpc;
+  const rpc = client.rpc.bind(client) as unknown as LegalHoldRpc;
   const requestHash = commandHash([
     'PLACE', command.tenantId, command.agencyId, command.scopeType,
     command.scopeRef, command.authorityRef, command.evidenceRef, command.reasonCodes,
@@ -87,7 +87,7 @@ export async function releaseLegalHold(
     idempotencyKey: string;
   },
 ): Promise<LegalHold> {
-  const rpc = client.rpc as unknown as LegalHoldRpc;
+  const rpc = client.rpc.bind(client) as unknown as LegalHoldRpc;
   const requestHash = commandHash([
     'RELEASE', command.legalHoldId, command.authorityRef,
     command.evidenceRef, command.reasonCodes,

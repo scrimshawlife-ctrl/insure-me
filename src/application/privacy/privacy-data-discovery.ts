@@ -160,7 +160,7 @@ export async function discoverPrivacyRequestData(
     policyVersion: policy.policyVersion,
     exportSchemaVersion: policy.exportSchemaVersion,
   });
-  const rpc = adminClient.rpc as unknown as PrivacyDiscoveryRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as PrivacyDiscoveryRpc;
   const preparedResult = await rpc('prepare_privacy_discovery', {
     p_hostname: command.hostname,
     p_public_reference: command.privacyRequestId,
@@ -214,7 +214,7 @@ export async function downloadPrivacyExport(
   adminClient: SupabaseClient<Database>,
   input: { hostname: string; privacyRequestId: string; statusToken: string },
 ): Promise<JsonRecord> {
-  const rpc = adminClient.rpc as unknown as PrivacyDiscoveryRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as PrivacyDiscoveryRpc;
   const result = await rpc('get_privacy_export_artifact', {
     p_hostname: input.hostname,
     p_public_reference: input.privacyRequestId,

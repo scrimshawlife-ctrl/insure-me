@@ -55,7 +55,7 @@ export async function verifyPrivacyRequestIdentity(
     adapterVersion: descriptor.adapterVersion,
     policyVersion: descriptor.policyVersion,
   });
-  const rpc = adminClient.rpc as unknown as VerificationRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as VerificationRpc;
   const { data, error } = await rpc('settle_privacy_identity_verification', {
     p_hostname: command.hostname,
     p_public_reference: command.privacyRequestId,
@@ -79,4 +79,3 @@ export async function verifyPrivacyRequestIdentity(
     verificationOutcome: data[0].verification_outcome,
   };
 }
-

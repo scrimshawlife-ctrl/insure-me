@@ -138,7 +138,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T903 Provider outage drill. Live-provider and production alert-path certification remain launch-gated.
 - [x] T904 Provider credential rotation drill. Live-provider, hosted secret-store, vendor-revocation, and production audit-delivery certification remain launch-gated.
 - [x] T905 Incident-response tabletop. Production detection/containment, evidence custody, named responder/vendor/legal coordination, notification, and recovery remain launch-gated.
-- [ ] T906 Privacy-rights end-to-end rehearsal.
+- [x] T906 Privacy-rights end-to-end rehearsal. The deterministic disposable-Supabase production-services/persistence rehearsal generated a passing PII-free `privacy-rights-rehearsal-report-v1.json`; real identity verification, deployed SLA monitoring, live vendor propagation, production legal/exemption decisions, notification delivery, production audit persistence, and real deletion certification remain `UNVERIFIED` launch gates.
 - [ ] T907 FCRA/adverse-action synthetic rehearsal.
 - [ ] T908 Penetration test/independent security assessment.
 - [ ] T909 Resolve all critical/high findings.
