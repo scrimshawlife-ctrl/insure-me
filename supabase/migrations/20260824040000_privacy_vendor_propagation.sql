@@ -331,9 +331,10 @@ begin
     ) then
       raise exception using errcode = '55000', message = 'PRIVACY_PROPAGATION_TARGETS_NOT_FOUND';
     end if;
-    update public.privacy_propagation_runs set status = 'IN_PROGRESS'
-    where privacy_propagation_run_id = v_run.privacy_propagation_run_id
-    returning * into v_run;
+    update public.privacy_propagation_runs as propagation_run
+    set status = 'IN_PROGRESS'
+    where propagation_run.privacy_propagation_run_id = v_run.privacy_propagation_run_id
+    returning propagation_run.* into v_run;
     v_integrity_hash := encode(digest(concat_ws('|', v_request.tenant_id::text,
       v_run.privacy_propagation_run_id::text, p_policy_version,
       clock_timestamp()::text), 'sha256'), 'hex');
