@@ -133,6 +133,9 @@ An MFA-authenticated `POLICY_ADMIN` MAY inspect exact data-use rule versions for
 ### A-041 Reliability contract
 `reliability-v1` MUST define rolling-window availability, latency, asynchronous claim-time, and regulated-action audit-atomicity SLOs with deterministic eligibility and error-budget rules. It MUST define zero-loss/one-hour application recovery and a maximum five-minute RPO/four-hour RTO for database, queue, and identity state, plus an ordered fail-closed recovery sequence. Production readiness MUST remain `UNVERIFIED` until monitoring demonstrates the SLIs and T902 proves restore capability on the selected hosting plans. Provider/carrier outcomes MUST remain visible dependency signals and MUST NOT be misclassified as core platform success or silently excluded when the platform itself fails to dispatch, persist, reconcile, or present them.
 
+### A-042 Canonical load profile
+The production build in synthetic mode MUST pass a reproducible `load-test-report-v1` profile of 1,000 post-warm-up requests across the public homepage and dynamic readiness endpoint at concurrency 20, with at least 99.9% successful responses and combined p95 latency no greater than 750 ms. The artifact MUST record exact profile, targets, aggregate and per-route observations, throughput, failures, and verdict. This synthetic gate MUST NOT be represented as production capacity, stateful workflow, external dependency, saturation, or regional recovery certification.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
