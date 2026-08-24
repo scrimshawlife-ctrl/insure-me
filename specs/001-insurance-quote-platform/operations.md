@@ -221,6 +221,14 @@ CI uploads `adverse-action-rehearsal-report-v1.json` on success or failure with 
 
 This proves the repository's synthetic adverse-action control shape through production application services on a disposable Supabase-compatible database. It does not prove live CRA/provider authorization, carrier adverse-action ownership approval, legal/compliance approval, live notice delivery, hosted Supabase behavior, or production SLA compliance.
 
+## Independent security assessment readiness
+
+T908 readiness runs `pnpm security-assessment:readiness` against externally supplied assessment metadata. The assessor packet must be prepared outside CI by an independent assessor or assessment coordinator and must contain only aggregate metadata: the exact selected deployment and configuration version, the independent assessor attestation reference, required scope categories, aggregate finding counts by severity/status, and evidence-presence flags. Raw findings, exploit detail, PII, secrets, credentials, endpoint inventories, provider/carrier evidence refs, and report bodies are not accepted by the CI artifact.
+
+CI uploads `security-assessment-readiness-report-v1.json` on success or failure with `if-no-files-found: error`. The report is strictly aggregate and PII-free with this exact top-level allowlist only: `schemaVersion`, `contractVersions`, `selectedDeployment`, `assessorAttestation`, `scopeCategories`, `aggregateFindingCounts`, `externalEvidence`, `timing`, `errorCode`, and `verdict`. The validator fails closed as `BLOCKED` when selected-deployment binding, independent attestation, required scope, external evidence, or zero open critical/high findings are not proven.
+
+A `READY_FOR_ASSESSMENT` verdict only proves the repository can intake a sanitized assessor packet for the selected deployment boundary. T908 remains `UNVERIFIED` until an independent assessor actually performs the assessment against the selected deployment. Any open critical/high finding is handed to T909 and blocks launch until independently tracked remediation evidence closes it.
+
 ## Provider kill switch
 Each real provider capability MUST have an independently operable kill switch. Disabling a capability MUST:
 - block new orders;

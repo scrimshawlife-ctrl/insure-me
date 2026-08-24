@@ -205,6 +205,19 @@ jobs:
           path: artifacts/restore-drill-report-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run security assessment readiness gate
+        run: pnpm security-assessment:readiness
+        env:
+          SECURITY_ASSESSMENT_METADATA_PATH: testdata/security-assessment/synthetic-ready-metadata-v1.json
+          SECURITY_ASSESSMENT_READINESS_REPORT_PATH: artifacts/security-assessment-readiness-report-v1.json
+      - name: Upload security assessment readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-assessment-readiness-report-v1
+          path: artifacts/security-assessment-readiness-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Run privacy-rights rehearsal

@@ -140,7 +140,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T905 Incident-response tabletop. Production detection/containment, evidence custody, named responder/vendor/legal coordination, notification, and recovery remain launch-gated.
 - [x] T906 Privacy-rights end-to-end rehearsal. The deterministic disposable-Supabase production-services/persistence rehearsal generated a passing PII-free `privacy-rights-rehearsal-report-v1.json`; real identity verification, deployed SLA monitoring, live vendor propagation, production legal/exemption decisions, notification delivery, production audit persistence, and real deletion certification remain `UNVERIFIED` launch gates.
 - [x] T907 FCRA/adverse-action synthetic rehearsal. The deterministic disposable-Supabase production-services/persistence rehearsal generated a passing PII-free `adverse-action-rehearsal-report-v1.json`; legal/compliance approval, live CRA/provider authorization, carrier ownership approval, live notice delivery, hosted Supabase persistence, and deployed production SLA evidence remain `UNVERIFIED` launch gates.
-- [ ] T908 Penetration test/independent security assessment.
+- [ ] T908 Penetration test/independent security assessment. Readiness intake for sanitized independent-assessment metadata is implemented and produces `security-assessment-readiness-report-v1.json`, but T908 remains unchecked because no independent assessor has completed an assessment against a selected deployment.
 - [ ] T909 Resolve all critical/high findings.
 - [x] T910 Run full P0 acceptance suite against synthetic providers and StubCarrierAdapter.
 - [ ] T911 Obtain legal/compliance launch approval for the selected deployment.

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "security-assessment-metadata-v1",
+  "selectedDeployment": { "environment": "synthetic-ci", "deploymentRef": "synthetic-selected-deployment-v1", "configurationVersion": "tenant-config-synthetic-v1", "exactBinding": true },
+  "assessorAttestation": { "independent": true, "attestationRef": "synthetic-independent-attestation-v1", "attestedAt": "2026-08-24T00:00:00.000Z" },
+  "scopeCategories": ["canonical-threat-model", "application-runtime", "authentication-and-session-boundary", "tenant-isolation-and-rls", "regulated-data-flows", "provider-and-carrier-boundaries", "secrets-and-configuration", "ci-cd-and-supply-chain", "infrastructure-hosting-and-networking", "observability-audit-and-incident-response"],
+  "findingCounts": { "critical": { "open": 0, "remediated": 0, "acceptedRisk": 0 }, "high": { "open": 1, "remediated": 0, "acceptedRisk": 0 }, "medium": { "open": 0, "remediated": 0, "acceptedRisk": 0 }, "low": { "open": 0, "remediated": 0, "acceptedRisk": 0 }, "informational": { "open": 0, "remediated": 0, "acceptedRisk": 0 } },
+  "externalEvidence": { "assessmentMetadataReceived": true, "assessorAttestationReceived": true, "selectedDeploymentBindingReceived": true, "t909HandoffPrepared": true }
+}
