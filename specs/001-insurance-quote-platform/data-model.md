@@ -437,6 +437,9 @@ Each event SHOULD include:
 - outcome/reason codes;
 - integrity/tamper-evidence metadata.
 
+### ComplianceEvidenceExport
+An immutable, tenant/agency and QuoteCase-scoped evidence artifact created for an explicit as-of time. It stores the export schema version, opaque purpose reference, reason codes, PII-minimized JSON manifest, SHA-256 manifest hash, bounded evidence-record count, actor/time, and idempotency evidence. The manifest contains exact configuration, notice, purpose, provider, readiness, carrier, adverse-action, notice-delivery, legal-hold, and AuditEvent provenance. It MUST NOT contain consumer identity fields, raw/normalized provider payloads, notice bodies, premiums, plaintext corrections, credentials, or arbitrary AuditEvent metadata. Direct Data API access is denied; creation and download use checked RPCs and each emits a separate AuditEvent.
+
 ## Cross-tenant isolation invariants
 - Every QuoteCase belongs to exactly one tenant/agency context.
 - Provider credentials/bindings and carrier credentials/programs MUST be tenant/environment scoped.

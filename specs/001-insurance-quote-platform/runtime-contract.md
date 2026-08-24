@@ -242,6 +242,7 @@ The initial relational schema MUST include versioned records for:
 - versioned PrivacyPropagationBinding, propagation runs/targets, and append-only attempts;
 - RetentionPolicy, bounded RetentionDispositionRun, stable category items, and append-only attempts;
 - AdverseActionCase, exact report sources, version-bound notice delivery envelopes, and append-only delivery attempts;
+- immutable ComplianceEvidenceExport artifacts with schema/hash/idempotency evidence;
 - AuditEvent.
 
 Every regulated record MUST carry tenant scope directly or through an immutable parent relationship that is enforceable in authorization and RLS.
@@ -257,6 +258,7 @@ Use database transactions for state transitions that must settle atomically, inc
 - privacy/retention disposition state + AuditEvent.
 - legal-hold placement/release + immutable LegalHoldEvent + AuditEvent.
 - adverse-action determination/report linkage + handoff event + AuditEvent.
+- compliance evidence artifact creation + AuditEvent.
 
 Do not implement critical state transitions as unrelated best-effort writes.
 

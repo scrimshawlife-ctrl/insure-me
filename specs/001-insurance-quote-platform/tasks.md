@@ -127,7 +127,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T806 Implement legal hold.
 - [x] T807 Build adverse-action support workflow.
 - [x] T808 Build notice delivery evidence.
-- [ ] T809 Build compliance evidence export.
+- [x] T809 Build compliance evidence export.
 - [ ] T810 Build notice/version administration.
 - [ ] T811 Build data-use/retention policy inspection admin surfaces.
 

@@ -121,6 +121,9 @@ Carrier handoff can be independently disabled without shutting down consumer int
 ## Support access
 Support personnel receive no implicit broad PII access. Support elevation must be time-bound, reason-coded, approved where required, and audited.
 
+## Compliance evidence export
+Export operations track creation/download counts, failures, scope-too-large outcomes, and integrity failures using tenant-safe dimensions. Operators must not log manifests, purpose references, recipient references, provider evidence references, or download contents. Artifact hash mismatch is a security alert and blocks download.
+
 ## Launch checklist
 - all P0 acceptance tests pass;
 - production provider credentials validated;

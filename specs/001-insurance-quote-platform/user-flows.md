@@ -140,6 +140,9 @@ An MFA-authenticated privacy or policy administrator selects one tenant-scoped P
 ### Adverse-action support
 An MFA-authenticated policy administrator records a responsible party's determination against one CarrierDecision and selects the exact consumer reports that contributed. The workflow captures configured owner, CRA/dispute references, authority/evidence, and reasons without making its own underwriting or legal determination. The administrator then records handoff to the responsible owner. After handoff, the administrator selects an active adverse-action notice and approved channel. The system binds the exact notice/version/hash and owner-policy snapshot before the provider-neutral adapter runs, then displays dispatched, delivered, or failed state from explicit append-only evidence. Provider acceptance is never displayed as confirmed delivery.
 
+### Compliance evidence export
+An MFA-authenticated administrator with both audit-read and export authority selects one QuoteCase, an exact as-of time, an opaque purpose reference, and reason codes. The system creates a stable artifact summary without returning its contents. A separate download action rechecks authority and integrity, emits download evidence, and returns the PII-minimized JSON bundle as a non-cacheable attachment. The interface states that the bundle is operational evidence rather than a legal conclusion and never offers raw report or identity payloads.
+
 ### Audit
 Search by QuoteCase, actor, event type, provider, result, time range. Sensitive details remain permission-filtered.
 

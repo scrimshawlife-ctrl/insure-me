@@ -25,7 +25,7 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-016 Adverse-action support | ownership-configurable AdverseActionCase + version-bound notice delivery | T807-T808 | A-036-A-037, adverse-action synthetic rehearsal |
 | FR-017 Privacy rights | PrivacyRequest subsystem | T800-T804 | A-022, A-031-A-033, privacy rehearsal |
 | FR-018 Retention | RetentionPolicy + disposition worker + LegalHold lifecycle | T113, T805-T806 | A-023, A-034-A-035 |
-| FR-019 Audit | append-only AuditEvent pipeline | T114, T610 | A-024 |
+| FR-019 Audit | append-only AuditEvent pipeline + immutable evidence export | T114, T610, T809 | A-024, A-038, compliance export rehearsal |
 | FR-020 Authentication/authorization | MFA + tenant RBAC/ABAC | T200-T203 | A-005, A-015 |
 | FR-021 Consumer session security | secure resume/session boundary | T204, T306 | A-014 |
 | FR-022 Notification separation | transactional notification subsystem | T310, T808 | A-030 |
