@@ -61,6 +61,7 @@ try {
   dumpSha256 = docker('exec', container, 'sha256sum', dumpPath).split(/\s+/)[0];
 
   docker('exec', container, 'createdb', '--username', 'postgres', '--template', 'template0', targetDatabase);
+  sql(targetDatabase, 'drop schema public cascade');
   docker('exec', container, 'pg_restore', '--username', 'postgres', '--dbname', targetDatabase,
     '--no-owner', '--exit-on-error', dumpPath);
 
