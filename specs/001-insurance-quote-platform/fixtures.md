@@ -70,10 +70,10 @@ Synthetic consumer report contributes to carrier-stub unfavorable decision. Syst
 Verified synthetic consumer requests access; system discovers all in-scope records and generates evidence.
 
 ### F020 Privacy deletion request
-System applies delete/anonymize/retain-exception actions according to policy and records evidence.
+System resolves exact synthetic policies, destroys protected identity lookup/key material, anonymizes direct consumer identifiers, preserves explicit exceptions, and records opaque append-only evidence. Missing or incompatible policies remain blocked.
 
 ### F021 Legal hold
-Retention expiration occurs while legal hold is active; deletion must not execute.
+Retention expiration occurs while a `RETENTION_HOLD` signal is active; T805 rechecks the signal immediately before disposition, does not mutate held records, and records blocked work. T806 owns the complete legal-hold lifecycle and administration model.
 
 ### F022 Marketing separation
 Consumer declines optional marketing consent but continues quote transaction normally.

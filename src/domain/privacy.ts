@@ -111,6 +111,19 @@ export interface PrivacyRequest {
 
 export type RetentionDisposition = 'DELETE' | 'ANONYMIZE' | 'REVIEW';
 
+export type RetentionRunStatus =
+  | 'PREPARED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'ATTENTION_REQUIRED';
+
+export type RetentionItemStatus =
+  | 'SCHEDULED'
+  | 'BLOCKED'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'REVIEW_REQUIRED';
+
 export type RetentionPolicyCertificationState =
   | 'DRAFT'
   | 'SYNTHETIC'

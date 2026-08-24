@@ -109,6 +109,9 @@ Given a verified and completed discovery, correction MUST update only requester-
 ### A-033 Downstream privacy propagation safety
 Given a rights execution with downstream work, each affected ExternalRequest MUST map to one stable tenant-scoped target. Only an exact active adapter/policy binding may dispatch it. Missing bindings remain blocked; retry and settlement are idempotent and append-only; failures remain visible without leaking vendor detail to the requester. Correction/restriction/opt-out may close only when all required targets complete, while deletion remains open for retention disposition. Direct anonymous/authenticated writes to bindings, targets, runs, and attempts MUST be denied.
 
+### A-034 Retention disposition worker safety
+Given queued deletion categories, one bounded idempotent run MUST resolve only the active tenant policy set and exact allowed certification state. Missing policy/interval evidence, incompatible versions, unsafe operations, and retention-hold signals MUST fail closed without mutating source records. Eligible identity disposition MUST destroy protected key/lookup material; consumer-input anonymization MUST remove direct identifiers while preserving exempt audit and external-source evidence. Every attempt MUST be append-only and audited, direct anonymous/authenticated execution MUST be denied, and the request MUST close only after every local and downstream requirement completes.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
