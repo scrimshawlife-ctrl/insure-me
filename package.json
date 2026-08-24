@@ -22,6 +22,7 @@
     "test:provider-credential-rotation-drill": "vitest run tests/contract/provider-credential-rotation-drill-command.test.ts --reporter=verbose",
     "test:incident-response-tabletop": "vitest run tests/contract/incident-response-tabletop-command.test.ts --reporter=verbose",
     "test:privacy-rights-rehearsal": "PRIVACY_REHEARSAL_ENABLED=1 vitest run tests/contract/privacy-rights-rehearsal-command.test.ts --reporter=verbose",
+    "test:adverse-action-rehearsal": "ADVERSE_ACTION_REHEARSAL_ENABLED=1 vitest run tests/contract/adverse-action-rehearsal-command.test.ts --reporter=verbose",
     "db:start": "supabase start",
     "db:stop": "supabase stop --no-backup",
     "db:reset": "supabase db reset",

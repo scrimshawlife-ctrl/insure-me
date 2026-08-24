@@ -22,7 +22,7 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-013 Carrier response | `CarrierSubmission`, `CarrierDecision` | T112, T704 | A-017, A-021 |
 | FR-014 Human review | issue/conflict workflow | T503, T608 | A-010 |
 | FR-015 Consumer correction/dispute | correction/dispute workflow | T309, T803-T804 | A-032-A-033, correction fixture |
-| FR-016 Adverse-action support | ownership-configurable AdverseActionCase + version-bound notice delivery | T807-T808 | A-036-A-037, adverse-action synthetic rehearsal |
+| FR-016 Adverse-action support | ownership-configurable AdverseActionCase + version-bound notice delivery | T807-T808, T907 | A-036-A-037, A-048 adverse-action synthetic rehearsal |
 | FR-017 Privacy rights | PrivacyRequest subsystem | T800-T804, T906 | A-022, A-031-A-033, A-047, privacy rehearsal |
 | FR-018 Retention | RetentionPolicy + disposition worker + LegalHold lifecycle | T113, T805-T806 | A-023, A-034-A-035 |
 | FR-019 Audit | append-only AuditEvent pipeline + immutable evidence export | T114, T610, T809 | A-024, A-038, compliance export rehearsal |

@@ -213,6 +213,14 @@ CI uploads `privacy-rights-rehearsal-report-v1.json` on success or failure with 
 
 This proves the repository's synthetic privacy-rights control shape through production application services on a disposable Supabase-compatible database. It does not prove live identity verification, live vendor fulfillment, legal/compliance approval, production alert delivery, hosted Supabase behavior, or privacy SLA compliance.
 
+## Canonical adverse-action rehearsal
+
+T907 runs `pnpm test:adverse-action-rehearsal` against the disposable local Supabase database after migrations in the CI database lane. The rehearsal seeds only synthetic fixture setup records for tenant, workforce policy admin, QuoteCase, ExternalReport provenance, CarrierProgram, CarrierDecision, and NoticeDefinition evidence. It then exercises the existing `createAdverseActionCase`, `recordAdverseActionHandoff`, and `deliverAdverseActionNotice` services and checked RPCs for exact carrier decision/report provenance, explicit owner and ownership-policy snapshot, separate handoff, exact notice version/hash, exact adapter/policy descriptor, explicit delivered evidence, append-only audits, idempotency replay, and fail-closed direct-mutation behavior. It must include exactly nine negative paths: cross-tenant/case mismatch, missing contributing report, changed-input determination replay, delivery before handoff, notice hash mismatch, adapter/policy mismatch, live deployment with synthetic notice configuration, changed-input delivery replay, and direct evidence mutation.
+
+CI uploads `adverse-action-rehearsal-report-v1.json` on success or failure with `if-no-files-found: error`. The report is strictly aggregate and PII-free with this exact top-level allowlist only: `schemaVersion`, `contractVersions`, `syntheticFixture`, `workflowStates`, `aggregateCounts`, `negativePaths`, `timing`, `errorCode`, and `verdict`. It must not include hashes, raw IDs beyond contract/version labels, notice bodies, report payloads, names, emails, phone numbers, addresses, exception stacks, secrets, JWTs, or raw delivery evidence refs.
+
+This proves the repository's synthetic adverse-action control shape through production application services on a disposable Supabase-compatible database. It does not prove live CRA/provider authorization, carrier adverse-action ownership approval, legal/compliance approval, live notice delivery, hosted Supabase behavior, or production SLA compliance.
+
 ## Provider kill switch
 Each real provider capability MUST have an independently operable kill switch. Disabling a capability MUST:
 - block new orders;
