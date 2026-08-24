@@ -344,6 +344,16 @@ Insure Me MUST NOT manufacture missing carrier reason codes or reinterpret a car
 ### PrivacyRequest
 Tracks applicable access, correction, deletion, restriction/opt-out, and related identity-verification workflow.
 
+Minimum fields:
+- internal privacy-request ID and separate opaque public reference;
+- tenant/agency and jurisdiction;
+- request type and intake channel;
+- request state and identity-verification state;
+- matched Person only after verified identity;
+- applicability/policy references and workflow timestamps.
+
+Privacy intake contact data belongs in a separate protected `PrivacyRequestIntakeEvidence` record containing encrypted requester data, keyed lookup hashes, request/idempotency evidence, and a one-way status-token hash. Public intake MUST NOT populate matched Person or QuoteCase relationships.
+
 ### RetentionPolicy
 Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 
