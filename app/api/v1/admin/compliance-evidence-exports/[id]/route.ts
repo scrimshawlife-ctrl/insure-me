@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 
@@ -18,12 +20,15 @@ export async function GET(
   try {
     await requireWorkforceContext(client);
     const artifact = await getComplianceEvidenceExport(client, parsedId.data);
-    return new NextResponse(`${JSON.stringify(artifact.manifest, null, 2)}\n`, {
+    const payload = `${JSON.stringify(artifact.manifest, null, 2)}\n`;
+    const contentHash = createHash('sha256').update(payload).digest('hex');
+    return new NextResponse(payload, {
       headers: {
         'Cache-Control': 'no-store',
         'Content-Type': 'application/json; charset=utf-8',
         'Content-Disposition': `attachment; filename="insure-me-compliance-evidence-${artifact.complianceEvidenceExportId}.json"`,
-        'X-Content-SHA256': artifact.manifestHash,
+        'X-Content-SHA256': contentHash,
+        'X-Manifest-SHA256': artifact.manifestHash,
         'X-Content-Type-Options': 'nosniff',
       },
     });

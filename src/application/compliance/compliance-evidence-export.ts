@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto';
-
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type {
@@ -48,10 +46,6 @@ export async function createComplianceEvidenceExport(
     idempotencyKey: string;
   },
 ): Promise<ComplianceEvidenceExportSummary> {
-  const requestHash = createHash('sha256').update(JSON.stringify([
-    'CREATE_COMPLIANCE_EVIDENCE_EXPORT', command.quoteCaseId, command.asOf,
-    command.purposeRef, command.reasonCodes,
-  ])).digest('hex');
   const { data, error } = await (client.rpc as unknown as Rpc)(
     'create_compliance_evidence_export',
     {
@@ -60,7 +54,6 @@ export async function createComplianceEvidenceExport(
       p_purpose_ref: command.purposeRef,
       p_reason_codes: command.reasonCodes,
       p_idempotency_key: command.idempotencyKey,
-      p_request_hash: requestHash,
     },
   );
   const row = data?.[0];

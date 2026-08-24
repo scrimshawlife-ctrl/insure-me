@@ -34,21 +34,21 @@ select is((select relrowsecurity from pg_class where oid='public.compliance_evid
 select is(has_table_privilege('anon','public.compliance_evidence_exports','SELECT'),false,'anonymous cannot read export artifacts');
 select is(has_table_privilege('authenticated','public.compliance_evidence_exports','SELECT'),false,'authenticated cannot directly read export artifacts');
 select is(has_table_privilege('authenticated','public.compliance_evidence_exports','INSERT'),false,'authenticated cannot directly create artifacts');
-select is(has_function_privilege('authenticated','public.create_compliance_evidence_export(uuid,timestamptz,text,text[],uuid,text)','EXECUTE'),true,'authenticated may call checked create RPC');
+select is(has_function_privilege('authenticated','public.create_compliance_evidence_export(uuid,timestamptz,text,text[],uuid)','EXECUTE'),true,'authenticated may call checked create RPC');
 select is(has_function_privilege('anon','public.get_compliance_evidence_export(uuid)','EXECUTE'),false,'anonymous cannot download exports');
 
 set local role authenticated;
 select set_config('request.jwt.claims',json_build_object('sub','a1900000-0000-0000-0000-000000000009','role','authenticated','app_metadata',json_build_object('active_tenant_id','a1000000-0000-0000-0000-000000000001'),'aal','aal2')::text,true);
 create temporary table created_export as select * from public.create_compliance_evidence_export(
   'a1430000-0000-0000-0000-000000000001',now(),'audit:synthetic-rehearsal',array['SYNTHETIC_REHEARSAL'],
-  'a1480000-0000-4000-8000-000000000001',repeat('c',64));
+  'a1480000-0000-4000-8000-000000000001');
 select is((select schema_version from created_export),'compliance-evidence-bundle-v1','schema version is explicit');
 select is((select quote_case_id from created_export),'a1430000-0000-0000-0000-000000000001'::uuid,'export is case scoped');
 select is((select length(manifest_hash) from created_export),64,'summary returns manifest integrity hash');
 select is((select evidence_record_count from created_export),3,'bounded evidence count is recorded');
-select is((select count(*) from public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now(),'audit:synthetic-rehearsal',array['SYNTHETIC_REHEARSAL'],'a1480000-0000-4000-8000-000000000001',repeat('c',64))),1::bigint,'create replay is idempotent');
-select throws_ok($$select public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now(),'audit:synthetic-rehearsal',array['SYNTHETIC_REHEARSAL'],'a1480000-0000-4000-8000-000000000001',repeat('d',64))$$,'22023','COMPLIANCE_EXPORT_IDEMPOTENCY_MISMATCH','replay cannot change request evidence');
-select throws_ok($$select public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now() + interval '1 minute','audit:synthetic-rehearsal',array['SYNTHETIC_REHEARSAL'],'a1480000-0000-4000-8000-000000000002',repeat('e',64))$$,'22023','COMPLIANCE_EXPORT_INPUT_INVALID','future cutoff fails closed');
+select is((select count(*) from public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now(),'audit:synthetic-rehearsal',array['SYNTHETIC_REHEARSAL'],'a1480000-0000-4000-8000-000000000001')),1::bigint,'create replay is idempotent');
+select throws_ok($$select public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now(),'audit:changed-purpose',array['SYNTHETIC_REHEARSAL'],'a1480000-0000-4000-8000-000000000001')$$,'22023','COMPLIANCE_EXPORT_IDEMPOTENCY_MISMATCH','replay cannot change request evidence');
+select throws_ok($$select public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now() + interval '1 minute','audit:synthetic-rehearsal',array['SYNTHETIC_REHEARSAL'],'a1480000-0000-4000-8000-000000000002')$$,'22023','COMPLIANCE_EXPORT_INPUT_INVALID','future cutoff fails closed');
 create temporary table downloaded_export as select * from public.get_compliance_evidence_export((select compliance_evidence_export_id from created_export));
 select is((select manifest->>'schemaVersion' from downloaded_export),'compliance-evidence-bundle-v1','download returns versioned manifest');
 select is((select jsonb_array_length(manifest->'auditTimeline') from downloaded_export),1,'snapshot has exact as-of audit timeline');
@@ -64,7 +64,7 @@ select throws_ok($$delete from public.compliance_evidence_exports$$,'22023','COM
 
 set local role authenticated;
 select set_config('request.jwt.claims',json_build_object('sub','a1900000-0000-0000-0000-000000000008','role','authenticated','app_metadata',json_build_object('active_tenant_id','a1000000-0000-0000-0000-000000000001'),'aal','aal2')::text,true);
-select throws_ok($$select public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now(),'audit:unauthorized',array['UNAUTHORIZED'],'a1480000-0000-4000-8000-000000000003',repeat('f',64))$$,'P0002','COMPLIANCE_EXPORT_SCOPE_NOT_FOUND','audit-only user cannot create export');
+select throws_ok($$select public.create_compliance_evidence_export('a1430000-0000-0000-0000-000000000001',now(),'audit:unauthorized',array['UNAUTHORIZED'],'a1480000-0000-4000-8000-000000000003')$$,'P0002','COMPLIANCE_EXPORT_SCOPE_NOT_FOUND','audit-only user cannot create export');
 select throws_ok($$select public.get_compliance_evidence_export((select compliance_evidence_export_id from created_export))$$,'P0002','COMPLIANCE_EXPORT_NOT_FOUND','audit-only user cannot download export');
 
 select * from finish();

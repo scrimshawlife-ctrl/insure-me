@@ -45,8 +45,7 @@ create or replace function private.create_compliance_evidence_export_impl(
   p_as_of timestamptz,
   p_purpose_ref text,
   p_reason_codes text[],
-  p_idempotency_key uuid,
-  p_request_hash text
+  p_idempotency_key uuid
 )
 returns public.compliance_evidence_exports
 language plpgsql security definer
@@ -59,6 +58,7 @@ declare
   v_manifest jsonb;
   v_manifest_hash text;
   v_evidence_count integer;
+  v_request_hash text;
   v_audit_hash text;
 begin
   if v_actor is null then
@@ -72,10 +72,13 @@ begin
   end if;
   if p_as_of is null or p_as_of > now() or p_as_of < v_case.created_at
     or char_length(trim(p_purpose_ref)) not between 3 and 500
-    or coalesce(cardinality(p_reason_codes), 0) = 0
-    or p_request_hash !~ '^[0-9a-f]{64}$' then
+    or coalesce(cardinality(p_reason_codes), 0) = 0 then
     raise exception using errcode = '22023', message = 'COMPLIANCE_EXPORT_INPUT_INVALID';
   end if;
+  v_request_hash := encode(extensions.digest(jsonb_build_array(
+    'CREATE_COMPLIANCE_EVIDENCE_EXPORT', p_quote_case_id, p_as_of,
+    trim(p_purpose_ref), to_jsonb(p_reason_codes)
+  )::text, 'sha256'), 'hex');
   perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(
     concat_ws('|', v_case.tenant_id::text, v_case.agency_id::text,
       p_idempotency_key::text), 0));
@@ -83,73 +86,14 @@ begin
     where tenant_id = v_case.tenant_id and agency_id = v_case.agency_id
       and idempotency_key = p_idempotency_key;
   if found then
-    if v_existing.request_hash <> p_request_hash then
+    if v_existing.request_hash <> v_request_hash
+      or v_existing.quote_case_id <> p_quote_case_id
+      or v_existing.as_of <> p_as_of
+      or v_existing.purpose_ref <> trim(p_purpose_ref)
+      or v_existing.reason_codes <> p_reason_codes then
       raise exception using errcode = '22023', message = 'COMPLIANCE_EXPORT_IDEMPOTENCY_MISMATCH';
     end if;
     return v_existing;
-  end if;
-
-  select
-    (select count(*) from public.audit_events a
-      where a.tenant_id = v_case.tenant_id and a.agency_id = v_case.agency_id
-        and a.quote_case_id = v_case.quote_case_id and a.occurred_at <= p_as_of)
-    + (select count(*) from public.consent_records c
-      where c.tenant_id = v_case.tenant_id and c.quote_case_id = v_case.quote_case_id
-        and c.created_at <= p_as_of)
-    + (select count(*) from public.permissible_purpose_decisions p
-      where p.tenant_id = v_case.tenant_id and p.quote_case_id = v_case.quote_case_id
-        and p.evaluated_at <= p_as_of)
-    + (select count(*) from public.external_requests r
-      where r.tenant_id = v_case.tenant_id and r.quote_case_id = v_case.quote_case_id
-        and r.requested_at <= p_as_of)
-    + (select count(distinct r.provider_binding_id) from public.external_requests r
-      where r.tenant_id = v_case.tenant_id and r.quote_case_id = v_case.quote_case_id
-        and r.requested_at <= p_as_of)
-    + (select count(*) from public.external_reports r
-      where r.tenant_id = v_case.tenant_id and r.quote_case_id = v_case.quote_case_id
-        and r.created_at <= p_as_of)
-    + (select count(*) from public.carrier_submissions s
-      where s.tenant_id = v_case.tenant_id and s.quote_case_id = v_case.quote_case_id
-        and s.submitted_at <= p_as_of)
-    + (select count(*) from public.carrier_decisions d join public.carrier_submissions s
-        on s.carrier_submission_id = d.carrier_submission_id
-      where s.tenant_id = v_case.tenant_id and s.quote_case_id = v_case.quote_case_id
-        and d.created_at <= p_as_of)
-    + (select count(*) from public.readiness_issues r
-      where r.tenant_id = v_case.tenant_id and r.quote_case_id = v_case.quote_case_id
-        and r.created_at <= p_as_of)
-    + (select count(*) from public.adverse_action_cases a
-      where a.tenant_id = v_case.tenant_id and a.quote_case_id = v_case.quote_case_id
-        and a.determined_at <= p_as_of)
-    + (select count(*) from public.adverse_action_events e join public.adverse_action_cases a
-        on a.adverse_action_case_id = e.adverse_action_case_id
-      where a.tenant_id = v_case.tenant_id and a.quote_case_id = v_case.quote_case_id
-        and e.occurred_at <= p_as_of)
-    + (select count(*) from public.adverse_action_report_sources s
-      join public.adverse_action_cases a
-        on a.adverse_action_case_id = s.adverse_action_case_id
-      where a.tenant_id = v_case.tenant_id and a.quote_case_id = v_case.quote_case_id
-        and s.created_at <= p_as_of)
-    + (select count(*) from public.adverse_action_notice_deliveries d
-      where d.tenant_id = v_case.tenant_id and d.quote_case_id = v_case.quote_case_id
-        and d.prepared_at <= p_as_of)
-    + (select count(*) from public.adverse_action_notice_delivery_attempts a
-      join public.adverse_action_notice_deliveries d
-        on d.adverse_action_notice_delivery_id = a.adverse_action_notice_delivery_id
-      where d.tenant_id = v_case.tenant_id and d.quote_case_id = v_case.quote_case_id
-        and a.attempted_at <= p_as_of)
-    + (select count(*) from public.legal_holds h
-      where h.tenant_id = v_case.tenant_id and h.agency_id = v_case.agency_id
-        and h.scope_type = 'QUOTE_CASE' and h.scope_ref = v_case.quote_case_id
-        and h.placed_at <= p_as_of)
-    + (select count(*) from public.legal_hold_events e join public.legal_holds h
-        on h.legal_hold_id = e.legal_hold_id
-      where h.tenant_id = v_case.tenant_id and h.agency_id = v_case.agency_id
-        and h.scope_type = 'QUOTE_CASE' and h.scope_ref = v_case.quote_case_id
-        and e.occurred_at <= p_as_of)
-  into v_evidence_count;
-  if v_evidence_count > 10000 then
-    raise exception using errcode = '54000', message = 'COMPLIANCE_EXPORT_SCOPE_TOO_LARGE';
   end if;
 
   select jsonb_build_object(
@@ -328,6 +272,27 @@ begin
         and a.quote_case_id = v_case.quote_case_id and a.occurred_at <= p_as_of), '[]'::jsonb)
   ) into v_manifest;
 
+  v_evidence_count :=
+      jsonb_array_length(v_manifest->'noticeAndConsentEvidence')
+    + jsonb_array_length(v_manifest->'purposeEvidence')
+    + jsonb_array_length(v_manifest->'providerBindings')
+    + jsonb_array_length(v_manifest->'providerRequests')
+    + jsonb_array_length(v_manifest->'providerReports')
+    + jsonb_array_length(v_manifest->'readinessEvidence')
+    + jsonb_array_length(v_manifest->'carrierSubmissions')
+    + jsonb_array_length(v_manifest->'carrierDecisions')
+    + jsonb_array_length(v_manifest->'adverseActionCases')
+    + jsonb_array_length(v_manifest->'adverseActionReportSources')
+    + jsonb_array_length(v_manifest->'adverseActionEvents')
+    + jsonb_array_length(v_manifest->'noticeDeliveries')
+    + jsonb_array_length(v_manifest->'noticeDeliveryAttempts')
+    + jsonb_array_length(v_manifest->'legalHolds')
+    + jsonb_array_length(v_manifest->'legalHoldEvents')
+    + jsonb_array_length(v_manifest->'auditTimeline');
+  if v_evidence_count > 10000 then
+    raise exception using errcode = '54000', message = 'COMPLIANCE_EXPORT_SCOPE_TOO_LARGE';
+  end if;
+
   v_manifest_hash := encode(extensions.digest(v_manifest::text, 'sha256'), 'hex');
   insert into public.compliance_evidence_exports (
     tenant_id, agency_id, quote_case_id, schema_version, as_of,
@@ -337,7 +302,7 @@ begin
     v_case.tenant_id, v_case.agency_id, v_case.quote_case_id,
     'compliance-evidence-bundle-v1', p_as_of, trim(p_purpose_ref), p_reason_codes,
     v_manifest, v_manifest_hash, v_evidence_count, p_idempotency_key,
-    p_request_hash, v_actor
+    v_request_hash, v_actor
   ) returning * into v_export;
   v_audit_hash := encode(extensions.digest(concat_ws('|',
     v_export.compliance_evidence_export_id::text, v_export.manifest_hash,
@@ -398,14 +363,14 @@ begin
 end
 $$;
 
-revoke all on function private.create_compliance_evidence_export_impl(uuid,timestamptz,text,text[],uuid,text) from public;
+revoke all on function private.create_compliance_evidence_export_impl(uuid,timestamptz,text,text[],uuid) from public;
 revoke all on function private.get_compliance_evidence_export_impl(uuid) from public;
-grant execute on function private.create_compliance_evidence_export_impl(uuid,timestamptz,text,text[],uuid,text) to authenticated;
+grant execute on function private.create_compliance_evidence_export_impl(uuid,timestamptz,text,text[],uuid) to authenticated;
 grant execute on function private.get_compliance_evidence_export_impl(uuid) to authenticated;
 
 create or replace function public.create_compliance_evidence_export(
   p_quote_case_id uuid, p_as_of timestamptz, p_purpose_ref text,
-  p_reason_codes text[], p_idempotency_key uuid, p_request_hash text
+  p_reason_codes text[], p_idempotency_key uuid
 )
 returns table (
   compliance_evidence_export_id uuid,
@@ -420,7 +385,7 @@ set search_path = public, private as $$
   select e.compliance_evidence_export_id, e.quote_case_id, e.schema_version,
     e.as_of, e.manifest_hash, e.evidence_record_count, e.created_at
   from private.create_compliance_evidence_export_impl(p_quote_case_id, p_as_of,
-    p_purpose_ref, p_reason_codes, p_idempotency_key, p_request_hash) e
+    p_purpose_ref, p_reason_codes, p_idempotency_key) e
 $$;
 create or replace function public.get_compliance_evidence_export(
   p_compliance_evidence_export_id uuid
@@ -440,7 +405,7 @@ set search_path = public, private as $$
     e.as_of, e.manifest, e.manifest_hash, e.evidence_record_count, e.created_at
   from private.get_compliance_evidence_export_impl(p_compliance_evidence_export_id) e
 $$;
-revoke all on function public.create_compliance_evidence_export(uuid,timestamptz,text,text[],uuid,text) from public, anon, authenticated;
+revoke all on function public.create_compliance_evidence_export(uuid,timestamptz,text,text[],uuid) from public, anon, authenticated;
 revoke all on function public.get_compliance_evidence_export(uuid) from public, anon, authenticated;
-grant execute on function public.create_compliance_evidence_export(uuid,timestamptz,text,text[],uuid,text) to authenticated;
+grant execute on function public.create_compliance_evidence_export(uuid,timestamptz,text,text[],uuid) to authenticated;
 grant execute on function public.get_compliance_evidence_export(uuid) to authenticated;

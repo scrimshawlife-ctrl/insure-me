@@ -163,7 +163,7 @@ Creates or idempotently replays one immutable QuoteCase evidence bundle. The MFA
 The server derives tenant/agency from the stored QuoteCase and assembles only PII-minimized provenance and integrity fields. More than 10,000 included records fails closed. Unknown/cross-tenant scopes and insufficient permissions share the generic not-found response; mismatched replay fails with a conflict.
 
 ### `GET /api/v1/admin/compliance-evidence-exports/{id}`
-Downloads the immutable JSON manifest after rechecking MFA plus both permissions and verifying its stored SHA-256. The response is non-cacheable, attachment-only, and exposes the content hash. Each successful download emits a separate AuditEvent. Unknown, cross-tenant, unauthorized, or integrity-failed artifacts are not returned. Direct anonymous/authenticated table reads and all table mutations are denied.
+Downloads the immutable JSON manifest after rechecking MFA plus both permissions and verifying its stored SHA-256. The response is non-cacheable and attachment-only; `X-Content-SHA256` hashes the exact downloaded bytes while `X-Manifest-SHA256` exposes the stored canonical JSONB hash. Each successful download emits a separate AuditEvent. Unknown, cross-tenant, unauthorized, or integrity-failed artifacts are not returned. Direct anonymous/authenticated table reads and all table mutations are denied.
 
 ## Privacy APIs
 

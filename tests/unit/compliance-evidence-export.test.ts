@@ -29,7 +29,7 @@ describe('compliance evidence export', () => {
     expect(result.manifestHash).toBe('a'.repeat(64));
     expect(result).not.toHaveProperty('manifest');
     expect(calls[0].name).toBe('create_compliance_evidence_export');
-    expect(calls[0].args.p_request_hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(calls[0].args).not.toHaveProperty('p_request_hash');
   });
 
   it('retrieves the immutable manifest only through the audited RPC', async () => {
