@@ -153,4 +153,25 @@ describe('orchestrateProviderRequest', () => {
     });
     expect(store.settleExternalResult).not.toHaveBeenCalled();
   });
+
+  it('returns a provider ERROR result to retry state without settling it', async () => {
+    const adapter = new SyntheticProviderAdapter('MVR');
+    const store = persistence();
+
+    const result = await orchestrateProviderRequest({
+      adapter,
+      persistence: store,
+      policy: allowPolicy,
+      context,
+      request: { scenario: 'ERROR' as const },
+    });
+
+    expect(result.status).toBe('ERROR');
+    expect(store.markExternalRequestRetry).toHaveBeenCalledWith({
+      externalRequestId: 'request-1',
+      errorCode: 'PROVIDER_UNAVAILABLE',
+      backoffSeconds: 60,
+    });
+    expect(store.settleExternalResult).not.toHaveBeenCalled();
+  });
 });

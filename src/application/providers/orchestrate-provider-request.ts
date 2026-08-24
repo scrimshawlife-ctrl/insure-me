@@ -153,6 +153,15 @@ export async function orchestrateProviderRequest<TRequest, TNormalized>(input: {
     };
     const result = await input.adapter.execute(executionContext, input.request);
 
+    if (result.status === 'ERROR') {
+      await input.persistence.markExternalRequestRetry({
+        externalRequestId: externalRequest.externalRequestId,
+        errorCode: errorCode(result.warnings[0] ?? 'PROVIDER_UNAVAILABLE'),
+        backoffSeconds: 60,
+      });
+      return result;
+    }
+
     await input.persistence.settleExternalResult({
       context: executionContext,
       externalRequestId: externalRequest.externalRequestId,

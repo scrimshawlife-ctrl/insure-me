@@ -92,6 +92,8 @@ T903 runs the canonical F009 MVR outage through the synthetic scenario harness a
 
 CI uploads `provider-outage-drill-report-v1.json` on success or failure. The report contains only fixture/dataset identity, capability and workflow statuses, categorized error/retry state, aggregate health, elapsed time, and verdict. It contains no consumer fields, subject/case identifiers, provider payloads, credentials, or raw errors. This proves deterministic fail-closed and recovery control shape only; live-provider behavior, production alert delivery, credential validity, and durable production retry execution remain `UNVERIFIED` deployment gates.
 
+The served readiness endpoint consumes `PROVIDER_HEALTH_SNAPSHOT_JSON`, a monitoring-owned capability snapshot with an observation time, required capability list, and categorized statuses. Pilot and production return blocked health when the snapshot is absent, invalid, more than five minutes old, or shows a required capability unavailable. Synthetic mode may omit the snapshot. Snapshot contents remain low-risk operational dimensions and MUST NOT contain request, report, case, subject, or credential data.
+
 ## Operational metrics
 Track without raw PII:
 - quote starts/completions;

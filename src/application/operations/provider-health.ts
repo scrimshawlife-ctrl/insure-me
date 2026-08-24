@@ -10,6 +10,40 @@ export interface ProviderHealthAssessment {
   reasonCodes: string[];
 }
 
+export interface ProviderHealthSnapshot {
+  observedAt: string;
+  requiredCapabilities: ProviderCapability[];
+  statuses: Partial<Record<ProviderCapability, ProviderResultStatus>>;
+}
+
+const providerCapabilities: ProviderCapability[] = ['IDENTITY', 'PREFILL', 'MVR', 'CLAIMS', 'VEHICLE'];
+
+export function readProviderHealthSnapshot(
+  source: Record<string, string | undefined> = process.env,
+  now: Date = new Date(),
+): ProviderHealthAssessment | null {
+  const value = source.PROVIDER_HEALTH_SNAPSHOT_JSON;
+  if (!value) return null;
+
+  let snapshot: ProviderHealthSnapshot;
+  try {
+    snapshot = JSON.parse(value) as ProviderHealthSnapshot;
+  } catch {
+    throw new Error('PROVIDER_HEALTH_SNAPSHOT_INVALID');
+  }
+
+  const observedAt = Date.parse(snapshot.observedAt);
+  if (!Number.isFinite(observedAt) || Math.abs(now.getTime() - observedAt) > 5 * 60 * 1000) {
+    throw new Error('PROVIDER_HEALTH_SNAPSHOT_STALE');
+  }
+  if (!Array.isArray(snapshot.requiredCapabilities) || snapshot.requiredCapabilities.length === 0
+    || snapshot.requiredCapabilities.some((item) => !providerCapabilities.includes(item))) {
+    throw new Error('PROVIDER_HEALTH_SNAPSHOT_INVALID');
+  }
+
+  return assessProviderHealth(snapshot);
+}
+
 export function assessProviderHealth(input: {
   statuses: Partial<Record<ProviderCapability, ProviderResultStatus>>;
   requiredCapabilities: ProviderCapability[];

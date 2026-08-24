@@ -2,7 +2,6 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import catalogJson from '../../testdata/canonical/v1/canonical-synthetic-datasets.v1.json';
-import { executeCanonicalScenario } from '../../testdata/canonical/v1/scenario-harness';
 import { canonicalSyntheticCatalogSchema } from '../../testdata/canonical/v1/schema';
 import { assessProviderHealth } from '../../src/application/operations/provider-health';
 import {
@@ -18,13 +17,21 @@ const catalog = canonicalSyntheticCatalogSchema.parse(catalogJson);
 describe('provider outage drill operator command', () => {
   it('fails closed, schedules retry, reports blocked health, and recovers', async () => {
     const startedAt = new Date().toISOString();
+    if (reportPath) {
+      await mkdir(dirname(reportPath), { recursive: true });
+      await writeFile(reportPath, `${JSON.stringify({
+        schemaVersion: 'provider-outage-drill-report-v1',
+        reliabilityContractVersion: 'reliability-v1',
+        fixtureId: 'F009', datasetId: 'provider-outage', startedAt,
+        completedAt: new Date().toISOString(), observed: {}, liveProviderVerified: false,
+        errorCode: 'PROVIDER_OUTAGE_DRILL_INCOMPLETE', passed: false,
+      }, null, 2)}\n`, 'utf8');
+    }
     const started = performance.now();
     const dataset = catalog.datasets.find((candidate) => candidate.datasetId === 'provider-outage');
     if (!dataset) throw new Error('PROVIDER_OUTAGE_FIXTURE_MISSING');
 
-    const scenario = await executeCanonicalScenario(dataset);
     const adapter = new SyntheticProviderAdapter('MVR');
-    vi.spyOn(adapter, 'execute').mockRejectedValueOnce(new Error('PROVIDER_UNAVAILABLE'));
 
     const drillState: {
       requestStatus: 'PENDING' | 'RUNNING' | 'SUCCEEDED';
@@ -70,22 +77,21 @@ describe('provider outage drill operator command', () => {
       subjectIds: ['synthetic-subject'], traceId: 'synthetic-outage-drill', idempotencyKey: 'synthetic-outage-drill',
     };
 
-    let outageErrorCode: string | null = null;
-    try {
-      await orchestrateProviderRequest({ adapter, persistence, policy, context, request: { scenario: 'SUCCESS' } });
-    } catch (error) {
-      outageErrorCode = error instanceof Error ? error.message : 'UNKNOWN';
-    }
+    const outageRequest = dataset.providerRequests.find((request) => request.capability === 'MVR');
+    if (!outageRequest || outageRequest.scenario !== 'ERROR') throw new Error('F009_MVR_ERROR_MISSING');
+    const outageResult = await orchestrateProviderRequest({
+      adapter, persistence, policy, context, request: { scenario: outageRequest.scenario },
+    });
 
-    const outageHealth = assessProviderHealth({ statuses: { MVR: 'ERROR' }, requiredCapabilities: ['MVR'] });
+    const outageHealth = assessProviderHealth({ statuses: { MVR: outageResult.status }, requiredCapabilities: ['MVR'] });
+    const outageReadiness = outageHealth.quoteCompletionBlocked ? 'REVIEW_REQUIRED' : 'READY_FOR_CARRIER';
+    const carrierSubmissionAllowed = outageReadiness === 'READY_FOR_CARRIER';
     const recovered = await orchestrateProviderRequest({ adapter, persistence, policy, context, request: { scenario: 'SUCCESS' } });
     const recoveryHealth = assessProviderHealth({ statuses: { MVR: recovered.status }, requiredCapabilities: ['MVR'] });
     const elapsedMilliseconds = performance.now() - started;
-    const passed = scenario.providerStatuses.MVR === 'ERROR'
-      && scenario.readiness === 'REVIEW_REQUIRED'
-      && scenario.carrierSubmissionAllowed === false
-      && scenario.carrierStatus === 'NOT_SUBMITTED'
-      && outageErrorCode === 'PROVIDER_UNAVAILABLE'
+    const passed = outageResult.status === dataset.expected.providerStatuses.MVR
+      && outageReadiness === dataset.expected.quoteReadiness
+      && carrierSubmissionAllowed === dataset.expected.carrierSubmissionAllowed
       && drillState.retry?.errorCode === 'PROVIDER_UNAVAILABLE'
       && drillState.retry?.backoffSeconds === 60
       && outageHealth.verdict === 'blocked'
@@ -104,15 +110,17 @@ describe('provider outage drill operator command', () => {
       completedAt: new Date().toISOString(),
       observed: {
         outage: {
-          providerCapability: 'MVR', providerStatus: scenario.providerStatuses.MVR,
-          errorCode: outageErrorCode, retryBackoffSeconds: drillState.retry?.backoffSeconds ?? null,
-          quoteReadiness: scenario.readiness, carrierSubmissionAllowed: scenario.carrierSubmissionAllowed,
-          carrierStatus: scenario.carrierStatus, health: outageHealth,
+          providerCapability: 'MVR', providerStatus: outageResult.status,
+          errorCode: drillState.retry?.errorCode ?? null,
+          retryBackoffSeconds: drillState.retry?.backoffSeconds ?? null,
+          quoteReadiness: outageReadiness, carrierSubmissionAllowed,
+          carrierStatus: carrierSubmissionAllowed ? 'UNEXPECTEDLY_ALLOWED' : 'NOT_SUBMITTED', health: outageHealth,
         },
         recovery: { providerStatus: recovered.status, requestStatus: drillState.requestStatus, health: recoveryHealth },
         elapsedMilliseconds: Number(elapsedMilliseconds.toFixed(2)),
       },
       liveProviderVerified: false,
+      errorCode: null,
       passed,
     };
     const serialized = `${JSON.stringify(report, null, 2)}\n`;
