@@ -86,6 +86,12 @@ System health MUST distinguish:
 
 A provider outage MUST NOT incorrectly mark the entire platform healthy if it blocks quote completion.
 
+### Canonical provider outage drill
+
+T903 runs the canonical F009 MVR outage through the synthetic scenario harness and the provider orchestration boundary. The first execution deterministically returns `PROVIDER_UNAVAILABLE`; the drill requires the claimed request to return to pending with a categorized 60-second retry, no normalized facts, review-required quote state, no carrier submission, and blocked provider/aggregate quote-completion health. A second execution settles successfully and must return the required capability health to ready.
+
+CI uploads `provider-outage-drill-report-v1.json` on success or failure. The report contains only fixture/dataset identity, capability and workflow statuses, categorized error/retry state, aggregate health, elapsed time, and verdict. It contains no consumer fields, subject/case identifiers, provider payloads, credentials, or raw errors. This proves deterministic fail-closed and recovery control shape only; live-provider behavior, production alert delivery, credential validity, and durable production retry execution remain `UNVERIFIED` deployment gates.
+
 ## Operational metrics
 Track without raw PII:
 - quote starts/completions;

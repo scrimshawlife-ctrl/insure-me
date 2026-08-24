@@ -79,6 +79,18 @@ jobs:
           path: artifacts/canonical-scenario-report-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run provider outage drill
+        run: pnpm test:provider-outage-drill
+        env:
+          PROVIDER_OUTAGE_DRILL_REPORT_PATH: artifacts/provider-outage-drill-report-v1.json
+      - name: Upload provider outage drill evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-outage-drill-report-v1
+          path: artifacts/provider-outage-drill-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - run: pnpm build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
