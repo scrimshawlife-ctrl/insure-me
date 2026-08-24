@@ -61,7 +61,14 @@ try {
   dumpSha256 = docker('exec', container, 'sha256sum', dumpPath).split(/\s+/)[0];
 
   docker('exec', container, 'createdb', '--username', 'postgres', '--template', 'template0', targetDatabase);
-  sql(targetDatabase, 'drop schema public cascade');
+  sql(targetDatabase, `
+    drop schema public cascade;
+    create schema auth;
+    create function auth.uid() returns uuid language sql stable as 'select null::uuid';
+    create function auth.jwt() returns jsonb language sql stable as 'select null::jsonb';
+    create schema extensions;
+    create extension pgcrypto with schema extensions;
+  `);
   docker('exec', container, 'pg_restore', '--username', 'postgres', '--dbname', targetDatabase,
     '--no-owner', '--exit-on-error', dumpPath);
 
