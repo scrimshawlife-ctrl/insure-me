@@ -100,6 +100,9 @@ Changing a QuoteCase's selected CarrierProgram before submission MAY change read
 ### A-030 Marketing separation
 Quote notices/consent MUST NOT imply marketing consent. Transactional and marketing permission states MUST remain separate.
 
+### A-031 Privacy discovery and export safety
+Given a verified privacy request, discovery MUST be idempotent, tenant/agency scoped, auditable, and based only on protected lookup material. A unique match may create an encrypted access export. No match or multiple matches MUST reveal no candidate identity or record count, attach no Person, and require applicability review. Anonymous/authenticated roles MUST have no direct access to discovery or export artifacts.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

@@ -23,7 +23,7 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-014 Human review | issue/conflict workflow | T503, T608 | A-010 |
 | FR-015 Consumer correction/dispute | correction/dispute workflow | T309, T803-T804 | correction fixture |
 | FR-016 Adverse-action support | ownership-configurable support workflow | T807-T808 | adverse-action synthetic rehearsal |
-| FR-017 Privacy rights | PrivacyRequest subsystem | T800-T804 | A-022, privacy rehearsal |
+| FR-017 Privacy rights | PrivacyRequest subsystem | T800-T804 | A-022, A-031, privacy rehearsal |
 | FR-018 Retention | RetentionPolicy + disposition worker | T113, T805-T806 | A-023 |
 | FR-019 Audit | append-only AuditEvent pipeline | T114, T610 | A-024 |
 | FR-020 Authentication/authorization | MFA + tenant RBAC/ABAC | T200-T203 | A-005, A-015 |

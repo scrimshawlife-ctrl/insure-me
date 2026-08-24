@@ -70,6 +70,8 @@ Controls:
 - clipboard/export controls considered for agent UI;
 - bulk export disabled by default.
 
+Privacy access exports require verified identity plus the scoped request credential. Plaintext exports MUST NOT be persisted. Stored export artifacts MUST be encrypted, directly inaccessible to anonymous/authenticated Data API roles, integrity checked before delivery, tenant/agency scoped, and audited on creation and every successful download. No-match and ambiguous discovery results MUST not expose candidate identifiers or counts.
+
 ## Provider credential security
 - secrets stored only in managed secret storage;
 - distinct sandbox/production credentials;

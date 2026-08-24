@@ -182,6 +182,8 @@ No production copy is final until legal approval is recorded in `NoticeDefinitio
 
 The system MUST NOT promise deletion when law, contract, fraud/security, or audit obligations require retention.
 
+Record discovery MUST be tenant/agency scoped and must not reveal candidate identities when matching is ambiguous. Access exports MUST use an approved disclosure policy, be encrypted at rest, preserve integrity/version evidence, and use an authenticated secure-delivery path. Synthetic disclosure policy does not establish production legal approval.
+
 ## FCRA/adverse-action workflow
 1. CarrierDecision or authorized human marks potential adverse action.
 2. Determine whether a consumer report contributed partly or wholly.

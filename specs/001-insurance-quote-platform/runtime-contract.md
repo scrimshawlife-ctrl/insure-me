@@ -237,6 +237,7 @@ The initial relational schema MUST include versioned records for:
 - CarrierSubmission;
 - CarrierDecision;
 - PrivacyRequest;
+- PrivacyDiscoveryRun and protected PrivacyExportArtifact;
 - RetentionPolicy / disposition work;
 - AuditEvent.
 

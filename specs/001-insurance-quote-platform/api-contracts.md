@@ -214,6 +214,32 @@ The verifier result MUST be settled through a service-role-only atomic operation
 
 Successful verification changes only identity-verification workflow state. It MUST NOT search for or attach Person or QuoteCase records. Record discovery begins in T802.
 
+### `POST /v1/privacy/requests/{id}/discovery`
+Starts or replays controlled record discovery after verified identity. The caller MUST provide the status token in `X-Privacy-Request-Token` and a UUID `idempotencyKey` in the request body.
+
+Discovery MUST use protected deterministic lookup material, trusted host-derived tenant/agency context, and an explicitly configured disclosure policy version. It MUST never perform a global person search. A unique match MAY attach the canonical Person to the PrivacyRequest. No match and multiple matches MUST advance to applicability review without exposing candidate identities or record counts to the requester.
+
+For an `ACCESS` request with one match, the service MUST construct a versioned requester export, encrypt it before persistence, store only the encrypted artifact plus integrity metadata, and emit AuditEvents for discovery and export creation. Other privacy request types receive the discovery result but do not create an access export.
+
+The synthetic disclosure policy is permitted only when `DEPLOYMENT_STAGE=synthetic` and `PRIVACY_EXPORT_POLICY_VERSION=synthetic-privacy-export-v1`. Pilot and production MUST fail closed until an approved disclosure/export policy is configured.
+
+Successful response:
+```json
+{
+  "privacyRequestId": "opaque-uuid",
+  "state": "APPLICABILITY_REVIEW",
+  "identityVerificationState": "VERIFIED",
+  "nextAction": "PROCESSING",
+  "discoveryOutcome": "MATCHED",
+  "exportAvailable": true
+}
+```
+
+### `GET /v1/privacy/requests/{id}/export`
+Returns the completed encrypted-at-rest access export through an authenticated, no-store JSON download. The status token MUST be supplied in `X-Privacy-Request-Token`. Missing, malformed, unknown, cross-tenant, mismatched, non-access, incomplete, and unavailable exports MUST produce the same generic not-found response.
+
+Every successful download MUST emit an AuditEvent. The response MUST NOT contain internal tenant IDs, lookup hashes, idempotency material, encryption metadata, service credentials, or records outside the matched Person's tenant/agency-scoped QuoteCases.
+
 Administrative completion routes MUST require elevated permissions and evidence.
 
 ## Internal provider adapter interface

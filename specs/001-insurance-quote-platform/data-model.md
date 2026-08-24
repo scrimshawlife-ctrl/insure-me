@@ -367,6 +367,29 @@ Minimum fields:
 
 The record MUST NOT store the requester assertion, verification code, or raw identity attributes. Successful T801 verification does not establish a canonical Person or QuoteCase match.
 
+### PrivacyDiscoveryRun
+Append-only evidence for one idempotent, tenant-scoped record-discovery attempt after verified identity.
+
+Minimum fields:
+- privacy request and tenant/agency references;
+- idempotency key and keyed request hash;
+- disclosure policy and export schema versions;
+- result: `MATCHED | NO_MATCH | AMBIGUOUS`;
+- matched Person only for a unique match;
+- category-level record counts, package digest, status, and timestamps.
+
+The run MUST NOT persist candidate identities, lookup hashes, plaintext identity data, or the plaintext export. Ambiguous candidates remain unattached and require controlled review.
+
+### PrivacyExportArtifact
+Protected snapshot created only for a uniquely matched access request.
+
+Minimum fields:
+- discovery-run and privacy-request references;
+- encrypted export envelope, algorithm, and key version;
+- plaintext content digest, record count, and creation timestamp.
+
+The artifact MUST have no direct anonymous or authenticated Data API access. Export access requires the request status credential and creates AuditEvent evidence.
+
 ### RetentionPolicy
 Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 
