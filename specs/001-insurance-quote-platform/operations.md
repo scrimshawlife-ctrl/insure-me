@@ -35,6 +35,12 @@ At 99.9% monthly availability, the operational error budget is 43 whole minutes 
 - Any audit-atomicity miss, cross-agency access, integrity failure, or unauthorized regulated-data disclosure is an immediate incident and release freeze regardless of remaining availability budget.
 - Dependency SLO breaches trigger the applicable provider/carrier kill switch and degraded-state runbook; they are never hidden by the core availability calculation.
 
+### Canonical synthetic load profile
+
+T901 runs `scripts/performance/load-test.mjs` against the production Next.js build in synthetic mode. After 20 warm-up requests, it sends 1,000 requests across `/` and `/api/health/readiness` at concurrency 20 with a five-second per-request timeout. The run passes only with at least 99.9% successful 2xx/3xx responses and combined p95 latency no greater than 750 ms. CI stores `load-test-report-v1.json` with the profile, targets, aggregate/route latency, throughput, failures, and verdict.
+
+This profile detects application/edge regressions; it does not certify maximum capacity, database saturation, authenticated workflows, regulated mutations, queue throughput, provider/carrier performance, regional failover, or production hosting. Those require protected staging data, workload-specific authorization, and deployment-scale tests before launch. A result from a materially different runner or profile is not directly comparable without recording the changed environment and profile version.
+
 ## Service ownership
 Before production, assign named owners for:
 - product operations;
