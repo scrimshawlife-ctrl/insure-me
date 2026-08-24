@@ -105,6 +105,19 @@ jobs:
           path: artifacts/provider-credential-rotation-drill-report-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run incident response tabletop
+        id: incident_response_tabletop
+        run: pnpm test:incident-response-tabletop
+        env:
+          INCIDENT_RESPONSE_TABLETOP_REPORT_PATH: artifacts/incident-response-tabletop-report-v1.json
+      - name: Upload incident response tabletop evidence
+        if: always() && steps.incident_response_tabletop.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: incident-response-tabletop-report-v1
+          path: artifacts/incident-response-tabletop-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - run: pnpm build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
