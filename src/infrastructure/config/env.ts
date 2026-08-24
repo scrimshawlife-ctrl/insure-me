@@ -15,10 +15,17 @@ const identityProtectionEnvironmentSchema = z.object({
   IDENTITY_LOOKUP_PEPPER: z.string().min(32),
 });
 
+const retentionWorkerEnvironmentSchema = z.object({
+  RETENTION_WORKER_TOKEN: z.string().min(32).max(500),
+});
+
 export type ServerEnvironment = z.infer<typeof serverEnvironmentSchema>;
 export type AdminEnvironment = z.infer<typeof adminEnvironmentSchema>;
 export type IdentityProtectionEnvironment = z.infer<
   typeof identityProtectionEnvironmentSchema
+>;
+export type RetentionWorkerEnvironment = z.infer<
+  typeof retentionWorkerEnvironmentSchema
 >;
 
 export function getServerEnvironment(
@@ -54,5 +61,15 @@ export function getIdentityProtectionEnvironment(
     throw new Error('IDENTITY_ENCRYPTION_KEY_INVALID');
   }
 
+  return parsed.data;
+}
+
+export function getRetentionWorkerEnvironment(
+  source: Record<string, string | undefined> = process.env,
+): RetentionWorkerEnvironment {
+  const parsed = retentionWorkerEnvironmentSchema.safeParse(source);
+  if (!parsed.success) {
+    throw new Error('RETENTION_WORKER_ENVIRONMENT_INVALID');
+  }
   return parsed.data;
 }

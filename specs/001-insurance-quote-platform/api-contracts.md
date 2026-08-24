@@ -256,6 +256,11 @@ Each affected external request becomes one tenant-scoped propagation target. Dis
 
 `COMPLETED` means the downstream target supplied accepted completion evidence under the configured adapter contract. Retryable and permanent failures remain explicit and keep the PrivacyRequest `IN_PROGRESS`. When every required target completes, correction/restriction/opt-out requests may close; deletion remains `IN_PROGRESS` while T805 disposition work is pending. The synthetic adapter is allowed only with the explicit synthetic environment configuration; pilot and production fail closed until certified live bindings exist.
 
+### `POST /api/internal/retention/dispositions`
+Executes one bounded, idempotent retention scheduling and disposition batch. This is a trusted internal worker boundary, not a consumer or workforce API. It requires a server-only bearer credential, UUID `idempotencyKey`, explicit ISO-8601 `asOf`, and a limit from 1 through 500. Responses expose only the opaque run ID, run status, and aggregate item counts.
+
+Synthetic deployment may select only `SYNTHETIC` retention policies. Pilot/production may select only exact `APPROVED` policies and remains blocked by the live deployment evidence gate, including the retention approval reference. Missing policy sets, rules, intervals, incompatible or retired versions, unsupported destructive operations, and retention-hold signals MUST fail closed and remain visible as blocked, failed, or review-required work. A deletion PrivacyRequest closes only after every local `DELETE_QUEUED` item and required downstream target has accepted completion evidence.
+
 Administrative completion routes MUST require elevated permissions and evidence.
 
 ## Internal provider adapter interface

@@ -132,6 +132,8 @@ Authorized reviewer can inspect the data-use matrix and retention policies. Chan
 ### Privacy requests
 Queue with request type, verified state, due date, scope, exceptions, downstream completion, evidence.
 
+Deletion remains `IN_PROGRESS` while a policy, interval, hold signal, review, failure, local disposition item, or downstream target is unresolved. The authenticated internal worker returns aggregate status only. Completed identity disposition destroys protected lookup/key material; consumer-input anonymization removes direct identifiers while exempt audit and external-source evidence remains intact.
+
 ### Audit
 Search by QuoteCase, actor, event type, provider, result, time range. Sensitive details remain permission-filtered.
 

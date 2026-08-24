@@ -410,6 +410,12 @@ Append-only settlement evidence containing target/run references, keyed request 
 ### RetentionPolicy
 Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 
+### RetentionDispositionRun / RetentionDispositionItem
+`RetentionDispositionRun` is one bounded, idempotent scheduler invocation with an exact evaluation timestamp and expected policy certification state. `RetentionDispositionItem` is stable work for one `DELETE_QUEUED` privacy category. It snapshots the exact policy set/version, disposition, eligibility time, status, and categorized reason codes. Missing configuration, an unresolved interval, an incompatible policy certification state, or a retention-hold signal MUST remain `BLOCKED` and MUST NOT be interpreted as deletion.
+
+### RetentionDispositionAttempt
+Append-only execution evidence for one item and attempt. It records a keyed request hash, outcome, exact policy identity, opaque evidence reference, reason codes, and timestamp. It MUST NOT retain destroyed identity values, plaintext consumer input, encryption keys, or deleted ciphertext. `IDENTITY_PROFILE` deletion destroys lookup and encryption material while preserving the non-identifying Person anchor; `CONSUMER_INPUT` anonymization removes direct identifiers while preserving exempt audit and external-source evidence.
+
 ### AuditEvent
 Append-only event evidence for sensitive reads/writes, regulated provider requests, consent actions, policy/configuration changes, carrier submissions, privacy actions, exports, and security-relevant denials.
 

@@ -186,6 +186,8 @@ Execution MUST distinguish immediate local correction/restriction from destructi
 
 Downstream completion requires provider-neutral, versioned evidence for every affected target. The system must preserve blocked, retryable-failure, permanent-failure, and completed states rather than treating dispatch as completion. A production propagation binding requires the applicable vendor contract, role, correction/deletion channel, retention terms, and evidence semantics to be approved.
 
+Retention disposition MUST resolve through the active tenant configuration and an exact versioned rule for each queued data class. Scheduler dispatch is not completion. Destructive or anonymizing work requires append-only outcome evidence, must recheck policy state and hold signals at execution time, and must preserve separately exempt audit and external-source evidence. Missing Q-007 production approval remains a deployment blocker and cannot be replaced by a synthetic interval.
+
 Record discovery MUST be tenant/agency scoped and must not reveal candidate identities when matching is ambiguous. Access exports MUST use an approved disclosure policy, be encrypted at rest, preserve integrity/version evidence, and use an authenticated secure-delivery path. Synthetic disclosure policy does not establish production legal approval.
 
 ## FCRA/adverse-action workflow
