@@ -241,6 +241,7 @@ The initial relational schema MUST include versioned records for:
 - PrivacyRightsExecution, category actions, and processing restrictions;
 - versioned PrivacyPropagationBinding, propagation runs/targets, and append-only attempts;
 - RetentionPolicy, bounded RetentionDispositionRun, stable category items, and append-only attempts;
+- AdverseActionCase, exact report sources, version-bound notice delivery envelopes, and append-only delivery attempts;
 - AuditEvent.
 
 Every regulated record MUST carry tenant scope directly or through an immutable parent relationship that is enforceable in authorization and RLS.

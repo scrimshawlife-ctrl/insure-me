@@ -204,7 +204,9 @@ Record discovery MUST be tenant/agency scoped and must not reveal candidate iden
 
 MVP MUST NOT infer an adverse action solely from its own readiness status.
 
-T807 records the responsible party's determination and support handoff only. Each case MUST bind one CarrierDecision to exact contributing ExternalReports, preserve CRA identity and dispute-route references, snapshot the CarrierProgram ownership-policy version, and retain append-only evidence. A carrier status, reason code, premium, report value, or readiness issue MUST NOT automatically create a case. T808 separately owns approved notice generation and delivery evidence.
+T807 records the responsible party's determination and support handoff only. Each case MUST bind one CarrierDecision to exact contributing ExternalReports, preserve CRA identity and dispute-route references, snapshot the CarrierProgram ownership-policy version, and retain append-only evidence. A carrier status, reason code, premium, report value, or readiness issue MUST NOT automatically create a case.
+
+T808 delivery starts only after explicit handoff and binds the exact active adverse-action NoticeDefinition version and content hash to the owner-policy snapshot, approved channel, opaque recipient reference, and exact delivery adapter/policy descriptor. Delivery attempts are append-only. Adapter acceptance records dispatch but MUST NOT be treated as confirmed delivery; only explicit delivery evidence may set `DELIVERED`. Synthetic delivery is allowed only under explicit synthetic configuration. Pilot and production fail closed until a certified adapter and approved NoticeDefinition are configured.
 
 ## Vendor due diligence requirements
 Before production provider use:
