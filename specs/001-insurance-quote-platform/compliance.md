@@ -243,3 +243,5 @@ California SB 354 (2025-2026), the proposed Insurance Consumer Privacy Protectio
 - audit evidence export verified.
 
 T809 compliance evidence export is a PII-minimized operational evidence bundle, not a consumer privacy access export and not a legal conclusion. It is scoped to one QuoteCase at an exact non-future cutoff, versioned and integrity hashed, and available only to an MFA-authenticated workforce user holding both audit-read and export authority. Creation and every download are separately audited. Raw identity, report payloads, notice text, premiums, corrections, secrets, and unconstrained audit metadata are excluded.
+
+T810 notice administration treats legal copy as an immutable version stream. Database-assigned version and content hash prevent client substitution. Approval is not inferred from creation or deployment: it requires explicit opaque legal/compliance evidence, reasons, actor/time, and effective time. Retirement never deletes prior copy or consent provenance. Synthetic status remains fixture-only and is not exposed as an administrative command.

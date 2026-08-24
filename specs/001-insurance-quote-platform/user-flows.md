@@ -124,7 +124,7 @@ Invite/deactivate users, assign roles, view MFA state, revoke sessions.
 Show provider/carrier connection state without displaying secrets. Configuration changes require step-up authentication and audit.
 
 ### Notices
-List notice definitions, versions, effective dates, approval status. Production cannot activate an unapproved notice.
+An MFA-authenticated policy administrator lists exact agency-scoped notice versions, creates a draft from reviewed copy and evidence, then submits a separate approval with legal/compliance reference, reasons, and effective time. The system assigns the version and content hash. Retirement is another evidence-backed action and leaves the historical copy intact. Production cannot activate an unapproved notice, and the interface cannot create synthetic status or edit an existing version.
 
 ### Data policy
 Authorized reviewer can inspect the data-use matrix and retention policies. Changes require controlled deployment/versioning.

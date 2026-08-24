@@ -163,6 +163,8 @@ Contains consumer/agent-requested coverage preferences and permitted underwritin
 ### NoticeDefinition
 Versioned immutable text/metadata for a notice, disclosure, acknowledgment, or authorization.
 
+Each `(tenant, agency, notice_key)` stream receives a server-assigned increasing version. A version is created as `DRAFT`; its content hash is computed by the database and its content identity never changes. `APPROVED` requires an opaque legal/compliance approval reference, reason codes, approving actor/time, and an explicit effective time. `RETIRED` preserves the approved artifact and records retirement time. `NoticeDefinitionEvent` is append-only lifecycle evidence with server-derived replay integrity. Runtime administration does not create `SYNTHETIC` versions; deterministic fixtures may seed them directly only in synthetic environments.
+
 ### ConsentRecord
 Minimum fields:
 - `consent_record_id`

@@ -155,6 +155,12 @@ Required capability areas:
 - retention policies;
 - compliance evidence export.
 
+### Notice/version administration
+
+`GET /api/v1/admin/notice-definitions` lists up to 500 exact versions for the MFA-authenticated caller's active agency. `POST /api/v1/admin/notice-definitions` creates or idempotently replays one immutable `DRAFT`; the caller supplies notice key, category, title, body, required-for-quote flag, opaque evidence, reason codes, and UUID idempotency key. The server fixes the MVP jurisdiction/product, allocates the next version atomically, and computes the body SHA-256. Callers cannot choose a version, hash, tenant, status, approval, or synthetic state.
+
+`POST /api/v1/admin/notice-definitions/{id}/approve` requires an opaque legal/compliance approval reference, explicit effective time, reason codes, and a fresh UUID idempotency key. Only `DRAFT` may become `APPROVED`. `POST /api/v1/admin/notice-definitions/{id}/retire` requires opaque retirement evidence, reason codes, and a fresh UUID idempotency key; only `APPROVED` or fixture-seeded `SYNTHETIC` may retire. All operations require MFA plus `POLICY_ADMIN`, derive tenant/agency from trusted workforce context, emit append-only lifecycle evidence and AuditEvents, and fail closed for cross-tenant, invalid-state, direct-mutation, deletion, or mismatched replay attempts.
+
 Production secret material MUST NOT be returned through administrative read APIs.
 
 ### `POST /api/v1/admin/compliance-evidence-exports`
