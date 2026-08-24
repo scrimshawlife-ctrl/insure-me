@@ -63,7 +63,7 @@ insert into public.privacy_request_intake_evidence (
 )
 select privacy_request_id, tenant_id, agency_id, decode(repeat('bb', 40), 'hex'),
   'AES-256-GCM', 'synthetic-key-v1', repeat('a', 64), repeat('c', 64),
-  repeat(substr(privacy_request_id::text, 2, 1), 64)
+  repeat(right(privacy_request_id::text, 1), 64)
 from public.privacy_requests where privacy_request_id::text like 'f5000000-%';
 
 insert into public.privacy_discovery_runs (
@@ -97,7 +97,7 @@ select has_trigger('public', 'carrier_submissions', 'privacy_restriction_carrier
 
 create temporary table correction_prepared as
 select * from public.prepare_privacy_rights_execution(
-  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000001', repeat('5', 64),
+  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000001', repeat('1', 64),
   'f6000000-0000-4000-8000-000000000001', repeat('1', 64),
   'synthetic-privacy-rights-v1', array['email']
 );
@@ -119,7 +119,7 @@ select is((select count(*) from public.audit_events where event_type in ('PRIVAC
 
 create temporary table correction_replay as
 select * from public.prepare_privacy_rights_execution(
-  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000001', repeat('5', 64),
+  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000001', repeat('1', 64),
   'f6000000-0000-4000-8000-000000000001', repeat('1', 64),
   'synthetic-privacy-rights-v1', array['email']
 );
@@ -127,7 +127,7 @@ select is((select execution_status::text from correction_replay), 'COMPLETED', '
 select is((select count(*) from public.privacy_rights_executions where privacy_request_id = 'f5000000-0000-0000-0000-000000000001'), 1::bigint, 'replay creates no duplicate execution');
 select throws_ok(
   $$select * from public.prepare_privacy_rights_execution(
-    'privacy-rights.test', 'f5100000-0000-0000-0000-000000000001', repeat('5', 64),
+    'privacy-rights.test', 'f5100000-0000-0000-0000-000000000001', repeat('1', 64),
     'f6000000-0000-4000-8000-000000000001', repeat('2', 64),
     'synthetic-privacy-rights-v1', array['email'])$$,
   '22023', 'IDEMPOTENCY_KEY_REQUEST_MISMATCH', 'idempotency reuse cannot change correction evidence'
@@ -135,7 +135,7 @@ select throws_ok(
 
 create temporary table deletion_prepared as
 select * from public.prepare_privacy_rights_execution(
-  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000002', repeat('5', 64),
+  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000002', repeat('2', 64),
   'f6000000-0000-4000-8000-000000000002', repeat('3', 64),
   'synthetic-privacy-rights-v1', '{}'
 );
@@ -152,7 +152,7 @@ select is((select count(*) from public.person_private_profiles where person_id =
 
 create temporary table restriction_prepared as
 select * from public.prepare_privacy_rights_execution(
-  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000003', repeat('5', 64),
+  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000003', repeat('3', 64),
   'f6000000-0000-4000-8000-000000000003', repeat('4', 64),
   'synthetic-privacy-rights-v1', '{}'
 );
@@ -167,7 +167,7 @@ select is((select count(*) from public.privacy_rights_actions where privacy_requ
 
 create temporary table no_match_prepared as
 select * from public.prepare_privacy_rights_execution(
-  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000004', repeat('5', 64),
+  'privacy-rights.test', 'f5100000-0000-0000-0000-000000000004', repeat('4', 64),
   'f6000000-0000-4000-8000-000000000004', repeat('6', 64),
   'synthetic-privacy-rights-v1', '{}'
 );
@@ -188,7 +188,7 @@ select throws_ok(
 );
 select throws_ok(
   $$select * from public.prepare_privacy_rights_execution(
-    'privacy-rights.test', 'f5100000-0000-0000-0000-000000000002', repeat('5', 64),
+    'privacy-rights.test', 'f5100000-0000-0000-0000-000000000002', repeat('2', 64),
     'f6000000-0000-4000-8000-000000000006', repeat('8', 64),
     'synthetic-privacy-rights-v1', array['email'])$$,
   '55000', 'PRIVACY_RIGHTS_EXECUTION_STATE_INVALID', 'terminal or in-progress request cannot start incompatible execution'
