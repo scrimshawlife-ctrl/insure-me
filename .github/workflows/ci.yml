@@ -57,6 +57,48 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Run repository secret baseline scanner
+        id: secret_baseline
+        if: always()
+        run: pnpm security:secrets
+        env:
+          SECURITY_SCAN_REPORT_PATH: artifacts/secret-baseline-report-v1.json
+      - name: Upload repository secret baseline report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-baseline-report-v1
+          path: artifacts/secret-baseline-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Run repository SAST baseline scanner
+        id: sast_baseline
+        if: always()
+        run: pnpm security:sast
+        env:
+          SECURITY_SCAN_REPORT_PATH: artifacts/sast-baseline-report-v1.json
+      - name: Upload repository SAST baseline report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-baseline-report-v1
+          path: artifacts/sast-baseline-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Run production dependency audit baseline
+        id: dependency_audit_baseline
+        if: always()
+        run: pnpm security:dependencies
+        env:
+          PNPM_AUDIT_REPORT_PATH: artifacts/pnpm-audit-baseline-report-v1.json
+      - name: Upload production dependency audit baseline report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-audit-baseline-report-v1
+          path: artifacts/pnpm-audit-baseline-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Run canonical synthetic scenario suite
         run: pnpm scenario:run
         env:

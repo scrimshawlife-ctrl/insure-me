@@ -29,8 +29,12 @@
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --local --fail-on error",
     "db:types": "supabase gen types typescript --local --schema public > src/infrastructure/supabase/database.types.ts",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test",
-    "security-assessment:readiness": "node scripts/security/security-assessment-readiness.mjs"
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm security:baseline",
+    "security-assessment:readiness": "node scripts/security/security-assessment-readiness.mjs",
+    "security:secrets": "node scripts/security/repository-baseline-scanner.mjs secret",
+    "security:sast": "node scripts/security/repository-baseline-scanner.mjs sast",
+    "security:dependencies": "node scripts/security/pnpm-audit-baseline.mjs",
+    "security:baseline": "node scripts/security/repository-baseline-scanner.mjs secret && node scripts/security/repository-baseline-scanner.mjs sast && node scripts/security/pnpm-audit-baseline.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
