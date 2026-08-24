@@ -167,7 +167,7 @@ The runtime may be declared `SYNTHETIC_CORE_ACCEPTED` when:
 - carrier/provider portability and tenant isolation tests pass;
 - no live credentials or live consumer-report access are required.
 
-Primary tasks: T100-T115, T200-T209, T300-T312, T400-T415 using stubs, T500-T507, T600-T611, T700/T708/T710, T800-T811 as synthetic workflows, T910.
+Primary tasks: T100-T115, T200-T209, T300-T312, T400-T415 using stubs, T500-T507, T600-T611, T700/T708/T710, T800-T811 as synthetic workflows, T910. T811 is verified through active-agency, MFA-backed, read-only data-use and retention inspection RPCs and non-cacheable administration routes.
 
 ### Production activation
 A deployment may be declared `PRODUCTION_READY` only when the exact enabled configuration is certified:
