@@ -60,7 +60,7 @@ try {
     '--file', dumpPath);
   dumpSha256 = docker('exec', container, 'sha256sum', dumpPath).split(/\s+/)[0];
 
-  docker('exec', container, 'createdb', '--username', 'postgres', '--template', 'template0', targetDatabase);
+  docker('exec', container, 'createdb', '--username', 'supabase_admin', '--template', 'template0', targetDatabase);
   sql(targetDatabase, `
     drop schema public cascade;
     create schema auth;
@@ -69,7 +69,7 @@ try {
     create schema extensions;
     create extension pgcrypto with schema extensions;
   `);
-  docker('exec', container, 'pg_restore', '--username', 'postgres', '--dbname', targetDatabase,
+  docker('exec', container, 'pg_restore', '--username', 'supabase_admin', '--dbname', targetDatabase,
     '--no-owner', '--exit-on-error', dumpPath);
 
   const values = sql(targetDatabase, `select concat_ws('|',
