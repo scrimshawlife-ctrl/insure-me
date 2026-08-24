@@ -260,6 +260,21 @@ jobs:
           path: artifacts/security-assessment-readiness-report-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run security findings disposition readiness gate
+        id: security_findings_disposition_readiness
+        if: always()
+        run: pnpm security-findings:disposition-readiness
+        env:
+          SECURITY_FINDINGS_DISPOSITION_METADATA_PATH: testdata/security-assessment/synthetic-disposition-ready-metadata-v1.json
+          SECURITY_FINDINGS_DISPOSITION_REPORT_PATH: artifacts/security-findings-disposition-readiness-report-v1.json
+      - name: Upload security findings disposition readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-findings-disposition-readiness-report-v1
+          path: artifacts/security-findings-disposition-readiness-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Run privacy-rights rehearsal
