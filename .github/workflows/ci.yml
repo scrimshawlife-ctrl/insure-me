@@ -103,6 +103,8 @@ jobs:
           pnpm test:load
         env:
           DEPLOYMENT_STAGE: synthetic
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_synthetic_ci_key_000000000000000000
           LOAD_TEST_BASE_URL: http://127.0.0.1:3000
           LOAD_TEST_REPORT_PATH: artifacts/load-test-report-v1.json
       - name: Upload canonical load report
