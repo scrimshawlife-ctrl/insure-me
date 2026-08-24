@@ -44,7 +44,7 @@ describe('provider outage drill operator command', () => {
         drillState.retry = { errorCode: input.errorCode, backoffSeconds: input.backoffSeconds };
         drillState.requestStatus = 'PENDING';
       }),
-      getExternalRequestResult: vi.fn(async <T,>() => ({
+      getExternalRequestResult: vi.fn(async <T,>(_input: { externalRequestId: string }) => ({
         requestStatus: drillState.requestStatus,
         result: drillState.settled as ProviderResult<T> | null,
       })),
