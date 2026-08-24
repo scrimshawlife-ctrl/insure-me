@@ -261,6 +261,8 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Run security findings disposition readiness gate
+        id: security_findings_disposition_readiness
+        if: always()
         run: pnpm security-findings:disposition-readiness
         env:
           SECURITY_FINDINGS_DISPOSITION_METADATA_PATH: testdata/security-assessment/synthetic-disposition-ready-metadata-v1.json

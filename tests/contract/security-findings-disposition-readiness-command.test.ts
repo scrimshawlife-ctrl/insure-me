@@ -57,10 +57,17 @@ describe('T909 security findings disposition readiness validator', () => {
   });
 
   it.each([
+    ['INVALID_METADATA_SHAPE', []],
+    ['INVALID_SCHEMA_VERSION', { ...readyMetadata, schemaVersion: 'unexpected-version' }],
     ['MISSING_EXACT_SELECTED_DEPLOYMENT_BINDING', { ...readyMetadata, selectedDeployment: { ...readyMetadata.selectedDeployment, exactBinding: false } }],
-    ['ASSESSMENT_BOUNDARY_MISMATCH', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, sameAssessmentBoundary: false } }],
-    ['MISSING_ASSESSMENT_BINDING', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, findingRegisterRef: '' } }],
+    ['T908_SELECTED_DEPLOYMENT_MISMATCH', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, t908SelectedDeployment: { ...readyMetadata.assessmentBinding.t908SelectedDeployment, deploymentRef: 'different-deployment' } } }],
+    ['MISSING_T908_ASSESSMENT_BINDING', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, assessorAttestation: { ...readyMetadata.assessmentBinding.assessorAttestation, independent: false } } }],
+    ['MISSING_T908_ASSESSMENT_BINDING', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, findingRegisterRef: '' } }],
+    ['INVALID_T908_CRITICAL_HIGH_BASELINE', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, baselineFindingCounts: { ...readyMetadata.assessmentBinding.baselineFindingCounts, high: { ...readyMetadata.assessmentBinding.baselineFindingCounts.high, medium: 1 } } } }],
     ['INVALID_AGGREGATE_DISPOSITION_COUNTS', { ...readyMetadata, aggregateDispositionCounts: { ...readyMetadata.aggregateDispositionCounts, high: { ...readyMetadata.aggregateDispositionCounts.high, unexpected: 1 } } }],
+    ['T908_BASELINE_COUNT_MISMATCH', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, baselineFindingCounts: { ...readyMetadata.assessmentBinding.baselineFindingCounts, high: { ...readyMetadata.assessmentBinding.baselineFindingCounts.high, remediated: 2 } } } }],
+    ['T908_BASELINE_HAS_OPEN_CRITICAL_OR_HIGH', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, baselineFindingCounts: { ...readyMetadata.assessmentBinding.baselineFindingCounts, high: { open: 1, remediated: 0, acceptedRisk: 0 } } } }],
+    ['T908_BASELINE_HAS_ACCEPTED_RISK_CRITICAL_OR_HIGH', { ...readyMetadata, assessmentBinding: { ...readyMetadata.assessmentBinding, baselineFindingCounts: { ...readyMetadata.assessmentBinding.baselineFindingCounts, high: { open: 0, remediated: 0, acceptedRisk: 1 } } } }],
     ['CRITICAL_OR_HIGH_ACCEPTED_RISK', withHigh({ acceptedRisk: 1 })],
     ['DISPOSITION_COUNT_MISMATCH', withHigh({ closed: 0 })],
     ['INCOMPLETE_REMEDIATION_COVERAGE', withHigh({ remediationImplemented: 0 })],
@@ -69,11 +76,34 @@ describe('T909 security findings disposition readiness validator', () => {
     ['MISSING_EXTERNAL_DISPOSITION_EVIDENCE', { ...readyMetadata, externalEvidence: { ...readyMetadata.externalEvidence, independentRetestEvidenceReceived: false } }],
     ['FORBIDDEN_RAW_EVIDENCE_KEY', { ...readyMetadata, rawFindings: ['must-not-enter-report'] }],
   ])('fails closed with %s and does not leak unvalidated input', (errorCode, metadata) => {
-    const { result, report, raw } = runMetadata(metadata);
+    const { result, report, raw } = runMetadata(metadata as Record<string, unknown>);
     expect(result.status).toBe(1);
     expect(report.verdict).toBe('BLOCKED');
     expect(report.errorCode).toBe(errorCode);
     expect(raw).not.toContain('must-not-enter-report');
+  });
+
+  it('fails closed and writes a sanitized artifact when metadata is missing or malformed', () => {
+    const dir = mkdtempSync(join(tmpdir(), 't909-malformed-'));
+    const malformed = join(dir, 'metadata.json');
+    writeFileSync(malformed, '{not-json');
+    for (const input of ['/definitely/missing/t909.json', malformed]) {
+      const { result, report, raw } = run(input);
+      expect(result.status).toBe(1);
+      expect(report.errorCode).toBe('METADATA_READ_OR_PARSE_FAILED');
+      expect(report.verdict).toBe('BLOCKED');
+      expect(Object.keys(report).sort()).toEqual(allowed);
+      expect(raw).not.toMatch(forbiddenArtifactPattern);
+    }
+  });
+
+  it('keeps CI execution and upload fail-closed', () => {
+    const workflow = readFileSync('.github/workflows/ci.yml', 'utf8');
+    const section = workflow.slice(workflow.indexOf('- name: Run security findings disposition readiness gate'), workflow.indexOf('- name: Install PostgreSQL client'));
+    expect(section).toContain('if: always()');
+    expect(section).toContain('pnpm security-findings:disposition-readiness');
+    expect(section).toContain('actions/upload-artifact@v4');
+    expect(section).toContain('if-no-files-found: error');
   });
 
   it('package command writes the canonical synthetic artifact', () => {

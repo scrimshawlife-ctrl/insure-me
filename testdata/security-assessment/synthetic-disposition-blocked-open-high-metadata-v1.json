@@ -1,7 +1,12 @@
 {
   "schemaVersion": "security-findings-disposition-metadata-v1",
   "selectedDeployment": { "environment": "synthetic-ci", "deploymentRef": "synthetic-selected-deployment-v1", "configurationVersion": "tenant-config-synthetic-v1", "exactBinding": true },
-  "assessmentBinding": { "assessorAttestationRef": "synthetic-independent-attestation-v1", "assessmentAttestedAt": "2026-08-24T00:00:00.000Z", "findingRegisterRef": "synthetic-finding-register-v1", "sameAssessmentBoundary": true },
+  "assessmentBinding": {
+    "t908SelectedDeployment": { "environment": "synthetic-ci", "deploymentRef": "synthetic-selected-deployment-v1", "configurationVersion": "tenant-config-synthetic-v1" },
+    "assessorAttestation": { "independent": true, "attestationRef": "synthetic-independent-attestation-v1", "attestedAt": "2026-08-24T00:00:00.000Z" },
+    "findingRegisterRef": "synthetic-finding-register-v1",
+    "baselineFindingCounts": { "critical": { "open": 0, "remediated": 0, "acceptedRisk": 0 }, "high": { "open": 0, "remediated": 1, "acceptedRisk": 0 } }
+  },
   "aggregateDispositionCounts": {
     "critical": { "assessed": 0, "open": 0, "remediationImplemented": 0, "retestVerified": 0, "closed": 0, "acceptedRisk": 0 },
     "high": { "assessed": 1, "open": 1, "remediationImplemented": 0, "retestVerified": 0, "closed": 0, "acceptedRisk": 0 }

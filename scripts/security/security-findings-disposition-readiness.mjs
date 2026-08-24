@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 const severities = ['critical', 'high'];
+const assessmentStatuses = ['open', 'remediated', 'acceptedRisk'];
 const dispositionFields = ['assessed', 'open', 'remediationImplemented', 'retestVerified', 'closed', 'acceptedRisk'];
 const outputPath = process.env.SECURITY_FINDINGS_DISPOSITION_REPORT_PATH ?? 'artifacts/security-findings-disposition-readiness-report-v1.json';
 const inputPath = process.env.SECURITY_FINDINGS_DISPOSITION_METADATA_PATH ?? 'testdata/security-assessment/synthetic-disposition-ready-metadata-v1.json';
@@ -39,6 +40,24 @@ function validDispositionCounts(value) {
       && Object.keys(counts).every((field) => dispositionFields.includes(field));
   });
 }
+function validAssessmentBaselineCounts(value) {
+  if (!isPlainObject(value) || Object.keys(value).length !== severities.length) return false;
+  return severities.every((severity) => {
+    const counts = value[severity];
+    return isPlainObject(counts)
+      && Object.keys(counts).length === assessmentStatuses.length
+      && assessmentStatuses.every((status) => Number.isInteger(counts[status]) && counts[status] >= 0)
+      && Object.keys(counts).every((status) => assessmentStatuses.includes(status));
+  });
+}
+function blankAssessmentBaselineCounts() {
+  return Object.fromEntries(severities.map((severity) => [severity, Object.fromEntries(assessmentStatuses.map((status) => [status, 0]))]));
+}
+function sameDeployment(left, right) {
+  return left?.environment === right?.environment
+    && left?.deploymentRef === right?.deploymentRef
+    && left?.configurationVersion === right?.configurationVersion;
+}
 function sanitized(metadata) {
   return {
     selectedDeployment: metadata?.selectedDeployment && isPlainObject(metadata.selectedDeployment) ? {
@@ -48,11 +67,24 @@ function sanitized(metadata) {
       exactBinding: metadata.selectedDeployment.exactBinding === true,
     } : { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED', exactBinding: false },
     assessmentBinding: metadata?.assessmentBinding && isPlainObject(metadata.assessmentBinding) ? {
-      assessorAttestationRef: String(metadata.assessmentBinding.assessorAttestationRef ?? 'UNVERIFIED'),
-      assessmentAttestedAt: String(metadata.assessmentBinding.assessmentAttestedAt ?? 'UNVERIFIED'),
+      t908SelectedDeployment: metadata.assessmentBinding.t908SelectedDeployment && isPlainObject(metadata.assessmentBinding.t908SelectedDeployment) ? {
+        environment: String(metadata.assessmentBinding.t908SelectedDeployment.environment ?? 'UNVERIFIED'),
+        deploymentRef: String(metadata.assessmentBinding.t908SelectedDeployment.deploymentRef ?? 'UNVERIFIED'),
+        configurationVersion: String(metadata.assessmentBinding.t908SelectedDeployment.configurationVersion ?? 'UNVERIFIED'),
+      } : { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
+      assessorAttestation: metadata.assessmentBinding.assessorAttestation && isPlainObject(metadata.assessmentBinding.assessorAttestation) ? {
+        independent: metadata.assessmentBinding.assessorAttestation.independent === true,
+        attestationRef: String(metadata.assessmentBinding.assessorAttestation.attestationRef ?? 'UNVERIFIED'),
+        attestedAt: String(metadata.assessmentBinding.assessorAttestation.attestedAt ?? 'UNVERIFIED'),
+      } : { independent: false, attestationRef: 'UNVERIFIED', attestedAt: 'UNVERIFIED' },
       findingRegisterRef: String(metadata.assessmentBinding.findingRegisterRef ?? 'UNVERIFIED'),
-      sameAssessmentBoundary: metadata.assessmentBinding.sameAssessmentBoundary === true,
-    } : { assessorAttestationRef: 'UNVERIFIED', assessmentAttestedAt: 'UNVERIFIED', findingRegisterRef: 'UNVERIFIED', sameAssessmentBoundary: false },
+      baselineFindingCounts: validAssessmentBaselineCounts(metadata.assessmentBinding.baselineFindingCounts) ? metadata.assessmentBinding.baselineFindingCounts : blankAssessmentBaselineCounts(),
+    } : {
+      t908SelectedDeployment: { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
+      assessorAttestation: { independent: false, attestationRef: 'UNVERIFIED', attestedAt: 'UNVERIFIED' },
+      findingRegisterRef: 'UNVERIFIED',
+      baselineFindingCounts: blankAssessmentBaselineCounts(),
+    },
     aggregateDispositionCounts: validDispositionCounts(metadata?.aggregateDispositionCounts) ? metadata.aggregateDispositionCounts : blankCounts(),
     independentClosureAttestation: metadata?.independentClosureAttestation && isPlainObject(metadata.independentClosureAttestation) ? {
       independent: metadata.independentClosureAttestation.independent === true,
@@ -89,10 +121,18 @@ function validate(metadata) {
   const deployment = metadata.selectedDeployment;
   if (!deployment?.exactBinding || !isSafeOpaqueValue(deployment.environment) || !isSafeOpaqueValue(deployment.deploymentRef) || !isSafeOpaqueValue(deployment.configurationVersion)) return block('MISSING_EXACT_SELECTED_DEPLOYMENT_BINDING');
   const assessment = metadata.assessmentBinding;
-  if (!assessment?.sameAssessmentBoundary) return block('ASSESSMENT_BOUNDARY_MISMATCH');
-  if (!isSafeOpaqueValue(assessment.assessorAttestationRef) || !isValidTimestamp(assessment.assessmentAttestedAt) || !isSafeOpaqueValue(assessment.findingRegisterRef)) return block('MISSING_ASSESSMENT_BINDING');
+  if (!sameDeployment(deployment, assessment?.t908SelectedDeployment)) return block('T908_SELECTED_DEPLOYMENT_MISMATCH');
+  if (assessment?.assessorAttestation?.independent !== true
+    || !isSafeOpaqueValue(assessment.assessorAttestation.attestationRef)
+    || !isValidTimestamp(assessment.assessorAttestation.attestedAt)
+    || !isSafeOpaqueValue(assessment.findingRegisterRef)) return block('MISSING_T908_ASSESSMENT_BINDING');
+  if (!validAssessmentBaselineCounts(assessment.baselineFindingCounts)) return block('INVALID_T908_CRITICAL_HIGH_BASELINE');
   if (!validDispositionCounts(metadata.aggregateDispositionCounts)) return block('INVALID_AGGREGATE_DISPOSITION_COUNTS');
   const counts = metadata.aggregateDispositionCounts;
+  const baseline = assessment.baselineFindingCounts;
+  if (severities.some((severity) => counts[severity].assessed !== assessmentStatuses.reduce((total, status) => total + baseline[severity][status], 0))) return block('T908_BASELINE_COUNT_MISMATCH', metadata);
+  if (severities.some((severity) => baseline[severity].open > 0)) return block('T908_BASELINE_HAS_OPEN_CRITICAL_OR_HIGH', metadata);
+  if (severities.some((severity) => baseline[severity].acceptedRisk > 0)) return block('T908_BASELINE_HAS_ACCEPTED_RISK_CRITICAL_OR_HIGH', metadata);
   if (severities.some((severity) => counts[severity].open > 0)) return block('OPEN_CRITICAL_OR_HIGH_FINDINGS', metadata);
   if (severities.some((severity) => counts[severity].acceptedRisk > 0)) return block('CRITICAL_OR_HIGH_ACCEPTED_RISK', metadata);
   if (severities.some((severity) => counts[severity].assessed !== counts[severity].open + counts[severity].closed)) return block('DISPOSITION_COUNT_MISMATCH', metadata);
