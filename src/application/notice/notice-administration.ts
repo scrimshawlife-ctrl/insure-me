@@ -35,12 +35,12 @@ async function one(client: SupabaseClient<Database>, name: string, args: Record<
 }
 
 export function createNoticeDefinitionVersion(client: SupabaseClient<Database>, command: {
-  agencyId: string; noticeKey: string; category: NoticeCategory; title: string;
+  noticeKey: string; category: NoticeCategory; title: string;
   bodyMarkdown: string; requiredForQuote: boolean; evidenceRef: string;
   reasonCodes: string[]; idempotencyKey: string;
 }) {
   return one(client, 'create_notice_definition_version', {
-    p_agency_id: command.agencyId, p_notice_key: command.noticeKey,
+    p_notice_key: command.noticeKey,
     p_category: command.category, p_title: command.title, p_body_markdown: command.bodyMarkdown,
     p_required_for_quote: command.requiredForQuote, p_evidence_ref: command.evidenceRef,
     p_reason_codes: command.reasonCodes, p_idempotency_key: command.idempotencyKey,
@@ -67,9 +67,9 @@ export function retireNoticeDefinitionVersion(client: SupabaseClient<Database>, 
   });
 }
 
-export async function listNoticeDefinitionVersions(client: SupabaseClient<Database>, agencyId: string) {
+export async function listNoticeDefinitionVersions(client: SupabaseClient<Database>) {
   const { data, error } = await (client.rpc as unknown as Rpc)('list_notice_definition_versions',
-    { p_agency_id: agencyId });
+    {});
   if (error || !Array.isArray(data)) throw new Error(error?.message ?? 'NOTICE_ADMIN_LIST_FAILED');
   return data.map(map);
 }

@@ -27,10 +27,8 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: 'REQUEST_VALIDATION_FAILED' }, { status: 400 });
   const client = await createSupabaseServerClient();
   try {
-    const context = await requireWorkforceContext(client);
-    const noticeDefinition = await createNoticeDefinitionVersion(client, {
-      agencyId: context.agencyId, ...parsed.data,
-    });
+    await requireWorkforceContext(client);
+    const noticeDefinition = await createNoticeDefinitionVersion(client, parsed.data);
     return NextResponse.json({ noticeDefinition }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
   } catch (error) { return failure(error); }
 }
@@ -38,8 +36,8 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   const client = await createSupabaseServerClient();
   try {
-    const context = await requireWorkforceContext(client);
-    const noticeDefinitions = await listNoticeDefinitionVersions(client, context.agencyId);
+    await requireWorkforceContext(client);
+    const noticeDefinitions = await listNoticeDefinitionVersions(client);
     return NextResponse.json({ noticeDefinitions }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) { return failure(error); }
 }

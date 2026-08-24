@@ -15,7 +15,7 @@ describe('notice administration', () => {
     const client = { rpc: async (name: string, args: Record<string, unknown>) => {
       calls.push({ name, args }); return { data: [row], error: null };
     } };
-    const result = await createNoticeDefinitionVersion(client as never, { agencyId: 'agency-1',
+    const result = await createNoticeDefinitionVersion(client as never, {
       noticeKey: 'privacy', category: 'INSURANCE_PRIVACY', title: 'Privacy', bodyMarkdown: 'Body',
       requiredForQuote: true, evidenceRef: 'draft:legal', reasonCodes: ['NEW_VERSION'],
       idempotencyKey: 'key-1' });
@@ -37,9 +37,9 @@ describe('notice administration', () => {
 
   it('lists exact versions through the checked RPC', async () => {
     const client = { rpc: async (name: string, args: Record<string, unknown>) => {
-      expect(name).toBe('list_notice_definition_versions'); expect(args).toEqual({ p_agency_id: 'agency-1' });
+      expect(name).toBe('list_notice_definition_versions'); expect(args).toEqual({});
       return { data: [row], error: null };
     } };
-    expect(await listNoticeDefinitionVersions(client as never, 'agency-1')).toHaveLength(1);
+    expect(await listNoticeDefinitionVersions(client as never)).toHaveLength(1);
   });
 });
