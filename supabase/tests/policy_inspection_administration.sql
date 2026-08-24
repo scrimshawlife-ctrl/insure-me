@@ -1,5 +1,5 @@
 begin;
-select plan(15);
+select plan(17);
 
 insert into public.agencies (agency_id,tenant_id,legal_name,display_name) values
 ('c1100000-0000-0000-0000-000000000001','c1000000-0000-0000-0000-000000000001','Policy Agency','Policy'),
@@ -39,6 +39,8 @@ select is((select count(*) from public.list_data_use_policy_rules()),1::bigint,'
 select is((select policy_version from public.list_data_use_policy_rules()),'data-use-v1','data-use response preserves exact policy version');
 select is((select count(*) from public.list_retention_policies()),1::bigint,'policy admin sees active-agency retention policies only');
 select is((select retention_interval from public.list_retention_policies()),'7 years','retention interval is returned as stable text');
+select ok(exists(select 1 from public.audit_events where event_type='DATA_USE_POLICY_INSPECTED' and actor_id='c1900000-0000-0000-0000-000000000001'),'data-use inspection is audited');
+select ok(exists(select 1 from public.audit_events where event_type='RETENTION_POLICY_INSPECTED' and actor_id='c1900000-0000-0000-0000-000000000001'),'retention inspection is audited');
 
 select set_config('request.jwt.claims',json_build_object('sub','c1900000-0000-0000-0000-000000000002','role','authenticated','app_metadata',json_build_object('active_tenant_id','c1000000-0000-0000-0000-000000000001'),'aal','aal2')::text,true);
 select is((select count(*) from public.list_retention_policies()),1::bigint,'privacy admin may inspect retention policies');
