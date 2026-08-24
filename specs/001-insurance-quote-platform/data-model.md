@@ -416,6 +416,9 @@ Versioned disposition rule by data class, jurisdiction, provider contract, tenan
 ### RetentionDispositionAttempt
 Append-only execution evidence for one item and attempt. It records a keyed request hash, outcome, exact policy identity, opaque evidence reference, reason codes, and timestamp. It MUST NOT retain destroyed identity values, plaintext consumer input, encryption keys, or deleted ciphertext. `IDENTITY_PROFILE` deletion destroys lookup and encryption material while preserving the non-identifying Person anchor; `CONSUMER_INPUT` anonymization removes direct identifiers while preserving exempt audit and external-source evidence.
 
+### LegalHold / LegalHoldEvent
+`LegalHold` is tenant/agency scoped to exactly one Person, QuoteCase, or PrivacyRequest reference. It records active/released state, opaque authority/evidence references, reason codes, actor/timestamps, and idempotency request hashes. Scope and placement fields are immutable; release is the only permitted state transition. `LegalHoldEvent` is append-only evidence for placement and release. Ordinary Data API roles cannot mutate either table. An active formal hold participates in the same final pre-disposition gate as the legacy `RETENTION_HOLD` QuoteCase signal.
+
 ### AuditEvent
 Append-only event evidence for sensitive reads/writes, regulated provider requests, consent actions, policy/configuration changes, carrier submissions, privacy actions, exports, and security-relevant denials.
 

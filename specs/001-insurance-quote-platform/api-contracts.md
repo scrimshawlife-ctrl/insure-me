@@ -261,6 +261,12 @@ Executes one bounded, idempotent retention scheduling and disposition batch. Thi
 
 Synthetic deployment may select only `SYNTHETIC` retention policies. Pilot/production may select only exact `APPROVED` policies and remains blocked by the live deployment evidence gate, including the retention approval reference. Missing policy sets, rules, intervals, incompatible or retired versions, unsupported destructive operations, and retention-hold signals MUST fail closed and remain visible as blocked, failed, or review-required work. A deletion PrivacyRequest closes only after every local `DELETE_QUEUED` item and required downstream target has accepted completion evidence.
 
+### `POST /v1/agent/legal-holds`
+Places or idempotently replays a legal hold for a `PERSON`, `QUOTE_CASE`, or `PRIVACY_REQUEST` scope. The authenticated workforce tenant/agency is authoritative; the request supplies only scope type/reference, opaque authority/evidence references, non-empty reason codes, and a UUID idempotency key. The caller MUST have `PRIVACY_ADMIN` or `POLICY_ADMIN` under MFA. Placement immediately blocks matching pending disposition work and emits immutable lifecycle plus AuditEvent evidence.
+
+### `POST /v1/agent/legal-holds/{id}/release`
+Releases or idempotently replays release of one active hold. Release requires new opaque authority/evidence references, non-empty reason codes, and a UUID idempotency key. It preserves placement history and marks affected disposition work for explicit reevaluation; it MUST NOT dispatch or resume destruction in the release transaction. Unknown, cross-tenant, unauthorized, already-released with different evidence, and mismatched-replay requests fail closed.
+
 Administrative completion routes MUST require elevated permissions and evidence.
 
 ## Internal provider adapter interface
