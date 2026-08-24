@@ -14,9 +14,25 @@ Make insurance intake feel like verification, not interrogation. The consumer sh
 - explicit data-source and privacy context where it matters;
 - no gamified risk scoring.
 
+## Two-door presentation
+The operator publishes two hostnames. Each hostname resolves to one
+`TenantConfiguration`. GitHub Pages may show synthetic door pages; live intake
+is not on Pages.
+
+Exclusive consumer copy MUST never say compare and MUST never name Allstate
+until a recorded third-party mark approval exists. Until then, use the
+synthetic Exclusive brand. After enrichment, Exclusive MUST NOT ask which
+carrier to use.
+
+Broker consumer copy MUST never wear the Allstate mark. Broker MAY present
+more than one configured program. Comparative quoting is not required for MVP.
+
+Do not share a thank-you page, pixel, or advertising tracker across doors.
+Do not send ping-post or aged leads into Exclusive.
+
 ## Consumer flow A: new quote
-1. Landing page states the agency, product, jurisdiction, and approximate process.
-2. CTA: `Start my auto quote`.
+1. Landing page states the tenant brand, product, jurisdiction, and approximate process. The brand comes from the hostname's `TenantConfiguration`, not from a client-supplied tenant id.
+2. CTA: `Start my auto quote` on the live tenant host only.
 3. Collect name, contact, address, and only identity attributes required for the next step.
 4. Present privacy/information-practices notice and report disclosure sequence.
 5. Capture acknowledgment/authorization.
@@ -93,7 +109,7 @@ Recommended information architecture:
 6. External report status.
 7. Underwriting observations.
 8. Conflicts/missing data.
-9. Carrier handoff.
+9. Carrier handoff. Exclusive shows the one configured program only.
 10. Audit/provenance drawer.
 
 ### Provenance interaction

@@ -3,6 +3,11 @@
 ## Status
 Draft canonical specification for MVP.
 
+The two-door operator model is an addendum to this sealed synthetic-core
+specification. Read `two-door-addendum.md`, `two-door-plan.md`, and
+`decisions/D-001-two-door-operator.md`. Do not fork this domain to add a
+second door.
+
 ## Product statement
 Insure Me is a California private-passenger auto insurance intake and quote-preparation platform for insurance agencies and carrier programs. It gives consumers a low-friction mobile-friendly quote intake experience and gives agents a clear, auditable workspace that assembles authorized underwriting data and hands a quote-ready package to a configured carrier-approved rating or quoting workflow.
 
@@ -70,7 +75,7 @@ A backend identity allowed to execute narrowly scoped system actions. It must ne
 5. Request a permitted refresh only when purpose and retention rules allow it.
 6. Correct user-entered data or send consumer correction flow as appropriate.
 7. Resolve blocking readiness issues.
-8. Select or use the configured carrier/program target.
+8. Select or use the configured carrier/program target. Exclusive is `SINGLE` and has no post-pull carrier picker.
 9. Initiate carrier handoff.
 10. Record carrier result and required follow-up.
 11. If a consumer-report-based adverse result occurs, trigger the configured notice and dispute workflow owned by the responsible party.
@@ -160,6 +165,8 @@ Each carrier/program configuration MUST declare jurisdictions, product lines, ha
 
 ### FR-028 Multi-carrier readiness
 The architecture MUST support multiple configured carriers and programs. MVP MAY activate only one live carrier, but core code MUST NOT branch on carrier names.
+
+The Exclusive tenant allowlists exactly one `CarrierProgram`. The Broker tenant MAY configure more than one. See FR-030 through FR-034 in `two-door-addendum.md`.
 
 ### FR-029 Synthetic carrier execution
 The full core platform MUST be executable in local, CI, and staging environments using deterministic synthetic data providers and `StubCarrierAdapter`, with no live consumer-report or carrier credentials required.

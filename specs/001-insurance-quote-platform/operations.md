@@ -41,6 +41,13 @@ T901 runs `scripts/performance/load-test.mjs` against the production Next.js bui
 
 This profile detects application/edge regressions; it does not certify maximum capacity, database saturation, authenticated workflows, regulated mutations, queue throughput, provider/carrier performance, regional failover, or production hosting. Those require protected staging data, workload-specific authorization, and deployment-scale tests before launch. A result from a materially different runner or profile is not directly comparable without recording the changed environment and profile version.
 
+## Two-door operator ownership
+When the Exclusive and Broker tenants are both enabled, assign owners per
+tenant for carrier-program relationship, brand marks, and kill switches.
+Hostname misresolution is a fail-closed intake incident, not a reason to
+share cases across doors. Do not treat Allstate as a platform-canonical
+owner.
+
 ## Service ownership
 Before production, assign named owners for:
 - product operations;
@@ -49,7 +56,7 @@ Before production, assign named owners for:
 - privacy requests;
 - compliance/legal escalation;
 - provider relationships;
-- carrier/Allstate relationship;
+- Exclusive-tenant carrier-program relationship, when that tenant is enabled; do not treat a carrier name as a platform-wide owner;
 - database and backup operations;
 - notification delivery.
 
@@ -267,7 +274,7 @@ Export operations track creation/download counts, failures, scope-too-large outc
 - incident tabletop complete;
 - security review complete;
 - legal/compliance approval recorded;
-- Allstate/carrier approval recorded.
+- Exclusive-tenant live `CarrierProgram` approval recorded when that tenant is in the launch set. A carrier name is not a platform-canonical owner.
 
 ## Post-launch
 First 30 days require enhanced review of:

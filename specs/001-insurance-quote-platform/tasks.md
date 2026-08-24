@@ -4,7 +4,7 @@
 Reconciled against merged `main` acceptance evidence through PR #20 and the current T608–T610 implementation slice. Checked items are implemented and evidenced by the accepted runtime/CI chain. Items marked `PARTIAL` have meaningful implementation but do not yet satisfy the full task wording. External legal/provider/carrier/launch decisions remain open by design.
 
 ## Phase 0 — Governance and production prerequisites
-- [ ] T001 Define the first production operator model: agency, brokerage, carrier program, or white-label deployment.
+- [ ] T001 Record the first production licensed agency or entity. Operator model is two `TenantConfiguration` records (Exclusive + Broker) under one human; see `D-001`. The licensed entity remains `BLOCKED FOR PRODUCTION`.
 - [x] T002 Define generic CarrierAdapter contract and carrier capability registry.
 - [x] T003 Define generic agency/tenant configuration and branding model.
 - [ ] T004 Select and contract candidate MVR provider.
@@ -147,6 +147,14 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [ ] T912 Complete first live agency/carrier/provider production certification.
 - [ ] T913 Production deployment and smoke test.
 - [ ] T914 Post-launch audit and first-week control review.
+
+## Two-door addendum — later synthetic seed
+Configuration and fixtures only. Do not fork canonical domain objects. Do not enable live Allstate, LexisNexis, or Verisk. Do not add a lead-pool entity.
+
+- [ ] T013 Seed a second synthetic `TenantConfiguration` and `tenant_hosts` row so Exclusive and Broker resolve from distinct hostnames. Unknown hosts fail closed. The client MUST NOT supply `tenant_id`.
+- [ ] T014 Prove A-027 against that two-door synthetic pair: branding, provider bindings, notices, retention, and carrier programs stay isolated.
+- [ ] T015 Apply two-host theming from `brand_configuration_ref` using synthetic brands only.
+- [ ] T016 Enforce Exclusive `SINGLE` (exactly one configured `CarrierProgram`) and a copy lint that rejects compare-language on Exclusive surfaces. Broker presentation MUST NOT use the Allstate mark.
 
 ## Dependency rule
 Core implementation phases MAY proceed against deterministic synthetic providers and `StubCarrierAdapter`. No later task may silently convert an unresolved production-specific legal, provider, carrier, or agency requirement into an implementation assumption. Production activation requires evidence; core build completion does not.

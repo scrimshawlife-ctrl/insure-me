@@ -3,6 +3,9 @@
 ## Objective
 Implement Insure Me as a compliance-first insurance quote intake and orchestration platform with a carrier-, agency-, and data-provider-agnostic core. Carrier programs own rating, eligibility, binding, and policy issuance unless authority is explicitly delegated.
 
+The two-door operator model is configuration on this kernel. Read
+`two-door-plan.md`. Do not fork canonical domain objects to add a second door.
+
 ## Reference architecture
 
 ```text

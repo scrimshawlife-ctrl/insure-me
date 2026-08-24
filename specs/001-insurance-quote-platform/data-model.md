@@ -34,6 +34,28 @@ Minimum fields:
 
 A QuoteCase MUST retain the TenantConfiguration version that governed its regulated actions. Later configuration edits MUST NOT rewrite historical policy context.
 
+The two-door operator model uses two `TenantConfiguration` records: Exclusive
+(`carrier_program_ids` length 1) and Broker (one or more programs). See
+`two-door-addendum.md`.
+
+### TenantHost
+Trusted hostname-to-tenant binding used for consumer and privacy intake.
+
+Minimum fields:
+- `tenant_host_id`
+- `hostname`
+- `tenant_id`
+- `agency_id`
+- `tenant_configuration_id`
+- `tenant_configuration_version`
+- `status`: `ACTIVE | RETIRED`
+
+The client MUST NOT supply `tenant_id`. Unknown, inactive, or ambiguous
+hostnames fail closed.
+
+There is no `LeadPool` entity. Do not add a shared lead, ping-post, or
+aged-lead table.
+
 ### Agency
 Minimum fields:
 - `agency_id`
@@ -447,6 +469,7 @@ An immutable, tenant/agency and QuoteCase-scoped evidence artifact created for a
 - Provider credentials/bindings and carrier credentials/programs MUST be tenant/environment scoped.
 - A tenant MUST NOT observe another tenant's prospects, reports, configuration, audit events, or carrier submissions.
 - Branding is presentation configuration and MUST NOT modify canonical data semantics.
+- Exclusive and Broker doors for one human operator remain two tenants. They MUST NOT share a QuoteCase, `ExternalReport`, `ConsentRecord`, or lead pool.
 
 ## Portability invariants
 - Adding or replacing a carrier requires a Carrier/CarrierProgram configuration and adapter, not a canonical schema fork.
