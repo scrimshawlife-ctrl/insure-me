@@ -157,6 +157,14 @@ Required capability areas:
 
 Production secret material MUST NOT be returned through administrative read APIs.
 
+### `POST /api/v1/admin/compliance-evidence-exports`
+Creates or idempotently replays one immutable QuoteCase evidence bundle. The MFA-authenticated caller MUST hold both `AUDIT_READ` and `EXPORT_DATA`. Input contains the QuoteCase ID, explicit non-future ISO-8601 `asOf`, opaque purpose reference, non-empty reason codes, and UUID idempotency key. The response returns only artifact ID, schema version, scope, cutoff, manifest SHA-256, bounded evidence count, and creation time; it does not return the manifest.
+
+The server derives tenant/agency from the stored QuoteCase and assembles only PII-minimized provenance and integrity fields. More than 10,000 included records fails closed. Unknown/cross-tenant scopes and insufficient permissions share the generic not-found response; mismatched replay fails with a conflict.
+
+### `GET /api/v1/admin/compliance-evidence-exports/{id}`
+Downloads the immutable JSON manifest after rechecking MFA plus both permissions and verifying its stored SHA-256. The response is non-cacheable, attachment-only, and exposes the content hash. Each successful download emits a separate AuditEvent. Unknown, cross-tenant, unauthorized, or integrity-failed artifacts are not returned. Direct anonymous/authenticated table reads and all table mutations are denied.
+
 ## Privacy APIs
 
 ### `POST /v1/privacy/requests`

@@ -101,6 +101,8 @@ AuditEvent MUST cover:
 
 Audit data MUST be append-only at the logical level and protected from ordinary application-user modification. Use hash chaining, WORM/immutable storage, or equivalent tamper-evidence where appropriate.
 
+Compliance evidence export requires MFA and the intersection of `AUDIT_READ` and `EXPORT_DATA`; neither permission alone is sufficient. Tenant/agency scope is resolved from the stored QuoteCase. Export artifacts have no direct Data API grants, are immutable after creation, are capped at 10,000 evidence records, exclude high-risk payload fields, and verify their manifest hash before every audited download. Unauthorized and cross-tenant requests do not provide an existence oracle.
+
 Adverse-action delivery tables deny direct anonymous/authenticated mutation. Checked MFA-backed `POLICY_ADMIN` RPCs prepare and settle delivery, with tenant scope resolved from the stored case rather than caller-supplied tenant data. Notice, owner, and adapter identity is immutable after preparation; attempts are append-only; and audit metadata uses opaque recipient and provider evidence references rather than destination addresses or notice bodies.
 
 ## Application security baseline

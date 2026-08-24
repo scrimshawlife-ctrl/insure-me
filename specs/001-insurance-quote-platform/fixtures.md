@@ -87,6 +87,9 @@ Resume/session token expires; access denied until approved re-verification.
 ### F025 Suspicious agent activity
 Synthetic agent attempts repeated denied lookups; security signal triggers but no consumer risk observation is created.
 
+### F026 Compliance evidence export
+An MFA-authenticated synthetic administrator holding `AUDIT_READ` and `EXPORT_DATA` creates a QuoteCase evidence bundle at an explicit cutoff. The artifact includes exact notice, purpose, provider, carrier, adverse-action, notice-delivery, hold, and audit provenance available by that cutoff, but excludes planted notice-body and arbitrary audit-metadata markers. The manifest hash verifies; replay is stable; creation and download are separately audited. A user with only `AUDIT_READ`, a future cutoff, direct table access, mutation, and mismatched replay all fail closed.
+
 ## Fixture schema requirements
 Each fixture MUST declare:
 - fixture ID/version;

@@ -241,3 +241,5 @@ California SB 354 (2025-2026), the proposed Insurance Consumer Privacy Protectio
 - FCRA/adverse-action workflow tested with synthetic data;
 - incident response exercised;
 - audit evidence export verified.
+
+T809 compliance evidence export is a PII-minimized operational evidence bundle, not a consumer privacy access export and not a legal conclusion. It is scoped to one QuoteCase at an exact non-future cutoff, versioned and integrity hashed, and available only to an MFA-authenticated workforce user holding both audit-read and export authority. Creation and every download are separately audited. Raw identity, report payloads, notice text, premiums, corrections, secrets, and unconstrained audit metadata are excluded.

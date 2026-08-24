@@ -121,6 +121,9 @@ An MFA-authenticated `POLICY_ADMIN` MAY record a responsible party's adverse-act
 ### A-037 Adverse-action notice delivery safety
 An MFA-authenticated `POLICY_ADMIN` MAY prepare an adverse-action delivery only after handoff and only with an active tenant-scoped `ADVERSE_ACTION` NoticeDefinition whose exact version and content hash match the request and deployment certification state. The envelope MUST snapshot configured owner/policy, approved channel, opaque recipient, adapter/policy descriptor, and idempotency evidence before dispatch. Every outcome MUST be append-only and audited; `ACCEPTED` MUST remain dispatched rather than delivered, and only explicit `DELIVERED` evidence may set a delivery timestamp. Missing handoff, wrong notice/category/state/hash, adapter mismatch, live synthetic configuration, direct mutation, and mismatched replay MUST fail closed.
 
+### A-038 Compliance evidence export safety
+An MFA-authenticated workforce user MAY create or download a QuoteCase compliance evidence export only when holding both `AUDIT_READ` and `EXPORT_DATA`. Creation MUST be tenant/agency derived, explicitly purpose/reason coded, idempotent, bounded to 10,000 records, and fixed to a non-future as-of cutoff. The immutable versioned manifest MUST preserve exact provenance/integrity fields while excluding identity data, raw/normalized provider payloads, notice bodies, premiums, corrections, secrets, and arbitrary audit metadata. SHA-256 verification MUST precede every separately audited download. Direct table access/mutation, one-permission users, future cutoffs, cross-tenant scopes, integrity failure, and mismatched replay MUST fail closed without an existence oracle.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
