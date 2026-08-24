@@ -19,6 +19,9 @@ function isPlainObject(value) {
 function isSafeOpaqueValue(value) {
   return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value);
 }
+function safeOpaqueOrUnverified(value) {
+  return isSafeOpaqueValue(value) ? value : 'UNVERIFIED';
+}
 function isValidTimestamp(value) {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value) && !Number.isNaN(Date.parse(value));
 }
@@ -61,23 +64,23 @@ function sameDeployment(left, right) {
 function sanitized(metadata) {
   return {
     selectedDeployment: metadata?.selectedDeployment && isPlainObject(metadata.selectedDeployment) ? {
-      environment: String(metadata.selectedDeployment.environment ?? 'UNVERIFIED'),
-      deploymentRef: String(metadata.selectedDeployment.deploymentRef ?? 'UNVERIFIED'),
-      configurationVersion: String(metadata.selectedDeployment.configurationVersion ?? 'UNVERIFIED'),
+      environment: safeOpaqueOrUnverified(metadata.selectedDeployment.environment),
+      deploymentRef: safeOpaqueOrUnverified(metadata.selectedDeployment.deploymentRef),
+      configurationVersion: safeOpaqueOrUnverified(metadata.selectedDeployment.configurationVersion),
       exactBinding: metadata.selectedDeployment.exactBinding === true,
     } : { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED', exactBinding: false },
     assessmentBinding: metadata?.assessmentBinding && isPlainObject(metadata.assessmentBinding) ? {
       t908SelectedDeployment: metadata.assessmentBinding.t908SelectedDeployment && isPlainObject(metadata.assessmentBinding.t908SelectedDeployment) ? {
-        environment: String(metadata.assessmentBinding.t908SelectedDeployment.environment ?? 'UNVERIFIED'),
-        deploymentRef: String(metadata.assessmentBinding.t908SelectedDeployment.deploymentRef ?? 'UNVERIFIED'),
-        configurationVersion: String(metadata.assessmentBinding.t908SelectedDeployment.configurationVersion ?? 'UNVERIFIED'),
+        environment: safeOpaqueOrUnverified(metadata.assessmentBinding.t908SelectedDeployment.environment),
+        deploymentRef: safeOpaqueOrUnverified(metadata.assessmentBinding.t908SelectedDeployment.deploymentRef),
+        configurationVersion: safeOpaqueOrUnverified(metadata.assessmentBinding.t908SelectedDeployment.configurationVersion),
       } : { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
       assessorAttestation: metadata.assessmentBinding.assessorAttestation && isPlainObject(metadata.assessmentBinding.assessorAttestation) ? {
         independent: metadata.assessmentBinding.assessorAttestation.independent === true,
-        attestationRef: String(metadata.assessmentBinding.assessorAttestation.attestationRef ?? 'UNVERIFIED'),
-        attestedAt: String(metadata.assessmentBinding.assessorAttestation.attestedAt ?? 'UNVERIFIED'),
+        attestationRef: safeOpaqueOrUnverified(metadata.assessmentBinding.assessorAttestation.attestationRef),
+        attestedAt: isValidTimestamp(metadata.assessmentBinding.assessorAttestation.attestedAt) ? metadata.assessmentBinding.assessorAttestation.attestedAt : 'UNVERIFIED',
       } : { independent: false, attestationRef: 'UNVERIFIED', attestedAt: 'UNVERIFIED' },
-      findingRegisterRef: String(metadata.assessmentBinding.findingRegisterRef ?? 'UNVERIFIED'),
+      findingRegisterRef: safeOpaqueOrUnverified(metadata.assessmentBinding.findingRegisterRef),
       baselineFindingCounts: validAssessmentBaselineCounts(metadata.assessmentBinding.baselineFindingCounts) ? metadata.assessmentBinding.baselineFindingCounts : blankAssessmentBaselineCounts(),
     } : {
       t908SelectedDeployment: { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
@@ -92,9 +95,9 @@ function sanitized(metadata) {
       attestedAt: isValidTimestamp(metadata.independentClosureAttestation.attestedAt) ? metadata.independentClosureAttestation.attestedAt : 'UNVERIFIED',
       allCriticalHighRetested: metadata.independentClosureAttestation.allCriticalHighRetested === true,
       selectedDeployment: metadata.independentClosureAttestation.selectedDeployment && isPlainObject(metadata.independentClosureAttestation.selectedDeployment) ? {
-        environment: String(metadata.independentClosureAttestation.selectedDeployment.environment ?? 'UNVERIFIED'),
-        deploymentRef: String(metadata.independentClosureAttestation.selectedDeployment.deploymentRef ?? 'UNVERIFIED'),
-        configurationVersion: String(metadata.independentClosureAttestation.selectedDeployment.configurationVersion ?? 'UNVERIFIED'),
+        environment: safeOpaqueOrUnverified(metadata.independentClosureAttestation.selectedDeployment.environment),
+        deploymentRef: safeOpaqueOrUnverified(metadata.independentClosureAttestation.selectedDeployment.deploymentRef),
+        configurationVersion: safeOpaqueOrUnverified(metadata.independentClosureAttestation.selectedDeployment.configurationVersion),
       } : { environment: 'UNVERIFIED', deploymentRef: 'UNVERIFIED', configurationVersion: 'UNVERIFIED' },
       findingRegisterRef: isSafeOpaqueValue(metadata.independentClosureAttestation.findingRegisterRef) ? metadata.independentClosureAttestation.findingRegisterRef : 'UNVERIFIED',
     } : {

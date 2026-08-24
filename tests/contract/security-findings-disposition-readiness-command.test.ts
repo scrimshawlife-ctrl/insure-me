@@ -95,12 +95,17 @@ describe('T909 security findings disposition readiness validator', () => {
         ...readyMetadata.independentClosureAttestation,
         attestationRef: sensitiveRef,
         attestedAt: sensitiveTimestamp,
+        selectedDeployment: {
+          ...readyMetadata.independentClosureAttestation.selectedDeployment,
+          deploymentRef: sensitiveRef,
+        },
       },
     });
     expect(result.status).toBe(1);
     expect(report.errorCode).toBe('MISSING_EXACT_SELECTED_DEPLOYMENT_BINDING');
     expect(report.independentClosureAttestation.attestationRef).toBe('UNVERIFIED');
     expect(report.independentClosureAttestation.attestedAt).toBe('UNVERIFIED');
+    expect(report.independentClosureAttestation.selectedDeployment.deploymentRef).toBe('UNVERIFIED');
     expect(raw).not.toContain(sensitiveRef);
     expect(raw).not.toContain(sensitiveTimestamp);
   });
