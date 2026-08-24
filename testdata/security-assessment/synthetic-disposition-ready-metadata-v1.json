@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "security-findings-disposition-metadata-v1",
+  "selectedDeployment": { "environment": "synthetic-ci", "deploymentRef": "synthetic-selected-deployment-v1", "configurationVersion": "tenant-config-synthetic-v1", "exactBinding": true },
+  "assessmentBinding": { "assessorAttestationRef": "synthetic-independent-attestation-v1", "assessmentAttestedAt": "2026-08-24T00:00:00.000Z", "findingRegisterRef": "synthetic-finding-register-v1", "sameAssessmentBoundary": true },
+  "aggregateDispositionCounts": {
+    "critical": { "assessed": 0, "open": 0, "remediationImplemented": 0, "retestVerified": 0, "closed": 0, "acceptedRisk": 0 },
+    "high": { "assessed": 1, "open": 0, "remediationImplemented": 1, "retestVerified": 1, "closed": 1, "acceptedRisk": 0 }
+  },
+  "independentClosureAttestation": { "independent": true, "attestationRef": "synthetic-independent-closure-v1", "attestedAt": "2026-08-24T01:00:00.000Z", "allCriticalHighRetested": true },
+  "externalEvidence": { "assessmentBindingReceived": true, "findingRegisterReceived": true, "remediationEvidenceReceived": true, "independentRetestEvidenceReceived": true, "closureAttestationReceived": true }
+}
