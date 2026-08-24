@@ -55,7 +55,9 @@ try {
   `);
 
   docker('exec', container, 'pg_dump', '--username', 'postgres', '--dbname', 'postgres',
-    '--format', 'custom', '--no-owner', '--file', dumpPath);
+    '--format', 'custom', '--no-owner',
+    '--schema', 'public', '--schema', 'private', '--schema', 'supabase_migrations',
+    '--file', dumpPath);
   dumpSha256 = docker('exec', container, 'sha256sum', dumpPath).split(/\s+/)[0];
 
   docker('exec', container, 'createdb', '--username', 'postgres', '--template', 'template0', targetDatabase);

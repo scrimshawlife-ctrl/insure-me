@@ -172,7 +172,7 @@ DNS/edge recovery, secret rotation, and third-party revalidation run in parallel
 
 ### Canonical restore drill
 
-T902 runs `scripts/recovery/restore-drill.mjs` against the disposable local Supabase database after all migrations and pgTAP tests. It inserts synthetic agency and audit sentinels, creates a full custom-format logical snapshot, restores it into a separate database created from `template0`, and verifies:
+T902 runs `scripts/recovery/restore-drill.mjs` against the disposable local Supabase database after all migrations and pgTAP tests. It inserts synthetic agency and audit sentinels, creates a custom-format logical snapshot of the application-owned `public` and `private` schemas plus `supabase_migrations`, restores it into a separate database created from `template0`, and verifies:
 
 - the exact synthetic agency and AuditEvent integrity evidence survived;
 - AuditEvent RLS remains enabled;
