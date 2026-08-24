@@ -39,7 +39,7 @@ function digest(value: string): Buffer {
 
 export function authorizeRetentionWorker(
   authorization: string | null,
-  environment: NodeJS.ProcessEnv = process.env,
+  environment: EnvironmentSource = process.env,
 ): boolean {
   const token = authorization?.match(/^Bearer ([^\s]+)$/)?.[1];
   if (!token) return false;

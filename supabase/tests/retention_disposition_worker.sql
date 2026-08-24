@@ -118,7 +118,7 @@ select is((select status_summary->>'BLOCKED' from retention_executed), '2', 'hel
 select is((select count(*) from public.retention_disposition_attempts), 2::bigint, 'each executed item creates append-only evidence');
 select is((select count(*) from public.retention_disposition_attempts where evidence_ref ~ '^retention:[0-9a-f]{64}$'), 2::bigint, 'evidence references are opaque digests');
 select is((select count(*) from public.retention_disposition_attempts where request_hash ~ '^[0-9a-f]{64}$'), 2::bigint, 'attempt request evidence is keyed and opaque');
-select like((select key_version from public.person_private_profiles where person_id = 'b4000000-0000-0000-0000-000000000001'), 'DESTROYED:%', 'identity encryption material is destroyed');
+select is((select left(key_version, 10) from public.person_private_profiles where person_id = 'b4000000-0000-0000-0000-000000000001'), 'DESTROYED:', 'identity encryption material is destroyed');
 select is((select email_lookup_hash is null and phone_lookup_hash is null from public.person_private_profiles where person_id = 'b4000000-0000-0000-0000-000000000001'), true, 'identity lookup material is removed');
 select is((select first_name from public.drivers where driver_id = 'b4300000-0000-0000-0000-000000000001'), 'REDACTED', 'consumer driver identity is anonymized');
 select is((select license_identifier_ciphertext is null from public.drivers where driver_id = 'b4300000-0000-0000-0000-000000000001'), true, 'driver license identifier is removed');

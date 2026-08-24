@@ -65,7 +65,7 @@ export function getIdentityProtectionEnvironment(
 }
 
 export function getRetentionWorkerEnvironment(
-  source: NodeJS.ProcessEnv = process.env,
+  source: Record<string, string | undefined> = process.env,
 ): RetentionWorkerEnvironment {
   const parsed = retentionWorkerEnvironmentSchema.safeParse(source);
   if (!parsed.success) {
