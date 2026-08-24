@@ -38,12 +38,18 @@ export interface RequesterPrivacyStatus {
   privacyRequestId: string;
   state: PrivacyRequestState;
   identityVerificationState: PrivacyIdentityState;
-  nextAction: 'IDENTITY_VERIFICATION' | 'PROCESSING' | 'COMPLETE';
+  nextAction: 'IDENTITY_VERIFICATION' | 'CONTACT_SUPPORT' | 'PROCESSING' | 'COMPLETE';
 }
 
-function nextAction(state: PrivacyRequestState): RequesterPrivacyStatus['nextAction'] {
+function nextAction(
+  state: PrivacyRequestState,
+  identityState: PrivacyIdentityState,
+): RequesterPrivacyStatus['nextAction'] {
   if (state === 'COMPLETED' || state === 'DENIED' || state === 'CANCELLED') {
     return 'COMPLETE';
+  }
+  if (identityState === 'FAILED' || identityState === 'EXPIRED') {
+    return 'CONTACT_SUPPORT';
   }
   if (state === 'RECEIVED' || state === 'IDENTITY_VERIFICATION_PENDING') {
     return 'IDENTITY_VERIFICATION';
@@ -56,9 +62,11 @@ function requesterStatus(row: PrivacyStatusRow): RequesterPrivacyStatus {
     privacyRequestId: row.public_reference,
     state: row.state,
     identityVerificationState: row.identity_verification_state,
-    nextAction: nextAction(row.state),
+    nextAction: nextAction(row.state, row.identity_verification_state),
   };
 }
+
+export { requesterStatus };
 
 export async function createPrivacyRequest(
   adminClient: SupabaseClient<Database>,
