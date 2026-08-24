@@ -234,14 +234,14 @@ begin
     returning * into v_request;
     v_event_type := 'PRIVACY_IDENTITY_VERIFIED';
   else
-    update public.privacy_requests
+    update public.privacy_requests as pr
     set identity_verification_state = case
           when v_attempt_number = 5 then 'FAILED'::public.privacy_identity_state
-          else identity_verification_state
+          else pr.identity_verification_state
         end,
         updated_at = now()
-    where privacy_request_id = v_request.privacy_request_id
-    returning * into v_request;
+    where pr.privacy_request_id = v_request.privacy_request_id
+    returning pr.* into v_request;
     v_event_type := 'PRIVACY_IDENTITY_VERIFICATION_FAILED';
   end if;
 
