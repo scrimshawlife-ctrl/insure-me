@@ -458,8 +458,11 @@ begin
          v_request.tenant_id, v_request.agency_id, 'EXTERNAL_REPORTS', 'EXEMPT',
          v_external_report_count, array['SOURCE_OF_TRUTH_PRESERVED']);
       v_outcome := case when v_external_count > 0 or v_external_report_count > 0
-        then 'PARTIALLY_APPLIED' else 'APPLIED' end;
-      v_final_state := case when v_external_count > 0 then 'IN_PROGRESS' else 'COMPLETED' end;
+        then 'PARTIALLY_APPLIED'::public.privacy_rights_execution_outcome
+        else 'APPLIED'::public.privacy_rights_execution_outcome end;
+      v_final_state := case when v_external_count > 0
+        then 'IN_PROGRESS'::public.privacy_request_state
+        else 'COMPLETED'::public.privacy_request_state end;
     elsif v_request.request_type = 'DELETION' then
       if p_encrypted_profile is not null or p_profile_key_version is not null
          or p_email_lookup_hash is not null or p_phone_lookup_hash is not null then
