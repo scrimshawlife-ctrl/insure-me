@@ -11,6 +11,7 @@ const allowed = [
 ].sort();
 const forbiddenArtifactPattern = /rawEvidence|evidencePayload|noticeBody|legalOpinion|contractBody|providerResponse|carrierResponse|password|jwt|stackTrace|deadline|certification/i;
 const readyMetadata = JSON.parse(readFileSync('testdata/legal-compliance/synthetic-ready-metadata-v1.json', 'utf8'));
+const reservedSentinels = ['UNVERIFIED', 'UNKNOWN', 'BLOCKED', 'NOT_COMPUTABLE'];
 
 function run(input: string) {
   const dir = mkdtempSync(join(tmpdir(), 't911-'));
@@ -39,10 +40,54 @@ describe('T911 legal/compliance approval readiness validator', () => {
     expect(report.selectedDeployment.tenantConfiguration.configurationVersion).toBe('tc-version-synthetic-001');
     expect(report.approvalDomains).toHaveLength(6);
     expect(report.controlDomains).toHaveLength(13);
+    expect(report.approvalDomains[0]).toMatchObject({
+      environment: report.selectedDeployment.environment,
+      deploymentRef: report.selectedDeployment.deploymentRef,
+      ...report.selectedDeployment.tenantConfiguration,
+    });
     expect(report.openQuestionBlockers.map((entry: { questionId: string }) => entry.questionId)).toEqual([
       'Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005', 'Q-006', 'Q-007', 'Q-008', 'Q-009', 'Q-010',
     ]);
     expect(raw).not.toMatch(forbiddenArtifactPattern);
+  });
+
+  it.each(reservedSentinels)('rejects reserved deployment sentinel %s while emitting a sanitized blocked artifact', (sentinel) => {
+    const metadata = {
+      ...readyMetadata,
+      selectedDeployment: { ...readyMetadata.selectedDeployment, deploymentRef: sentinel },
+    };
+    const { result, report } = runMetadata(metadata);
+    expect(result.status).toBe(1);
+    expect(report.errorCode).toBe('MISSING_EXACT_SELECTED_DEPLOYMENT_BINDING');
+    expect(report.selectedDeployment.deploymentRef).toBe('UNVERIFIED');
+  });
+
+  it.each(reservedSentinels)('rejects reserved approval evidence sentinel %s while allowing UNVERIFIED in the blocked artifact', (sentinel) => {
+    const metadata = {
+      ...readyMetadata,
+      approvalDomains: readyMetadata.approvalDomains.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, evidenceRef: sentinel } : entry),
+    };
+    const { result, report } = runMetadata(metadata);
+    expect(result.status).toBe(1);
+    expect(report.errorCode).toBe('INVALID_APPROVAL_REFERENCE');
+    expect(report.approvalDomains[0].evidenceRef).toBe('UNVERIFIED');
+  });
+
+  it.each([
+    ['MISSING_APPROVAL_DOMAIN_EVIDENCE', 'approvalDomains', 'configurationVersion', 'tc-version-stale-000'],
+    ['MISSING_APPROVAL_DOMAIN_EVIDENCE', 'approvalDomains', 'deploymentRef', 'deployment-other-002'],
+    ['MISSING_CONTROL_DOMAIN_EVIDENCE', 'controlDomains', 'configurationVersion', 'tc-version-stale-000'],
+    ['MISSING_CONTROL_DOMAIN_EVIDENCE', 'controlDomains', 'deploymentRef', 'deployment-other-002'],
+    ['UNRESOLVED_OPEN_QUESTION_BLOCKER', 'openQuestionBlockers', 'configurationVersion', 'tc-version-stale-000'],
+    ['UNRESOLVED_OPEN_QUESTION_BLOCKER', 'openQuestionBlockers', 'deploymentRef', 'deployment-other-002'],
+  ])('rejects stale or cross-deployment %s binding in %s', (errorCode, category, field, value) => {
+    const metadata = {
+      ...readyMetadata,
+      [category]: readyMetadata[category].map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, [field]: value } : entry),
+    };
+    const { result, report } = runMetadata(metadata);
+    expect(result.status).toBe(1);
+    expect(report.errorCode).toBe(errorCode);
   });
 
   it('fails closed for the synthetic unresolved open-question fixture', () => {
@@ -64,9 +109,11 @@ describe('T911 legal/compliance approval readiness validator', () => {
     ['MISSING_APPROVAL_DOMAIN_EVIDENCE', { ...readyMetadata, approvalDomains: readyMetadata.approvalDomains.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, evidencePresent: false } : entry) }],
     ['INVALID_CONTROL_DOMAINS', { ...readyMetadata, controlDomains: readyMetadata.controlDomains.slice(1) }],
     ['INVALID_CONTROL_EVIDENCE_REFERENCE', { ...readyMetadata, controlDomains: readyMetadata.controlDomains.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, evidenceRef: 'unsafe ref' } : entry) }],
+    ['INVALID_CONTROL_EVIDENCE_REFERENCE', { ...readyMetadata, controlDomains: readyMetadata.controlDomains.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, evidenceRef: 'NOT_COMPUTABLE' } : entry) }],
     ['MISSING_CONTROL_DOMAIN_EVIDENCE', { ...readyMetadata, controlDomains: readyMetadata.controlDomains.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, exactBinding: false } : entry) }],
     ['INVALID_OPEN_QUESTION_BLOCKERS', { ...readyMetadata, openQuestionBlockers: readyMetadata.openQuestionBlockers.slice(1) }],
     ['INVALID_OPEN_QUESTION_REFERENCE', { ...readyMetadata, openQuestionBlockers: readyMetadata.openQuestionBlockers.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, ownerRef: '' } : entry) }],
+    ['INVALID_OPEN_QUESTION_REFERENCE', { ...readyMetadata, openQuestionBlockers: readyMetadata.openQuestionBlockers.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, evidenceRef: 'BLOCKED' } : entry) }],
     ['UNRESOLVED_OPEN_QUESTION_BLOCKER', { ...readyMetadata, openQuestionBlockers: readyMetadata.openQuestionBlockers.map((entry: Record<string, unknown>, index: number) => index === 0 ? { ...entry, exactBinding: false } : entry) }],
     ['MISSING_EXTERNAL_EVIDENCE', { ...readyMetadata, externalEvidence: { ...readyMetadata.externalEvidence, openQuestionDecisionMetadataReceived: false } }],
     ['FORBIDDEN_RAW_EVIDENCE_KEY', { ...readyMetadata, nested: { noticeBody: 'must-never-appear' } }],

@@ -42,6 +42,8 @@ const forbiddenKeys = new Set([
   'secret', 'secrets', 'token', 'tokens', 'credential', 'credentials', 'password', 'jwt',
   'payload', 'payloads', 'stack', 'stacktrace', 'deadline', 'certification', 'certified',
 ]);
+const reservedOpaqueSentinels = new Set(['UNVERIFIED', 'UNKNOWN', 'BLOCKED', 'NOT_COMPUTABLE']);
+const bindingKeys = ['environment', 'deploymentRef', 'tenantConfigurationId', 'tenantId', 'agencyId', 'configurationVersion'];
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -49,8 +51,11 @@ function isPlainObject(value) {
 function isSafeOpaque(value) {
   return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(value);
 }
+function isValidOpaqueInput(value) {
+  return isSafeOpaque(value) && !reservedOpaqueSentinels.has(value);
+}
 function safeOpaque(value) {
-  return isSafeOpaque(value) ? value : 'UNVERIFIED';
+  return isValidOpaqueInput(value) ? value : 'UNVERIFIED';
 }
 function containsForbiddenKey(value) {
   if (Array.isArray(value)) return value.some(containsForbiddenKey);
@@ -68,6 +73,18 @@ function exactNamedEntries(value, names, entryKeys) {
     && new Set(value.map((entry) => entry?.domain ?? entry?.questionId)).size === names.length
     && value.every((entry) => exactKeys(entry, entryKeys))
     && names.every((name) => value.some((entry) => (entry.domain ?? entry.questionId) === name));
+}
+function bindingFrom(entry) {
+  return Object.fromEntries(bindingKeys.map((key) => [key, safeOpaque(entry?.[key])]));
+}
+function hasExactSelectedDeploymentBinding(entry, selected) {
+  const tenant = selected.tenantConfiguration;
+  return entry.environment === selected.environment
+    && entry.deploymentRef === selected.deploymentRef
+    && entry.tenantConfigurationId === tenant.tenantConfigurationId
+    && entry.tenantId === tenant.tenantId
+    && entry.agencyId === tenant.agencyId
+    && entry.configurationVersion === tenant.configurationVersion;
 }
 function sanitize(metadata) {
   const selected = isPlainObject(metadata?.selectedDeployment) ? metadata.selectedDeployment : {};
@@ -94,6 +111,7 @@ function sanitize(metadata) {
       const entry = approvalByDomain.get(domain) ?? {};
       return {
         domain,
+        ...bindingFrom(entry),
         ownerRef: safeOpaque(entry.ownerRef),
         authorityRef: safeOpaque(entry.authorityRef),
         evidenceRef: safeOpaque(entry.evidenceRef),
@@ -103,12 +121,13 @@ function sanitize(metadata) {
     }),
     controlDomains: requiredControlDomains.map((domain) => {
       const entry = controlByDomain.get(domain) ?? {};
-      return { domain, evidenceRef: safeOpaque(entry.evidenceRef), evidencePresent: entry.evidencePresent === true, exactBinding: entry.exactBinding === true };
+      return { domain, ...bindingFrom(entry), evidenceRef: safeOpaque(entry.evidenceRef), evidencePresent: entry.evidencePresent === true, exactBinding: entry.exactBinding === true };
     }),
     openQuestionBlockers: requiredOpenQuestionBlockers.map((questionId) => {
       const entry = blockerById.get(questionId) ?? {};
       return {
         questionId,
+        ...bindingFrom(entry),
         ownerRef: safeOpaque(entry.ownerRef),
         authorityRef: safeOpaque(entry.authorityRef),
         evidenceRef: safeOpaque(entry.evidenceRef),
@@ -144,7 +163,7 @@ function validSelectedDeployment(metadata) {
   return exactKeys(selected, ['environment', 'deploymentRef', 'tenantConfiguration', 'exactBinding'])
     && exactKeys(tenant, ['tenantConfigurationId', 'tenantId', 'agencyId', 'configurationVersion'])
     && selected.exactBinding === true
-    && [selected.environment, selected.deploymentRef, tenant.tenantConfigurationId, tenant.tenantId, tenant.agencyId, tenant.configurationVersion].every(isSafeOpaque);
+    && [selected.environment, selected.deploymentRef, tenant.tenantConfigurationId, tenant.tenantId, tenant.agencyId, tenant.configurationVersion].every(isValidOpaqueInput);
 }
 function validate(metadata) {
   if (!isPlainObject(metadata)) return blocked('INVALID_METADATA_SHAPE');
@@ -154,20 +173,20 @@ function validate(metadata) {
   if (metadata.schemaVersion !== 'legal-compliance-approval-metadata-v1') return blocked('INVALID_SCHEMA_VERSION', metadata);
   if (!validSelectedDeployment(metadata)) return blocked('MISSING_EXACT_SELECTED_DEPLOYMENT_BINDING', metadata);
 
-  const approvalKeys = ['domain', 'ownerRef', 'authorityRef', 'evidenceRef', 'evidencePresent', 'exactBinding'];
+  const approvalKeys = ['domain', ...bindingKeys, 'ownerRef', 'authorityRef', 'evidenceRef', 'evidencePresent', 'exactBinding'];
   if (!exactNamedEntries(metadata.approvalDomains, requiredApprovalDomains, approvalKeys)) return blocked('INVALID_APPROVAL_DOMAINS', metadata);
-  if (metadata.approvalDomains.some((entry) => !isSafeOpaque(entry.ownerRef) || !isSafeOpaque(entry.authorityRef) || !isSafeOpaque(entry.evidenceRef))) return blocked('INVALID_APPROVAL_REFERENCE', metadata);
-  if (metadata.approvalDomains.some((entry) => entry.evidencePresent !== true || entry.exactBinding !== true)) return blocked('MISSING_APPROVAL_DOMAIN_EVIDENCE', metadata);
+  if (metadata.approvalDomains.some((entry) => !isValidOpaqueInput(entry.ownerRef) || !isValidOpaqueInput(entry.authorityRef) || !isValidOpaqueInput(entry.evidenceRef))) return blocked('INVALID_APPROVAL_REFERENCE', metadata);
+  if (metadata.approvalDomains.some((entry) => entry.evidencePresent !== true || entry.exactBinding !== true || !hasExactSelectedDeploymentBinding(entry, metadata.selectedDeployment))) return blocked('MISSING_APPROVAL_DOMAIN_EVIDENCE', metadata);
 
-  const controlKeys = ['domain', 'evidenceRef', 'evidencePresent', 'exactBinding'];
+  const controlKeys = ['domain', ...bindingKeys, 'evidenceRef', 'evidencePresent', 'exactBinding'];
   if (!exactNamedEntries(metadata.controlDomains, requiredControlDomains, controlKeys)) return blocked('INVALID_CONTROL_DOMAINS', metadata);
-  if (metadata.controlDomains.some((entry) => !isSafeOpaque(entry.evidenceRef))) return blocked('INVALID_CONTROL_EVIDENCE_REFERENCE', metadata);
-  if (metadata.controlDomains.some((entry) => entry.evidencePresent !== true || entry.exactBinding !== true)) return blocked('MISSING_CONTROL_DOMAIN_EVIDENCE', metadata);
+  if (metadata.controlDomains.some((entry) => !isValidOpaqueInput(entry.evidenceRef))) return blocked('INVALID_CONTROL_EVIDENCE_REFERENCE', metadata);
+  if (metadata.controlDomains.some((entry) => entry.evidencePresent !== true || entry.exactBinding !== true || !hasExactSelectedDeploymentBinding(entry, metadata.selectedDeployment))) return blocked('MISSING_CONTROL_DOMAIN_EVIDENCE', metadata);
 
-  const blockerKeys = ['questionId', 'ownerRef', 'authorityRef', 'evidenceRef', 'resolvedForSelectedDeployment', 'exactBinding'];
+  const blockerKeys = ['questionId', ...bindingKeys, 'ownerRef', 'authorityRef', 'evidenceRef', 'resolvedForSelectedDeployment', 'exactBinding'];
   if (!exactNamedEntries(metadata.openQuestionBlockers, requiredOpenQuestionBlockers, blockerKeys)) return blocked('INVALID_OPEN_QUESTION_BLOCKERS', metadata);
-  if (metadata.openQuestionBlockers.some((entry) => !isSafeOpaque(entry.ownerRef) || !isSafeOpaque(entry.authorityRef) || !isSafeOpaque(entry.evidenceRef))) return blocked('INVALID_OPEN_QUESTION_REFERENCE', metadata);
-  if (metadata.openQuestionBlockers.some((entry) => entry.resolvedForSelectedDeployment !== true || entry.exactBinding !== true)) return blocked('UNRESOLVED_OPEN_QUESTION_BLOCKER', metadata);
+  if (metadata.openQuestionBlockers.some((entry) => !isValidOpaqueInput(entry.ownerRef) || !isValidOpaqueInput(entry.authorityRef) || !isValidOpaqueInput(entry.evidenceRef))) return blocked('INVALID_OPEN_QUESTION_REFERENCE', metadata);
+  if (metadata.openQuestionBlockers.some((entry) => entry.resolvedForSelectedDeployment !== true || entry.exactBinding !== true || !hasExactSelectedDeploymentBinding(entry, metadata.selectedDeployment))) return blocked('UNRESOLVED_OPEN_QUESTION_BLOCKER', metadata);
 
   if (!exactKeys(metadata.externalEvidence, ['selectedDeploymentBindingReceived', 'approvalDomainMetadataReceived', 'controlDomainMetadataReceived', 'openQuestionDecisionMetadataReceived'])
     || Object.values(metadata.externalEvidence).some((value) => value !== true)) return blocked('MISSING_EXTERNAL_EVIDENCE', metadata);
