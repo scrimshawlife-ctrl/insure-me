@@ -127,10 +127,11 @@ begin
      or p_evidence_ref is null
      or p_evidence_ref !~ '^[A-Za-z0-9_.:-]{3,200}$'
      or p_reason_codes is null
-     or cardinality(p_reason_codes) not between 1 and case
+     or cardinality(p_reason_codes) < 1
+     or cardinality(p_reason_codes) > (case
        when p_outcome = 'FAILED' then 11
        else 12
-     end
+     end)
      or exists (
        select 1 from unnest(p_reason_codes) code
        where code !~ '^[A-Z0-9_:-]{1,120}$'
