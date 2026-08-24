@@ -94,6 +94,12 @@ CI uploads `provider-outage-drill-report-v1.json` on success or failure. The rep
 
 The served readiness endpoint consumes `PROVIDER_HEALTH_SNAPSHOT_JSON`, a monitoring-owned capability snapshot with an observation time, required capability list, and categorized statuses. Pilot and production return blocked health when the snapshot is absent, invalid, more than five minutes old, or shows a required capability unavailable. Synthetic mode may omit the snapshot. Snapshot contents remain low-risk operational dimensions and MUST NOT contain request, report, case, subject, or credential data.
 
+### Canonical provider credential rotation drill
+
+T904 exercises a provider-neutral two-slot credential contract. A new version is staged and validated before activation. After activation, a bounded verification must succeed before the prior version is revoked. Standby rejection leaves the current version unchanged; post-activation rejection rolls back to the prior version without revoking it. Staging, activation, rollback, and revocation are auditable state changes.
+
+CI uploads `provider-credential-rotation-drill-report-v1.json` on success or failure. Evidence is limited to opaque version labels, categorized steps/results, timing, audit-event count, and verdict. Credential material, raw provider responses, endpoints, tenant/case/subject identifiers, and secret fingerprints are prohibited. This synthetic control-shape test does not verify a hosted secret manager, Supabase key rotation, a live provider credential, vendor-side revocation, production audit persistence, or zero-downtime production behavior; those remain `UNVERIFIED` launch gates.
+
 ## Operational metrics
 Track without raw PII:
 - quote starts/completions;

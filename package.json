@@ -19,6 +19,7 @@
     "test:load": "node scripts/performance/load-test.mjs",
     "test:restore-drill": "node scripts/recovery/restore-drill.mjs",
     "test:provider-outage-drill": "vitest run tests/contract/provider-outage-drill-command.test.ts --reporter=verbose",
+    "test:provider-credential-rotation-drill": "vitest run tests/contract/provider-credential-rotation-drill-command.test.ts --reporter=verbose",
     "db:start": "supabase start",
     "db:stop": "supabase stop --no-backup",
     "db:reset": "supabase db reset",

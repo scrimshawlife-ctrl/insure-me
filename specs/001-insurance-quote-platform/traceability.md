@@ -156,7 +156,7 @@ Evidence:
 | consumer session isolation | scoped expiring access | A-014 |
 | high-risk field protection | encryption/tokenization + KMS | security tests/review |
 | no PII telemetry | redaction + allowlisted dimensions | A-013 |
-| no secret leakage | secret manager + response filtering | A-013 + security review |
+| no secret leakage | secret manager + response filtering | A-013 + A-045 + security review |
 | provider abuse resistance | purpose gate + rate limit + audit | A-001-A-004 |
 | carrier submission safety | program allowlist + certification + kill switch | A-018, A-021 |
 | historical reconstruction | versioned config/policy refs | A-028 |

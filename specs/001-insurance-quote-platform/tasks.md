@@ -136,7 +136,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T901 Add canonical synthetic load/performance test. Production-scale and stateful certification remain launch-gated.
 - [x] T902 Run isolated logical backup/restore drill. Hosted PITR and production-volume recovery remain launch-gated.
 - [x] T903 Provider outage drill. Live-provider and production alert-path certification remain launch-gated.
-- [ ] T904 Provider credential rotation drill.
+- [x] T904 Provider credential rotation drill. Live-provider, hosted secret-store, vendor-revocation, and production audit-delivery certification remain launch-gated.
 - [ ] T905 Incident-response tabletop.
 - [ ] T906 Privacy-rights end-to-end rehearsal.
 - [ ] T907 FCRA/adverse-action synthetic rehearsal.
