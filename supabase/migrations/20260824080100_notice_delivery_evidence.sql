@@ -128,7 +128,7 @@ create or replace function private.prepare_adverse_action_notice_delivery_impl(
   p_request_hash text
 )
 returns public.adverse_action_notice_deliveries
-language plpgsql security definer set search_path = public, private as $$
+language plpgsql security definer set search_path = public, private, extensions as $$
 declare
   v_actor uuid := auth.uid();
   v_case public.adverse_action_cases;
@@ -224,7 +224,7 @@ create or replace function private.settle_adverse_action_notice_delivery_impl(
   p_request_hash text
 )
 returns public.adverse_action_notice_deliveries
-language plpgsql security definer set search_path = public, private as $$
+language plpgsql security definer set search_path = public, private, extensions as $$
 declare
   v_actor uuid := auth.uid();
   v_delivery public.adverse_action_notice_deliveries;
