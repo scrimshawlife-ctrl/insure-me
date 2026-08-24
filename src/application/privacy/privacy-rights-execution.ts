@@ -92,7 +92,7 @@ export async function executePrivacyRightsRequest(
   const correctionFields = command.corrections
     ? Object.keys(command.corrections).sort()
     : [];
-  const rpc = adminClient.rpc as unknown as PrivacyRightsRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as PrivacyRightsRpc;
   const preparedResult = await rpc('prepare_privacy_rights_execution', {
     p_hostname: command.hostname,
     p_public_reference: command.privacyRequestId,

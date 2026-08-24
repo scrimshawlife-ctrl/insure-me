@@ -71,7 +71,7 @@ export async function processRetentionDispositions(
   const expectedCertificationState = deployment.DEPLOYMENT_STAGE === 'synthetic'
     ? 'SYNTHETIC'
     : 'APPROVED';
-  const rpc = adminClient.rpc as unknown as RetentionRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as RetentionRpc;
   const preparedResult = await rpc('prepare_retention_disposition_run', {
     p_idempotency_key: command.idempotencyKey,
     p_as_of: command.asOf,

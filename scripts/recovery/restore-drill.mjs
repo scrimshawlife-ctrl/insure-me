@@ -124,7 +124,7 @@ const passed = errorCode === null
   && verification.authenticatedAuditUpdateAllowed === false
   && verification.policyInspectionRpcPresent === true
   && verification.authenticatedPolicyInspectionAllowed === true
-  && verification.latestMigration === '20260824110000'
+  && verification.latestMigration === '20260824180000'
   && elapsedMilliseconds <= 4 * 60 * 60 * 1000;
 
 const report = {

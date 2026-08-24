@@ -65,7 +65,7 @@ export async function propagatePrivacyRequestToVendors(
 ): Promise<PrivacyPropagationStatus> {
   const adapter = resolvePrivacyPropagationAdapter(environment);
   const descriptor = adapter.descriptor();
-  const rpc = adminClient.rpc as unknown as PrivacyPropagationRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as PrivacyPropagationRpc;
   const preparedResult = await rpc('prepare_privacy_vendor_propagation', {
     p_hostname: command.hostname,
     p_public_reference: command.privacyRequestId,

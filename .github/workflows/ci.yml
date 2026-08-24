@@ -205,6 +205,26 @@ jobs:
           path: artifacts/restore-drill-report-v1.json
           if-no-files-found: error
           retention-days: 30
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Run privacy-rights rehearsal
+        run: |
+          eval "$(pnpm exec supabase status -o env)"
+          NEXT_PUBLIC_SUPABASE_URL="${API_URL:-$SUPABASE_URL}" \
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-$ANON_KEY}" \
+          SUPABASE_SECRET_KEY="${SERVICE_ROLE_KEY:-$SECRET_KEY}" \
+          SUPABASE_DB_URL="${DB_URL:-$SUPABASE_DB_URL}" \
+          pnpm test:privacy-rights-rehearsal
+        env:
+          PRIVACY_REHEARSAL_REPORT_PATH: artifacts/privacy-rights-rehearsal-report-v1.json
+      - name: Upload privacy-rights rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacy-rights-rehearsal-report-v1
+          path: artifacts/privacy-rights-rehearsal-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload verified database types
         uses: actions/upload-artifact@v4
         with:

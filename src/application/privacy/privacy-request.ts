@@ -77,7 +77,7 @@ export async function createPrivacyRequest(
     command.idempotencyKey,
     { requestType: command.requestType, jurisdiction: command.jurisdiction },
   );
-  const rpc = adminClient.rpc as unknown as PrivacyRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as PrivacyRpc;
   const { data, error } = await rpc('create_privacy_request', {
     p_hostname: command.hostname,
     p_request_type: command.requestType,
@@ -93,7 +93,10 @@ export async function createPrivacyRequest(
   });
 
   if (error || !data || data.length !== 1) {
-    throw new Error('PRIVACY_REQUEST_CREATE_FAILED');
+    const databaseCode = error && 'code' in error && typeof error.code === 'string'
+      ? error.code.replace(/[^A-Z0-9_]/gi, '_').slice(0, 24)
+      : 'UNKNOWN';
+    throw new Error(`PRIVACY_REQUEST_CREATE_FAILED_${databaseCode}`);
   }
 
   return {
@@ -106,7 +109,7 @@ export async function getPrivacyRequestStatus(
   adminClient: SupabaseClient<Database>,
   input: { hostname: string; privacyRequestId: string; statusTokenHash: string },
 ): Promise<RequesterPrivacyStatus> {
-  const rpc = adminClient.rpc as unknown as PrivacyRpc;
+  const rpc = adminClient.rpc.bind(adminClient) as unknown as PrivacyRpc;
   const { data, error } = await rpc('get_privacy_request_status', {
     p_hostname: input.hostname,
     p_public_reference: input.privacyRequestId,
