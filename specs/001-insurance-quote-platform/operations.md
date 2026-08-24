@@ -273,3 +273,10 @@ First 30 days require enhanced review of:
 - logging/redaction anomalies;
 - carrier handoff errors;
 - user accessibility feedback.
+
+## Repository-native security scanner baseline operations
+T101 runs three local CI gates before build and deployment evidence collection: `pnpm security:secrets`, `pnpm security:sast`, and `pnpm security:dependencies`. The first two scan tracked source/config files using dependency-free repository scripts and local high-signal rules. The dependency gate wraps `pnpm audit --prod --audit-level high --json` and emits aggregate counts only.
+
+All three commands write strict aggregate artifacts on pass or fail under `artifacts/`: `secret-baseline-report-v1.json`, `sast-baseline-report-v1.json`, and `pnpm-audit-baseline-report-v1.json`. Operators must treat these artifacts as safe-to-upload CI evidence because they exclude matched source, secret material, paths, raw advisories, endpoints, stack traces, consumer data, provider/carrier refs, and error text. A failing artifact identifies only aggregate rule or severity counts; investigation must be performed locally by an authorized engineer without copying suspected secrets or PII into tickets or logs. Explicitly synthetic fixture placeholders are the only local allowances and must not be broadened into path-wide suppressions.
+
+These baselines satisfy T101 only. They do not complete T908 and do not replace an independent penetration test or security assessment.

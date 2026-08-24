@@ -19,7 +19,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 
 ## Phase 1 — Repository and domain kernel
 - [x] T100 Create runtime repository and link this specs repo as canonical requirement source. — Satisfied by the intentionally colocated runtime/spec layout and canonical read order; a second repository was not created.
-- [ ] T101 Establish CI: typecheck, unit tests, lint, secret scan, dependency scan, SAST baseline. — PARTIAL: typecheck, tests, lint, deterministic dependency verification, build, database rebuild, pgTAP, DB lint, generated-type drift checks, and canonical scenario artifacts are implemented; secret scan/dependency-vulnerability scan/SAST baseline remain.
+- [x] T101 Establish CI: typecheck, unit tests, lint, secret scan, dependency scan, SAST baseline. — COMPLETE: CI runs typecheck, tests, lint, deterministic dependency verification, build, database rebuild, pgTAP, DB lint, generated-type drift checks, canonical scenario artifacts, repository-native secret scan, repository-native SAST baseline, and production dependency audit baseline with strict aggregate artifact uploads. T908 remains separate and incomplete.
 - [x] T102 Implement environment separation: local/CI/staging/production.
 - [x] T103 Implement canonical IDs and timestamps.
 - [x] T104 Implement QuoteCase state machine.
