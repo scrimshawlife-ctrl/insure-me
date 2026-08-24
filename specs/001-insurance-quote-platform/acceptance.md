@@ -130,6 +130,9 @@ An MFA-authenticated `POLICY_ADMIN` MAY create immutable draft notice versions, 
 ### A-040 Policy inspection safety
 An MFA-authenticated `POLICY_ADMIN` MAY inspect exact data-use rule versions for one active agency; an MFA-authenticated `POLICY_ADMIN` or `PRIVACY_ADMIN` MAY inspect exact retention policy versions for one active agency. Responses MUST preserve configured flags, unresolved durations, authority references, certification state, and lifecycle times without inference or secret material, and each successful inspection MUST emit an AuditEvent. Both tables MUST deny direct anonymous/authenticated reads, both APIs MUST be read-only and non-cacheable, and insufficient permission, AAL1, cross-agency data, or multiple eligible agency contexts MUST fail closed.
 
+### A-041 Reliability contract
+`reliability-v1` MUST define rolling-window availability, latency, asynchronous claim-time, and regulated-action audit-atomicity SLOs with deterministic eligibility and error-budget rules. It MUST define zero-loss/one-hour application recovery and a maximum five-minute RPO/four-hour RTO for database, queue, and identity state, plus an ordered fail-closed recovery sequence. Production readiness MUST remain `UNVERIFIED` until monitoring demonstrates the SLIs and T902 proves restore capability on the selected hosting plans. Provider/carrier outcomes MUST remain visible dependency signals and MUST NOT be misclassified as core platform success or silently excluded when the platform itself fails to dispatch, persist, reconcile, or present them.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

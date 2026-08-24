@@ -64,6 +64,7 @@ Service principals:
 - structured event logging.
 - opaque identifiers only in ordinary telemetry.
 - prohibited PII/report-content scanning in CI.
+- `src/infrastructure/config/reliability.ts` is the machine-readable `reliability-v1` SLO, RPO/RTO, and recovery-order contract; monitoring and recovery tooling must import or validate against it rather than redefining targets.
 
 ## Repository layout
 

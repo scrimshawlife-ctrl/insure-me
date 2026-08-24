@@ -14,6 +14,7 @@ Before any live-stage deployment:
 - provider and carrier adapters are non-synthetic and independently certified;
 - all secrets are configured in the deployment secret store, not the repository;
 - database backups and rollback procedures are verified;
+- monitoring proves `reliability-v1` SLI computation and the selected plans can meet its RPO/RTO targets;
 - incident-response ownership is assigned.
 
 ## Environment mapping
@@ -110,3 +111,16 @@ Before setting `DEPLOYMENT_STAGE=production`:
 - production decision reference is recorded.
 
 After promotion, verify readiness immediately and run one controlled smoke transaction before expanding traffic.
+
+## Reliability gate
+
+Before pilot traffic, operators must attach evidence that:
+
+- core availability, core latency, async claim time, and audit atomicity are measured with the canonical eligibility rules;
+- 50%, 75%, and 100% error-budget alerts route to the named service and incident owners;
+- PostgreSQL point-in-time recovery and encrypted backups support a five-minute RPO;
+- the isolated T902 drill restores PostgreSQL, queues, identity access, and the exact application artifact within four hours, with the application artifact restored within one hour;
+- restoration follows the canonical dependency order and includes integrity, tenant-isolation, policy-version, idempotency, and audit checks;
+- provider/carrier bindings remain disabled until independently revalidated after recovery.
+
+Missing or stale evidence keeps production readiness `UNVERIFIED`; an endpoint being reachable is not sufficient recovery proof.

@@ -132,7 +132,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T811 Build data-use/retention policy inspection admin surfaces.
 
 ## Phase 9 — Operations and production hardening
-- [ ] T900 Define SLOs, RPO, RTO.
+- [x] T900 Define SLOs, RPO, RTO.
 - [ ] T901 Load/performance test.
 - [ ] T902 Restore/backup drill.
 - [ ] T903 Provider outage drill.

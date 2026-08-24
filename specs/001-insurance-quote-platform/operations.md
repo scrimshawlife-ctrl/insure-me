@@ -3,6 +3,38 @@
 ## Operational objective
 Run Insure Me as a high-sensitivity insurance workflow service with clear ownership, observable dependencies, controlled data lifecycle, tested recovery, and reversible integrations.
 
+## Reliability contract
+
+`reliability-v1` defines initial pilot/production targets. These are release requirements, not evidence that an undeployed environment currently meets them. A production launch remains blocked until monitoring and recovery rehearsals prove the targets for the selected Vercel and Supabase plans.
+
+### Measurement rules
+
+- SLO windows are rolling 30-day windows in UTC.
+- Eligible traffic excludes approved maintenance and synthetic probes.
+- Platform 5xx responses and timeouts count against availability. Valid 4xx policy, authentication, validation, not-found, conflict, and rate-limit responses do not.
+- Provider/carrier business outcomes and remote latency are measured by capability binding and adapter version. They do not count as core platform failures when the platform records and presents their correct explicit state.
+- A platform failure to dispatch, persist, reconcile, or present a dependency outcome counts against the applicable platform SLO.
+- Telemetry must use opaque identifiers and must not contain raw PII, report content, credentials, authority-reference contents, or notice bodies.
+
+### Service-level objectives
+
+| SLI | Target | Threshold | Failure condition |
+|---|---:|---:|---|
+| Core request availability | 99.9% | rolling 30 days | eligible request returns unplanned 5xx or times out |
+| Core request latency | 95% | 750 ms | eligible request exceeds threshold, excluding external provider/carrier network wait |
+| Async work claim time | 99% | 5 minutes | eligible queued item remains unclaimed; suspended bindings and legal-hold-blocked work are excluded |
+| Regulated-action audit atomicity | 100% | synchronous | successful regulated action lacks its required atomic AuditEvent |
+
+At 99.9% monthly availability, the operational error budget is 43 whole minutes per 30-day window. The monitor may calculate the exact budget as 43.2 minutes; runbooks use 43 minutes to avoid overstating tolerance.
+
+### Error-budget policy
+
+- At 50% budget consumption before day 15, the service owner reviews burn rate and active changes.
+- At 75% consumption in any window, pause nonessential production changes affecting the breached service.
+- At 100% consumption, block ordinary production releases until the incident owner accepts an emergency fix or a recovery review confirms control.
+- Any audit-atomicity miss, cross-agency access, integrity failure, or unauthorized regulated-data disclosure is an immediate incident and release freeze regardless of remaining availability budget.
+- Dependency SLO breaches trigger the applicable provider/carrier kill switch and degraded-state runbook; they are never hidden by the core availability calculation.
+
 ## Service ownership
 Before production, assign named owners for:
 - product operations;
@@ -99,15 +131,38 @@ Notice release evidence MUST identify the exact tenant/agency, notice key/versio
 - no ad-hoc production database copies to developer laptops.
 
 ## Disaster recovery
-Before launch define:
-- RPO;
-- RTO;
+Before launch verify:
+- the `reliability-v1` RPO/RTO targets below;
 - dependency recovery order;
 - DNS/edge recovery;
 - identity fallback policy;
 - database restore process;
 - secret restoration/rotation;
 - provider/carrier revalidation after recovery.
+
+### Recovery objectives
+
+| Component | RPO | RTO | Required recovery source |
+|---|---:|---:|---|
+| Application and versioned configuration | 0 minutes | 1 hour | immutable build artifact and version-controlled configuration |
+| PostgreSQL system of record, including audit evidence | 5 minutes | 4 hours | encrypted backup plus point-in-time recovery |
+| Durable queues and workers | 5 minutes | 4 hours | restored PostgreSQL queue state plus idempotent replay |
+| Workforce and consumer identity | 5 minutes | 4 hours | Supabase Auth recovery capability plus session-revocation controls |
+
+RPO is the maximum acceptable committed-data loss measured from the incident boundary. RTO is the maximum time to restore a verified controlled service, not merely to make an endpoint respond. These targets require plan capability, configuration evidence, and T902 restore-drill proof before production; absent evidence is `UNVERIFIED` and blocks launch.
+
+### Recovery order
+
+1. Contain the incident, block public traffic if scope is unclear, and freeze live provider/carrier execution.
+2. Restore PostgreSQL to the selected recovery point and verify schema, tenant boundaries, integrity hashes, AuditEvents, policy versions, and idempotency records.
+3. Restore identity capability; revoke or invalidate sessions whose safety is uncertain.
+4. Restore the exact verified application artifact and versioned configuration.
+5. Verify readiness, authorization, audit atomicity, notice/data-use/retention configuration, and privacy controls.
+6. Resume durable workers in observe-only or bounded batches; reconcile claimed and ambiguous work before replay.
+7. Revalidate every enabled provider and CarrierProgram independently.
+8. Run a controlled smoke transaction, record recovery evidence, and resume traffic only under incident-owner authority.
+
+DNS/edge recovery, secret rotation, and third-party revalidation run in parallel only when they cannot violate this dependency order. Lost secret material has no data RPO; it must be reissued or rotated, never reconstructed from logs or backups.
 
 ## Provider kill switch
 Each real provider capability MUST have an independently operable kill switch. Disabling a capability MUST:
