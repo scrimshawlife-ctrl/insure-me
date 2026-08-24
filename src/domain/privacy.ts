@@ -36,6 +36,37 @@ export interface PrivacyRightsExecutionPolicyDescriptor {
   certificationState: 'SYNTHETIC' | 'APPROVED';
 }
 
+export type PrivacyPropagationAction =
+  | 'CORRECT'
+  | 'DELETE'
+  | 'RESTRICT'
+  | 'OPT_OUT';
+
+export type PrivacyPropagationOutcome =
+  | 'COMPLETED'
+  | 'RETRYABLE_FAILURE'
+  | 'PERMANENT_FAILURE';
+
+export interface PrivacyPropagationAdapterDescriptor {
+  adapterId: string;
+  adapterVersion: string;
+  policyVersion: string;
+  certificationState: 'SYNTHETIC' | 'CERTIFIED';
+}
+
+export interface PrivacyPropagationAdapter {
+  descriptor(): PrivacyPropagationAdapterDescriptor;
+  propagate(input: {
+    privacyRequestId: string;
+    propagationTargetId: string;
+    action: PrivacyPropagationAction;
+  }): Promise<{
+    outcome: PrivacyPropagationOutcome;
+    evidenceRef: string;
+    reasonCodes: string[];
+  }>;
+}
+
 export interface PrivacyExportPolicyDescriptor {
   policyVersion: string;
   exportSchemaVersion: string;

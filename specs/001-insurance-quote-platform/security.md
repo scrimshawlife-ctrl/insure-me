@@ -90,6 +90,7 @@ AuditEvent MUST cover:
 - consent/notice actions;
 - privacy requests;
 - privacy-rights execution preparation, correction settlement, exemptions, restrictions, and disposition work;
+- downstream privacy propagation preparation, adapter binding, attempts, failures, and completion;
 - carrier submissions;
 - role/config changes;
 - secret/integration changes;
