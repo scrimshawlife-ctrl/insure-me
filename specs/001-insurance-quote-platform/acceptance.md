@@ -106,6 +106,9 @@ Given a verified privacy request, discovery MUST be idempotent, tenant/agency sc
 ### A-032 Privacy rights execution safety
 Given a verified and completed discovery, correction MUST update only requester-maintained protected identity data and retain no plaintext change evidence. Deletion MUST apply a processing restriction and produce explicit disposition/exemption work without deleting audit or external-source evidence. Restriction/opt-out MUST create a person-scoped enforcement record. All actions MUST be tenant-scoped, idempotent, atomic, audited, inaccessible to direct anonymous/authenticated writes, and remain `IN_PROGRESS` while deletion or downstream propagation work is pending.
 
+### A-033 Downstream privacy propagation safety
+Given a rights execution with downstream work, each affected ExternalRequest MUST map to one stable tenant-scoped target. Only an exact active adapter/policy binding may dispatch it. Missing bindings remain blocked; retry and settlement are idempotent and append-only; failures remain visible without leaking vendor detail to the requester. Correction/restriction/opt-out may close only when all required targets complete, while deletion remains open for retention disposition. Direct anonymous/authenticated writes to bindings, targets, runs, and attempts MUST be denied.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

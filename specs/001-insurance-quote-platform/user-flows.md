@@ -65,6 +65,8 @@ If external data conflicts with user input:
 9. Other actions continue through the approved correction/deletion/restriction workflow.
 10. Corrections apply only to requester-maintained protected data; source-backed disputes are routed separately.
 11. Deletion/restriction shows processing state while exemption, retention, or downstream work remains, without promising immediate erasure.
+12. Downstream targets remain opaque to the requester; status shows aggregate completion only.
+13. Failed or unconfigured propagation stays in progress for controlled retry or compliance review.
 
 ## Agent workspace
 ### Queue

@@ -254,3 +254,28 @@ export function privacyRightsExecutionRequestHash(input: {
     environment.IDENTITY_LOOKUP_PEPPER,
   );
 }
+
+export function privacyPropagationRequestHash(input: {
+  privacyRequestId: string;
+  propagationTargetId: string;
+  idempotencyKey: string;
+  adapterId: string;
+  adapterVersion: string;
+  policyVersion: string;
+  action: string;
+}): string {
+  const environment = getIdentityProtectionEnvironment();
+  return lookupHash(
+    [
+      'privacy-propagation-v1',
+      input.privacyRequestId,
+      input.propagationTargetId,
+      input.idempotencyKey,
+      input.adapterId,
+      input.adapterVersion,
+      input.policyVersion,
+      input.action,
+    ].join('|'),
+    environment.IDENTITY_LOOKUP_PEPPER,
+  );
+}

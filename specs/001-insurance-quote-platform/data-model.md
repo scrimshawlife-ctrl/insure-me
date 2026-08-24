@@ -398,6 +398,15 @@ Append-only `PrivacyRightsAction` rows classify each affected data category as `
 ### PrivacyProcessingRestriction
 Person-scoped enforcement state for `ALL_PROCESSING`, `SALE_SHARING`, or `TARGETED_MARKETING`, linked to the originating request and policy version. Active restrictions MUST be checked by later processing/provider boundaries; ordinary Data API roles cannot write them.
 
+### PrivacyPropagationBinding
+Versioned, tenant/agency and provider-binding-scoped configuration for a downstream privacy adapter. It records adapter ID/version, policy version, certification state, and effective/retired timestamps. Provider availability does not imply privacy-propagation capability; a missing or suspended binding fails closed.
+
+### PrivacyPropagationRun / PrivacyVendorPropagation
+`PrivacyPropagationRun` records one idempotent orchestration attempt. `PrivacyVendorPropagation` is the stable target for one affected ExternalRequest and rights execution, with provider-neutral action, target status, attempt count, opaque evidence reference, and reason codes. Target rows MUST never expose vendor identity or references to the requester.
+
+### PrivacyVendorPropagationAttempt
+Append-only settlement evidence containing target/run references, keyed request hash, outcome, exact adapter/policy versions, opaque vendor evidence reference, categorized reason codes, and timestamp. It MUST NOT contain report payloads, corrected values, identity data, credentials, or raw vendor responses.
+
 ### RetentionPolicy
 Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 

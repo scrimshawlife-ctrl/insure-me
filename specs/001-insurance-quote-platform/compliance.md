@@ -184,6 +184,8 @@ The system MUST NOT promise deletion when law, contract, fraud/security, or audi
 
 Execution MUST distinguish immediate local correction/restriction from destructive disposition and downstream propagation. Local correction applies only to requester-maintained data; source-backed reports remain unchanged and must route through the responsible dispute process. A deletion request creates explicit delete-queued and exemption evidence, with processing restricted while retention/legal-hold and downstream completion are resolved.
 
+Downstream completion requires provider-neutral, versioned evidence for every affected target. The system must preserve blocked, retryable-failure, permanent-failure, and completed states rather than treating dispatch as completion. A production propagation binding requires the applicable vendor contract, role, correction/deletion channel, retention terms, and evidence semantics to be approved.
+
 Record discovery MUST be tenant/agency scoped and must not reveal candidate identities when matching is ambiguous. Access exports MUST use an approved disclosure policy, be encrypted at rest, preserve integrity/version evidence, and use an authenticated secure-delivery path. Synthetic disclosure policy does not establish production legal approval.
 
 ## FCRA/adverse-action workflow

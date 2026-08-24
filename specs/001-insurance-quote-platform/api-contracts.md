@@ -249,6 +249,13 @@ The response exposes only workflow state, `executionOutcome` (`APPLIED | PARTIAL
 
 Missing, malformed, unknown, cross-tenant, wrong-state, ambiguous-match, mismatched-token, and incompatible request-type inputs MUST share the generic not-found response. Preparation, protected correction settlement, disposition creation, restriction creation, and workflow transitions MUST be atomic and audited.
 
+### `POST /v1/privacy/requests/{id}/propagation`
+Creates or idempotently replays downstream propagation work after a T803 execution recorded `PROPAGATION_PENDING`. The caller supplies the request status token and UUID `idempotencyKey`; the response contains only requester-safe workflow state, `propagationComplete`, and counts by target status. Vendor identities, provider request references, adapter configuration, evidence references, and failure detail MUST NOT be returned.
+
+Each affected external request becomes one tenant-scoped propagation target. Dispatch requires an active, versioned `PrivacyPropagationBinding` whose adapter ID/version and policy version exactly match the server configuration. Missing, suspended, or mismatched bindings remain `BLOCKED`; the service MUST NOT infer a vendor capability or silently substitute an adapter. Each attempt is append-only, idempotent, reason-coded, and stores only an opaque vendor evidence reference.
+
+`COMPLETED` means the downstream target supplied accepted completion evidence under the configured adapter contract. Retryable and permanent failures remain explicit and keep the PrivacyRequest `IN_PROGRESS`. When every required target completes, correction/restriction/opt-out requests may close; deletion remains `IN_PROGRESS` while T805 disposition work is pending. The synthetic adapter is allowed only with the explicit synthetic environment configuration; pilot and production fail closed until certified live bindings exist.
+
 Administrative completion routes MUST require elevated permissions and evidence.
 
 ## Internal provider adapter interface
