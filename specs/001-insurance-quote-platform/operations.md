@@ -236,6 +236,11 @@ CI executes the gate with `if: always()` and uploads `security-findings-disposit
 
 A `READY_FOR_DISPOSITION_REVIEW` verdict proves only that the repository can intake a sanitized aggregate disposition packet and apply the fail-closed reconciliation contract. The synthetic CI fixture proves validator shape only. T908 and T909 remain `UNVERIFIED`; the verdict does not prove an assessment occurred, remediation was effective, production security is certified, or launch is approved.
 
+## Legal/compliance launch-approval readiness
+T911 readiness runs `pnpm legal-compliance:approval-readiness` against sanitized aggregate metadata bound to the exact selected deployment and TenantConfiguration ID, tenant, agency, and configuration version. It requires the production compliance-gate approval domains, the canonical compliance/control domains, and resolved selected-deployment decision metadata for Q-001 through Q-010. Only approval-domain and open-question records carry opaque owner/authority/evidence references; control-domain records carry opaque evidence references.
+
+CI runs and uploads `legal-compliance-approval-readiness-report-v1.json` on success or failure with `if: always()` and `if-no-files-found: error`. The exact top-level allowlist is `schemaVersion`, `contractVersions`, `selectedDeployment`, `approvalDomains`, `controlDomains`, `openQuestionBlockers`, `externalEvidence`, `timing`, `errorCode`, and `verdict`. Recursive forbidden raw-evidence keys fail closed, and unsafe references are emitted as `UNVERIFIED` on every blocked path. `READY_FOR_APPROVAL_REVIEW` proves validator shape only. It does not claim legal review, approval, authority, a deadline, certification, or launch authorization; T911 and all real approvals remain `UNVERIFIED`.
+
 ## Provider kill switch
 Each real provider capability MUST have an independently operable kill switch. Disabling a capability MUST:
 - block new orders;

@@ -57,6 +57,19 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Run legal/compliance approval readiness gate
+        if: always()
+        run: pnpm legal-compliance:approval-readiness
+        env:
+          LEGAL_COMPLIANCE_APPROVAL_REPORT_PATH: artifacts/legal-compliance-approval-readiness-report-v1.json
+      - name: Upload legal/compliance approval readiness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legal-compliance-approval-readiness-report-v1
+          path: artifacts/legal-compliance-approval-readiness-report-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Run repository secret baseline scanner
         id: secret_baseline
         if: always()
