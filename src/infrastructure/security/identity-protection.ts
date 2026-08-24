@@ -235,3 +235,22 @@ export function privacyDiscoveryRequestHash(input: {
     environment.IDENTITY_LOOKUP_PEPPER,
   );
 }
+
+export function privacyRightsExecutionRequestHash(input: {
+  privacyRequestId: string;
+  idempotencyKey: string;
+  policyVersion: string;
+  corrections: Record<string, unknown> | null;
+}): string {
+  const environment = getIdentityProtectionEnvironment();
+  return lookupHash(
+    [
+      'privacy-rights-execution-v1',
+      input.privacyRequestId,
+      input.idempotencyKey,
+      input.policyVersion,
+      JSON.stringify(input.corrections),
+    ].join('|'),
+    environment.IDENTITY_LOOKUP_PEPPER,
+  );
+}
