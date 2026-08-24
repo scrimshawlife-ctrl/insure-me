@@ -137,6 +137,9 @@ Deletion remains `IN_PROGRESS` while a policy, interval, hold signal, review, fa
 ### Legal holds
 An MFA-authenticated privacy or policy administrator selects one tenant-scoped Person, QuoteCase, or PrivacyRequest, provides authority/evidence references and categorized reasons, and places the hold idempotently. Matching pending disposition becomes blocked. A later release requires separate authority/evidence and preserves the full lifecycle; the operator must wait for a new scheduler evaluation before any destructive disposition can proceed.
 
+### Adverse-action support
+An MFA-authenticated policy administrator records a responsible party's determination against one CarrierDecision and selects the exact consumer reports that contributed. The workflow captures configured owner, CRA/dispute references, authority/evidence, and reasons without making its own underwriting or legal determination. The administrator then records handoff to the responsible owner. Notice creation and delivery remain pending for T808.
+
 ### Audit
 Search by QuoteCase, actor, event type, provider, result, time range. Sensitive details remain permission-filtered.
 

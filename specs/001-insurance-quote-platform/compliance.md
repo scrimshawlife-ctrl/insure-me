@@ -204,6 +204,8 @@ Record discovery MUST be tenant/agency scoped and must not reveal candidate iden
 
 MVP MUST NOT infer an adverse action solely from its own readiness status.
 
+T807 records the responsible party's determination and support handoff only. Each case MUST bind one CarrierDecision to exact contributing ExternalReports, preserve CRA identity and dispute-route references, snapshot the CarrierProgram ownership-policy version, and retain append-only evidence. A carrier status, reason code, premium, report value, or readiness issue MUST NOT automatically create a case. T808 separately owns approved notice generation and delivery evidence.
+
 ## Vendor due diligence requirements
 Before production provider use:
 - contract/DPA/service-provider terms reviewed;
