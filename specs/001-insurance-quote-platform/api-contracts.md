@@ -177,7 +177,7 @@ Request:
 }
 ```
 
-Tenant/agency context MUST be resolved from trusted host configuration. Requester contact data MUST be encrypted before persistence. Intake MUST NOT search for or attach Person or QuoteCase records; matching begins only in the T801 identity-verification workflow.
+Tenant/agency context MUST be resolved from trusted host configuration. Requester contact data MUST be encrypted before persistence. Intake MUST NOT search for or attach Person or QuoteCase records. T801 establishes identity-verification evidence; controlled record matching and discovery remain T802.
 
 Successful response (`202`):
 ```json
@@ -196,6 +196,23 @@ The status token is a high-entropy requester credential. It MUST be returned onl
 Returns requester-safe request status.
 
 The caller MUST provide the status token in `X-Privacy-Request-Token`. Missing, malformed, unknown, cross-tenant, and mismatched credentials MUST produce the same generic not-found response. Before identity verification, the response MUST contain only request workflow state and MUST NOT contain person, quote, matching, exemption, retention, or deletion-eligibility data.
+
+### `POST /v1/privacy/requests/{id}/identity-verification`
+Submits a requester assertion to the configured provider-neutral privacy identity verifier. The caller MUST provide the status token in `X-Privacy-Request-Token` and a new UUID idempotency key in the request body.
+
+Synthetic request:
+```json
+{
+  "assertion": "SYNTHETIC-PRIVACY-VERIFIED",
+  "idempotencyKey": "00000000-0000-4000-8000-000000000000"
+}
+```
+
+The synthetic assertion is permitted only when `DEPLOYMENT_STAGE=synthetic` and the synthetic verifier is explicitly configured. Pilot and production MUST fail closed until an approved verifier adapter and identity-verification policy are configured.
+
+The verifier result MUST be settled through a service-role-only atomic operation that records adapter/version, policy version, opaque evidence reference, categorized reason codes, attempt number, outcome, and AuditEvent. Assertions and raw identity data MUST NOT be stored in verification-attempt records or logs.
+
+Successful verification changes only identity-verification workflow state. It MUST NOT search for or attach Person or QuoteCase records. Record discovery begins in T802.
 
 Administrative completion routes MUST require elevated permissions and evidence.
 

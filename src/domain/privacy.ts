@@ -22,6 +22,29 @@ export type PrivacyIdentityState =
   | 'FAILED'
   | 'EXPIRED';
 
+export type PrivacyIdentityVerificationOutcome = 'VERIFIED' | 'FAILED';
+
+export interface PrivacyIdentityVerifierDescriptor {
+  adapterId: string;
+  adapterVersion: string;
+  policyVersion: string;
+  certificationState: 'SYNTHETIC' | 'CERTIFIED';
+}
+
+export interface PrivacyIdentityVerificationResult {
+  outcome: PrivacyIdentityVerificationOutcome;
+  evidenceRef: string;
+  reasonCodes: string[];
+}
+
+export interface PrivacyIdentityVerifier {
+  descriptor(): PrivacyIdentityVerifierDescriptor;
+  verify(input: {
+    privacyRequestId: string;
+    assertion: string;
+  }): Promise<PrivacyIdentityVerificationResult>;
+}
+
 export interface PrivacyRequest {
   privacyRequestId: string;
   publicReference: string;

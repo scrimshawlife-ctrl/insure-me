@@ -123,3 +123,26 @@ export function protectPrivacyRequester(
     statusTokenHash: createHash('sha256').update(statusToken).digest('hex'),
   };
 }
+
+export function privacyVerificationAttemptHash(input: {
+  privacyRequestId: string;
+  assertion: string;
+  idempotencyKey: string;
+  adapterId: string;
+  adapterVersion: string;
+  policyVersion: string;
+}): string {
+  const environment = getIdentityProtectionEnvironment();
+  return lookupHash(
+    [
+      'privacy-identity-verification-v1',
+      input.privacyRequestId,
+      input.assertion,
+      input.idempotencyKey,
+      input.adapterId,
+      input.adapterVersion,
+      input.policyVersion,
+    ].join('|'),
+    environment.IDENTITY_LOOKUP_PEPPER,
+  );
+}

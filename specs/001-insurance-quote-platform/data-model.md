@@ -354,6 +354,19 @@ Minimum fields:
 
 Privacy intake contact data belongs in a separate protected `PrivacyRequestIntakeEvidence` record containing encrypted requester data, keyed lookup hashes, request/idempotency evidence, and a one-way status-token hash. Public intake MUST NOT populate matched Person or QuoteCase relationships.
 
+### PrivacyIdentityVerificationAttempt
+Append-only evidence for one provider-neutral verification attempt.
+
+Minimum fields:
+- privacy request and tenant/agency references;
+- idempotency key and keyed request hash;
+- attempt number and outcome;
+- verifier adapter ID/version and policy version;
+- opaque evidence reference and categorized reason codes;
+- attempted timestamp.
+
+The record MUST NOT store the requester assertion, verification code, or raw identity attributes. Successful T801 verification does not establish a canonical Person or QuoteCase match.
+
 ### RetentionPolicy
 Versioned disposition rule by data class, jurisdiction, provider contract, tenant role, and legal hold state.
 
