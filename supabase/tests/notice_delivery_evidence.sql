@@ -1,5 +1,5 @@
 begin;
-select plan(27);
+select plan(28);
 
 insert into public.agencies (agency_id, tenant_id, legal_name, display_name) values
 ('f1000000-0000-0000-0000-000000000001','f0000000-0000-0000-0000-000000000001','Notice Delivery Agency','Notice Delivery');
@@ -44,6 +44,7 @@ select is(has_table_privilege('authenticated','public.adverse_action_notice_deli
 select is(has_table_privilege('authenticated','public.adverse_action_notice_delivery_attempts','UPDATE'),false,'attempts cannot be rewritten directly');
 select is(has_function_privilege('authenticated','public.prepare_adverse_action_notice_delivery(uuid,uuid,text,public.notice_delivery_channel,text,text,text,text,public.notice_delivery_certification_state,uuid,text)','EXECUTE'),true,'authenticated may call checked preparation RPC');
 select is(has_function_privilege('anon','public.settle_adverse_action_notice_delivery(uuid,public.notice_delivery_outcome,text,text,text,text,text[],uuid,text)','EXECUTE'),false,'anonymous cannot settle delivery');
+select ok((select position('has_permission' in qual) > 0 from pg_policies where schemaname='public' and tablename='adverse_action_notice_deliveries' and policyname='adverse_action_notice_deliveries_workforce_select'),'delivery reads require agency-scoped policy administration');
 
 set local role authenticated;
 select set_config('request.jwt.claims',json_build_object('sub','f9000000-0000-0000-0000-000000000009','role','authenticated','app_metadata',json_build_object('active_tenant_id','f0000000-0000-0000-0000-000000000001'),'aal','aal2')::text,true);

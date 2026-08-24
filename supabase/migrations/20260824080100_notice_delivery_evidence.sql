@@ -155,6 +155,11 @@ begin
     or p_request_hash !~ '^[0-9a-f]{64}$' then
     raise exception using errcode = '22023', message = 'NOTICE_DELIVERY_INPUT_INVALID';
   end if;
+  -- Serialize this tenant/agency key so two first-time calls cannot race the
+  -- unique constraint and turn an idempotent replay into a duplicate-key error.
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(
+    concat_ws('|', v_case.tenant_id::text, v_case.agency_id::text,
+      p_idempotency_key::text), 0));
   select * into v_existing from public.adverse_action_notice_deliveries
     where tenant_id = v_case.tenant_id and agency_id = v_case.agency_id
       and idempotency_key = p_idempotency_key;
@@ -339,10 +344,10 @@ alter table public.adverse_action_notice_deliveries enable row level security;
 alter table public.adverse_action_notice_delivery_attempts enable row level security;
 create policy adverse_action_notice_deliveries_workforce_select
   on public.adverse_action_notice_deliveries for select to authenticated
-  using (private.has_tenant_membership(tenant_id));
+  using (private.has_permission(tenant_id, agency_id, 'POLICY_ADMIN'));
 create policy adverse_action_notice_delivery_attempts_workforce_select
   on public.adverse_action_notice_delivery_attempts for select to authenticated
-  using (private.has_tenant_membership(tenant_id));
+  using (private.has_permission(tenant_id, agency_id, 'POLICY_ADMIN'));
 revoke all on public.adverse_action_notice_deliveries from anon, authenticated;
 revoke all on public.adverse_action_notice_delivery_attempts from anon, authenticated;
 grant select on public.adverse_action_notice_deliveries to authenticated;
