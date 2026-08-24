@@ -128,6 +128,21 @@ export interface LegalHold {
   releasedAt?: string;
 }
 
+export type AdverseActionOwnerType = 'AGENCY' | 'CARRIER' | 'OTHER';
+export type AdverseActionCaseStatus = 'NOTICE_INPUTS_READY' | 'HANDED_OFF';
+
+export interface AdverseActionCase {
+  adverseActionCaseId: string;
+  quoteCaseId: string;
+  carrierDecisionId: string;
+  ownerType: AdverseActionOwnerType;
+  ownerRef: string;
+  ownershipPolicyVersion: string;
+  status: AdverseActionCaseStatus;
+  determinedAt: string;
+  handedOffAt?: string;
+}
+
 export type RetentionRunStatus =
   | 'PREPARED'
   | 'IN_PROGRESS'

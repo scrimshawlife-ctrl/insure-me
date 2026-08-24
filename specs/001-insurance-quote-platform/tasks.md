@@ -125,7 +125,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T804 Implement downstream vendor propagation tracking.
 - [x] T805 Build retention scheduler/disposition worker.
 - [x] T806 Implement legal hold.
-- [ ] T807 Build adverse-action support workflow.
+- [x] T807 Build adverse-action support workflow.
 - [ ] T808 Build notice delivery evidence.
 - [ ] T809 Build compliance evidence export.
 - [ ] T810 Build notice/version administration.

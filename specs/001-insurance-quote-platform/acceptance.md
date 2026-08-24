@@ -115,6 +115,9 @@ Given queued deletion categories, one bounded idempotent run MUST resolve only t
 ### A-035 Legal-hold lifecycle safety
 An MFA-authenticated `PRIVACY_ADMIN` or `POLICY_ADMIN` MAY place or release a tenant-scoped Person, QuoteCase, or PrivacyRequest hold only with explicit opaque authority/evidence references, reason codes, and idempotency evidence. Placement MUST block matching pending destructive work and remain effective at T805's final mutation check. Release MUST be append-only and audited, MUST NOT erase hold history, and MUST require scheduler reevaluation rather than automatically resuming destructive work. Cross-tenant scope, missing authority/evidence, direct table mutation, and mismatched idempotent replay MUST fail closed.
 
+### A-036 Adverse-action support safety
+An MFA-authenticated `POLICY_ADMIN` MAY record a responsible party's adverse-action determination only against a tenant-scoped CarrierDecision and exact contributing ExternalReports. The case MUST snapshot configured ownership-policy version, explicit owner, opaque authority/evidence, CRA identity and dispute-route references, reason codes, and idempotency evidence. The platform MUST NOT infer a determination from readiness, report data, or carrier status. Handoff MUST be a separate append-only, audited command and MUST NOT be represented as notice delivery. Cross-case, cross-tenant, missing-report, direct-mutation, and mismatched-replay attempts MUST fail closed.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

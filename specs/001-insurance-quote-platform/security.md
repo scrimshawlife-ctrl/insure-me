@@ -93,6 +93,7 @@ AuditEvent MUST cover:
 - downstream privacy propagation preparation, adapter binding, attempts, failures, and completion;
 - retention scheduling, policy resolution, blocked/held work, disposition attempts, and completion;
 - legal-hold placement, scope, authority/evidence references, release, and post-release reevaluation;
+- adverse-action determination authority, exact report/CRA provenance, ownership-policy snapshot, and handoff evidence;
 - carrier submissions;
 - role/config changes;
 - secret/integration changes;

@@ -269,6 +269,12 @@ Releases or idempotently replays release of one active hold. Release requires ne
 
 Administrative completion routes MUST require elevated permissions and evidence.
 
+### `POST /v1/agent/adverse-actions`
+Records or idempotently replays a responsible party's adverse-action determination. The MFA-authenticated caller MUST have `POLICY_ADMIN`. Input identifies one QuoteCase, its exact CarrierDecision, an explicit owner type/reference, opaque authority/evidence, reason codes, and one or more exact ExternalReports with CRA identity, dispute route, and contribution-basis references. The server snapshots the CarrierProgram notice-ownership policy version. It MUST NOT derive the determination from readiness, report contents, or decision status.
+
+### `POST /v1/agent/adverse-actions/{id}/handoff`
+Records or idempotently replays handoff to the configured responsible owner with an opaque recipient reference, evidence reference, and reason codes. Handoff is not notice generation or delivery; T808 owns delivery evidence. Unknown, cross-tenant, unauthorized, already-handed-off with different evidence, and mismatched-replay requests fail closed.
+
 ## Internal provider adapter interface
 
 ```ts
