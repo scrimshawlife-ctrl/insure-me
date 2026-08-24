@@ -32,6 +32,7 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm security:baseline",
     "security-assessment:readiness": "node scripts/security/security-assessment-readiness.mjs",
     "security-findings:disposition-readiness": "node scripts/security/security-findings-disposition-readiness.mjs",
+    "legal-compliance:approval-readiness": "node scripts/compliance/legal-compliance-approval-readiness.mjs",
     "security:secrets": "node scripts/security/repository-baseline-scanner.mjs secret",
     "security:sast": "node scripts/security/repository-baseline-scanner.mjs sast",
     "security:dependencies": "node scripts/security/pnpm-audit-baseline.mjs",

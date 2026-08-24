@@ -39,6 +39,7 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-024f Independent security assessment readiness | sanitized assessor-packet intake gate bound to selected deployment | T908 | A-049 |
 | FR-024g Repository-native security scanner baselines | tracked source/config secret scan, SAST baseline, production dependency audit aggregate wrapper with PII-free artifacts | T101 | A-050 |
 | FR-024h Critical/high findings disposition readiness | sanitized aggregate disposition gate with exact T908 deployment/assessor binding, critical/high baseline reconciliation, finding-register binding, remediation coverage, and independent retest/closure evidence | T909 | A-051 |
+| FR-024i Legal/compliance launch-approval readiness | sanitized aggregate approval-readiness gate with exact selected-deployment/TenantConfiguration binding, canonical compliance/control domains, and Q-001 through Q-010 decision blockers | T911 | A-052 |
 | FR-025 Synthetic fixtures | deterministic fixture library | T115, T405-T409 | A-016-A-021 |
 | FR-026 Tenant/branding configuration | `TenantConfiguration` | T105, T312 | A-005, A-027, A-028 |
 | FR-027 Carrier capability registry | `Carrier`, `CarrierProgram`, capability descriptor | T112, T701, T707 | A-018, A-028 |

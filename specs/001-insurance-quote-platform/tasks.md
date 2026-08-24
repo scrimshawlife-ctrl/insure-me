@@ -143,7 +143,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [ ] T908 Penetration test/independent security assessment. Readiness intake for sanitized independent-assessment metadata is implemented and produces `security-assessment-readiness-report-v1.json`, but T908 remains unchecked because no independent assessor has completed an assessment against a selected deployment.
 - [ ] T909 Resolve all critical/high findings. Findings-disposition readiness intake is implemented for sanitized aggregate metadata with exact T908 deployment/assessor binding, critical/high baseline reconciliation, remediation coverage, and independent-retest closure evidence, but T909 remains unchecked until a real T908 assessment exists and every resulting critical/high finding has externally controlled remediation evidence and independent closure verification.
 - [x] T910 Run full P0 acceptance suite against synthetic providers and StubCarrierAdapter.
-- [ ] T911 Obtain legal/compliance launch approval for the selected deployment.
+- [ ] T911 Obtain legal/compliance launch approval for the selected deployment. A fail-closed sanitized aggregate readiness intake and CI artifact now cover A-052 with exact selected-deployment/TenantConfiguration binding, canonical domains, and Q-001 through Q-010 blockers; T911 and every real approval remain `UNVERIFIED`.
 - [ ] T912 Complete first live agency/carrier/provider production certification.
 - [ ] T913 Production deployment and smoke test.
 - [ ] T914 Post-launch audit and first-week control review.
