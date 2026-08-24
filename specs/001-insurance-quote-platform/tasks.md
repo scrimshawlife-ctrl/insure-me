@@ -118,7 +118,7 @@ Reconciled against merged `main` acceptance evidence through PR #20 and the curr
 - [x] T710 Verify switching carrier adapters does not require core-domain code changes.
 
 ## Phase 8 — Compliance operations
-- [ ] T800 Build privacy request intake.
+- [x] T800 Build privacy request intake.
 - [ ] T801 Build identity verification for privacy requests.
 - [ ] T802 Build data discovery/export pipeline.
 - [ ] T803 Build correction/deletion/restriction execution workflow.

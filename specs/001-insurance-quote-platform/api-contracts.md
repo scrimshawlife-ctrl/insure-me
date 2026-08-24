@@ -162,8 +162,40 @@ Production secret material MUST NOT be returned through administrative read APIs
 ### `POST /v1/privacy/requests`
 Creates a privacy request. It MUST NOT expose whether a person exists before identity verification.
 
+Request:
+```json
+{
+  "requestType": "DELETION",
+  "jurisdiction": "CA",
+  "requester": {
+    "firstName": "Avery",
+    "lastName": "Example",
+    "email": "avery@example.test",
+    "phone": "+16505550100"
+  },
+  "idempotencyKey": "00000000-0000-4000-8000-000000000000"
+}
+```
+
+Tenant/agency context MUST be resolved from trusted host configuration. Requester contact data MUST be encrypted before persistence. Intake MUST NOT search for or attach Person or QuoteCase records; matching begins only in the T801 identity-verification workflow.
+
+Successful response (`202`):
+```json
+{
+  "privacyRequestId": "opaque-uuid",
+  "state": "IDENTITY_VERIFICATION_PENDING",
+  "identityVerificationState": "PENDING",
+  "nextAction": "IDENTITY_VERIFICATION",
+  "statusToken": "one-time-requester-secret"
+}
+```
+
+The status token is a high-entropy requester credential. It MUST be returned only at intake, stored only as a hash, and excluded from URLs, logs, and analytics.
+
 ### `GET /v1/privacy/requests/{id}`
 Returns requester-safe request status.
+
+The caller MUST provide the status token in `X-Privacy-Request-Token`. Missing, malformed, unknown, cross-tenant, and mismatched credentials MUST produce the same generic not-found response. Before identity verification, the response MUST contain only request workflow state and MUST NOT contain person, quote, matching, exemption, retention, or deletion-eligibility data.
 
 Administrative completion routes MUST require elevated permissions and evidence.
 
