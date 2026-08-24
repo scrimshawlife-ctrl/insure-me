@@ -64,7 +64,7 @@ Same idempotency key replayed. Exactly one carrier submission exists.
 Consumer corrects user-maintained annual mileage and requests review of an external record.
 
 ### F018 Potential FCRA adverse action
-Synthetic consumer report contributes to a carrier-stub unfavorable decision. An authorized responsible party explicitly records the determination; the system creates an AdverseActionCase with the exact CarrierDecision, ExternalReport, CRA/dispute references, configured carrier ownership-policy version, and `CARRIER` owner. A separate idempotent handoff records owner acknowledgment without claiming notice delivery.
+Synthetic consumer report contributes to a carrier-stub unfavorable decision. An authorized responsible party explicitly records the determination; the system creates an AdverseActionCase with the exact CarrierDecision, ExternalReport, CRA/dispute references, configured carrier ownership-policy version, and `CARRIER` owner. A separate idempotent handoff records owner acknowledgment without claiming notice delivery. A later synthetic delivery binds the exact synthetic adverse-action notice version/hash and delivery adapter/policy, then stores explicit deterministic delivered evidence. Hash mismatch, missing handoff, adapter mismatch, and rewritten evidence fail closed.
 
 ### F019 Privacy access request
 Verified synthetic consumer requests access; system discovers all in-scope records and generates evidence.

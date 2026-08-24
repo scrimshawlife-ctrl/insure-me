@@ -143,6 +143,53 @@ export interface AdverseActionCase {
   handedOffAt?: string;
 }
 
+export type NoticeDeliveryChannel = 'EMAIL' | 'POSTAL_MAIL' | 'SECURE_PORTAL';
+export type NoticeDeliveryStatus = 'PREPARED' | 'DISPATCHED' | 'DELIVERED' | 'FAILED';
+export type NoticeDeliveryOutcome =
+  | 'ACCEPTED'
+  | 'DELIVERED'
+  | 'RETRYABLE_FAILURE'
+  | 'PERMANENT_FAILURE';
+
+export interface NoticeDeliveryAdapterDescriptor {
+  adapterId: string;
+  adapterVersion: string;
+  policyVersion: string;
+  certificationState: 'SYNTHETIC' | 'CERTIFIED';
+}
+
+export interface NoticeDeliveryAdapter {
+  descriptor(): NoticeDeliveryAdapterDescriptor;
+  deliver(input: {
+    adverseActionCaseId: string;
+    noticeDeliveryId: string;
+    noticeDefinitionId: string;
+    noticeVersion: number;
+    noticeContentHash: string;
+    channel: NoticeDeliveryChannel;
+    recipientRef: string;
+    idempotencyKey: string;
+  }): Promise<{
+    outcome: NoticeDeliveryOutcome;
+    evidenceRef: string;
+    reasonCodes: string[];
+  }>;
+}
+
+export interface AdverseActionNoticeDelivery {
+  noticeDeliveryId: string;
+  adverseActionCaseId: string;
+  noticeDefinitionId: string;
+  noticeVersion: number;
+  noticeContentHash: string;
+  channel: NoticeDeliveryChannel;
+  status: NoticeDeliveryStatus;
+  preparedAt: string;
+  dispatchedAt?: string;
+  deliveredAt?: string;
+  failedAt?: string;
+}
+
 export type RetentionRunStatus =
   | 'PREPARED'
   | 'IN_PROGRESS'

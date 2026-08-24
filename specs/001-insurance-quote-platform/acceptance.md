@@ -118,6 +118,9 @@ An MFA-authenticated `PRIVACY_ADMIN` or `POLICY_ADMIN` MAY place or release a te
 ### A-036 Adverse-action support safety
 An MFA-authenticated `POLICY_ADMIN` MAY record a responsible party's adverse-action determination only against a tenant-scoped CarrierDecision and exact contributing ExternalReports. The case MUST snapshot configured ownership-policy version, explicit owner, opaque authority/evidence, CRA identity and dispute-route references, reason codes, and idempotency evidence. The platform MUST NOT infer a determination from readiness, report data, or carrier status. Handoff MUST be a separate append-only, audited command and MUST NOT be represented as notice delivery. Cross-case, cross-tenant, missing-report, direct-mutation, and mismatched-replay attempts MUST fail closed.
 
+### A-037 Adverse-action notice delivery safety
+An MFA-authenticated `POLICY_ADMIN` MAY prepare an adverse-action delivery only after handoff and only with an active tenant-scoped `ADVERSE_ACTION` NoticeDefinition whose exact version and content hash match the request and deployment certification state. The envelope MUST snapshot configured owner/policy, approved channel, opaque recipient, adapter/policy descriptor, and idempotency evidence before dispatch. Every outcome MUST be append-only and audited; `ACCEPTED` MUST remain dispatched rather than delivered, and only explicit `DELIVERED` evidence may set a delivery timestamp. Missing handoff, wrong notice/category/state/hash, adapter mismatch, live synthetic configuration, direct mutation, and mismatched replay MUST fail closed.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;
@@ -175,7 +178,7 @@ At minimum:
 - privacy access/correction/deletion;
 - retention expiration;
 - legal hold;
-- adverse-action support handoff;
+- adverse-action support handoff and notice delivery;
 - carrier validation failure;
 - carrier unavailable/timeout;
 - carrier ambiguous status;

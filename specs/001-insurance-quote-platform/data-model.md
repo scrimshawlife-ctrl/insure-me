@@ -340,7 +340,10 @@ Minimum fields:
 Insure Me MUST NOT manufacture missing carrier reason codes or reinterpret a carrier result as its own decision.
 
 ### AdverseActionCase / AdverseActionReportSource / AdverseActionEvent
-`AdverseActionCase` is the tenant-scoped support record for a responsible party's explicit determination. It references one QuoteCase and CarrierDecision, snapshots owner type/reference plus the CarrierProgram notice-ownership policy version, and stores opaque authority/evidence, reason codes, actor/time, status, and idempotency hashes. `AdverseActionReportSource` immutably links each exact contributing ExternalReport and ExternalRequest to its provider binding, CRA identity reference, dispute route, and contribution basis. `AdverseActionEvent` is append-only determination/handoff evidence. The only T807 transition is `NOTICE_INPUTS_READY` to `HANDED_OFF`; notice delivery remains T808.
+`AdverseActionCase` is the tenant-scoped support record for a responsible party's explicit determination. It references one QuoteCase and CarrierDecision, snapshots owner type/reference plus the CarrierProgram notice-ownership policy version, and stores opaque authority/evidence, reason codes, actor/time, status, and idempotency hashes. `AdverseActionReportSource` immutably links each exact contributing ExternalReport and ExternalRequest to its provider binding, CRA identity reference, dispute route, and contribution basis. `AdverseActionEvent` is append-only determination/handoff evidence. The T807 transition is `NOTICE_INPUTS_READY` to `HANDED_OFF`.
+
+### AdverseActionNoticeDelivery / AdverseActionNoticeDeliveryAttempt
+`AdverseActionNoticeDelivery` is a stable, tenant-scoped delivery envelope created only after handoff. It snapshots the exact adverse-action `NoticeDefinition` ID, version, content hash, owner/reference, ownership-policy version, approved channel, opaque recipient reference, adapter ID/version, delivery-policy version, certification state, idempotency evidence, and lifecycle timestamps. `AdverseActionNoticeDeliveryAttempt` is append-only settlement evidence with a distinct outcome: `ACCEPTED`, `DELIVERED`, `RETRYABLE_FAILURE`, or `PERMANENT_FAILURE`. Acceptance means dispatch only; only explicit `DELIVERED` evidence produces a delivered timestamp.
 
 ## Privacy, retention, and audit
 

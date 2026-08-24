@@ -275,6 +275,11 @@ Records or idempotently replays a responsible party's adverse-action determinati
 ### `POST /v1/agent/adverse-actions/{id}/handoff`
 Records or idempotently replays handoff to the configured responsible owner with an opaque recipient reference, evidence reference, and reason codes. Handoff is not notice generation or delivery; T808 owns delivery evidence. Unknown, cross-tenant, unauthorized, already-handed-off with different evidence, and mismatched-replay requests fail closed.
 
+### `POST /api/v1/agent/adverse-actions/{id}/notice-delivery`
+Prepares and dispatches one version-bound adverse-action notice after handoff. The MFA-authenticated caller MUST have `POLICY_ADMIN` and supplies the exact NoticeDefinition ID/content hash, approved channel, opaque recipient reference, and UUID idempotency key. The server resolves the provider-neutral adapter and snapshots its ID/version, delivery-policy version, certification state, owner-policy version, notice version, and content hash before the external attempt.
+
+Each attempt settles append-only evidence as `ACCEPTED`, `DELIVERED`, `RETRYABLE_FAILURE`, or `PERMANENT_FAILURE`. `ACCEPTED` returns a dispatched state and MUST NOT imply receipt. Replays cannot change the request, adapter descriptor, evidence, or outcome. Missing handoff, inactive/wrong-category notice, hash mismatch, cross-tenant access, direct mutation, and unconfigured live delivery fail closed. Responses contain only the bounded delivery envelope; recipient and provider evidence references are not returned.
+
 ## Internal provider adapter interface
 
 ```ts

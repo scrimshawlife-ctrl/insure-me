@@ -175,6 +175,8 @@ Provider-agnostic interface:
 - template/version reference;
 - suppression/opt-out handling.
 
+Adverse-action delivery uses a provider-neutral `NoticeDeliveryAdapter`. Its descriptor includes adapter ID/version, delivery-policy version, and certification state. Requests contain only opaque case/delivery/recipient references plus the exact NoticeDefinition version/hash, approved channel, and idempotency key. Provider acceptance and confirmed delivery are distinct outcomes. Synthetic adapters are deterministic and prohibited outside the synthetic stage; live adapters require deployment-specific certification and evidence semantics.
+
 Marketing campaigns are out of MVP scope.
 
 ## Integration testing
