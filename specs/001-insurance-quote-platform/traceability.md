@@ -9,7 +9,7 @@ Trace canonical product requirements to architectural controls, implementation t
 |---|---|---|---|
 | FR-001 QuoteCase creation | `quote-core` state machine; tenant resolution | T103-T106 | A-001, A-014 |
 | FR-002 Identity/contact minimization | canonical Person/Prospect; field policy | T106, T301 | A-013, A-014 |
-| FR-003 Notice/consent ledger | `NoticeDefinition`, `ConsentRecord` | T107, T302, T810 | A-003, A-024 |
+| FR-003 Notice/consent ledger | immutable `NoticeDefinition` version stream, append-only lifecycle evidence, `ConsentRecord` | T107, T302, T810 | A-003, A-024, A-039, F027 |
 | FR-004 Purpose enforcement | `PermissiblePurposeDecision`; provider preflight | T108, T401 | A-002, A-004 |
 | FR-005 Provider gateway | capability descriptors + adapters | T400-T415 | A-006, A-016, A-020 |
 | FR-006 Provider report preservation | `ExternalRequest`, `ExternalReport`, provenance | T109, T404, T500 | A-007, A-024 |

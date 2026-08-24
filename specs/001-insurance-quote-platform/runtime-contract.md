@@ -306,6 +306,7 @@ Runtime behavior MUST be data/configuration driven for:
 - provider bindings;
 - provider capability policy;
 - notice versions;
+- database-assigned immutable notice versions with server-computed hashes, append-only approval/retirement evidence, and checked MFA-backed `POLICY_ADMIN` RPCs;
 - carrier/program bindings;
 - carrier required-field overlays;
 - rating-input allowlists;

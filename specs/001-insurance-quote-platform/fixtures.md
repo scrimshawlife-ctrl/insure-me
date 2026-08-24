@@ -90,6 +90,10 @@ Synthetic agent attempts repeated denied lookups; security signal triggers but n
 ### F026 Compliance evidence export
 An MFA-authenticated synthetic administrator holding `AUDIT_READ` and `EXPORT_DATA` creates a QuoteCase evidence bundle at an explicit cutoff. The artifact includes exact notice, purpose, provider, carrier, adverse-action, notice-delivery, hold, and audit provenance available by that cutoff, but excludes planted notice-body and arbitrary audit-metadata markers. The manifest hash verifies; replay is stable; creation and download are separately audited. A user with only `AUDIT_READ`, a future cutoff, direct table access, mutation, and mismatched replay all fail closed.
 
+### F027 Notice/version administration
+
+An MFA-authenticated synthetic `POLICY_ADMIN` creates two versions of one notice key. PostgreSQL assigns versions 1 and 2 and hashes the exact bodies. Version 1 receives explicit approval evidence and an effective time, then retires with separate evidence; version 2 remains draft. Lifecycle commands replay idempotently and emit one append-only event plus AuditEvent each. Changed replay, draft retirement, direct content mutation/deletion, and a non-policy user all fail closed.
+
 ## Fixture schema requirements
 Each fixture MUST declare:
 - fixture ID/version;

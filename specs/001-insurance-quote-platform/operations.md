@@ -88,6 +88,8 @@ P0/P1 alerts SHOULD include:
 ## Production change controls
 Changes involving provider purpose codes, notice versions, data-use policy, retention, auth, permissions, carrier mappings, or sensitive-data storage require enhanced review and production evidence.
 
+Notice release evidence MUST identify the exact tenant/agency, notice key/version/category, content hash, approval reference, approving actor/time, effective time, migration set, and application commit. Rollback retires the affected version and activates a separately approved prior/new version; it never edits or deletes legal copy already presented.
+
 ## Backup/restore
 - encrypted backups;
 - access limited to designated operators;

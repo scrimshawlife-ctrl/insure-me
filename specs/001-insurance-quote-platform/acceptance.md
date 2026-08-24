@@ -124,6 +124,9 @@ An MFA-authenticated `POLICY_ADMIN` MAY prepare an adverse-action delivery only 
 ### A-038 Compliance evidence export safety
 An MFA-authenticated workforce user MAY create or download a QuoteCase compliance evidence export only when holding both `AUDIT_READ` and `EXPORT_DATA`. Creation MUST be tenant/agency derived, explicitly purpose/reason coded, idempotent, bounded to 10,000 records, and fixed to a non-future as-of cutoff. The immutable versioned manifest MUST preserve exact provenance/integrity fields while excluding identity data, raw/normalized provider payloads, notice bodies, premiums, corrections, secrets, and arbitrary audit metadata. SHA-256 verification MUST precede every separately audited download. Direct table access/mutation, one-permission users, future cutoffs, cross-tenant scopes, integrity failure, and mismatched replay MUST fail closed without an existence oracle.
 
+### A-039 Notice/version administration safety
+An MFA-authenticated `POLICY_ADMIN` MAY create immutable draft notice versions, list the active agency's exact versions, approve a draft only with explicit legal/compliance evidence and effective time, and retire only an approved or synthetic-fixture version with separate evidence. PostgreSQL MUST assign increasing versions, compute exact body hashes, derive replay hashes, preserve append-only lifecycle evidence, and audit every successful transition. Runtime callers MUST NOT create synthetic or pre-approved notices, choose hashes/versions, rewrite content, delete history, cross tenant/agency scope, retire drafts, or reuse idempotency keys with changed evidence.
+
 ## P0 PRODUCTION — provider activation
 Before any live regulated provider capability is enabled for a deployment:
 - provider contract/product is identified;

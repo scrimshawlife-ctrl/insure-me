@@ -105,6 +105,8 @@ Compliance evidence export requires MFA and the intersection of `AUDIT_READ` and
 
 Adverse-action delivery tables deny direct anonymous/authenticated mutation. Checked MFA-backed `POLICY_ADMIN` RPCs prepare and settle delivery, with tenant scope resolved from the stored case rather than caller-supplied tenant data. Notice, owner, and adapter identity is immutable after preparation; attempts are append-only; and audit metadata uses opaque recipient and provider evidence references rather than destination addresses or notice bodies.
 
+Notice/version tables deny direct anonymous/authenticated reads and writes. Checked private implementations and narrow public invoker wrappers require MFA-backed `POLICY_ADMIN`; tenant and agency are validated against active workforce context. Version allocation and SHA-256 hashing occur in PostgreSQL under an advisory lock. Lifecycle evidence is append-only, request hashes are server-derived, legal copy cannot be rewritten, and historical versions cannot be deleted.
+
 ## Application security baseline
 - OWASP ASVS-informed controls;
 - schema validation on every trust boundary;
