@@ -3,12 +3,14 @@
 ## T0 — Governance and contract freeze
 - [x] T0.1 Confirm Angular 22.x as canonical presentation framework for this migration.
 - [x] T0.2 Inventory current Next.js routes, API calls, auth/session behavior, environment variables, and P0 workflows.
-- [ ] T0.3 Map every frontend API call to a canonical OpenAPI/JSON Schema contract.
+- [x] T0.3 Map every frontend API call to a canonical HTTP contract and define required Angular read projections.
 - [x] T0.4 Record uncovered API-contract gaps; do not silently solve them with frontend-only DTOs.
 - [x] T0.5 Confirm existing constitution invariants remain unchanged.
 - [x] T0.6 Define rollback routing/version strategy before cutover work begins.
 
-T0 evidence: `t0-contract-inventory.md` and `t0-browser-api-matrix.md`. T0.3 remains open until browser read projections and every route request/response are verified against canonical executable contracts.
+T0 evidence: `t0-contract-inventory.md`, `t0-browser-api-matrix.md`, `t0-contract-reconciliation.md`, and `t0-api-contract-addendum.md`.
+
+T0 is closed for migration planning. T3 generated-client completion remains blocked until every required read/write projection exists as an executable server route or generated/verified contract surface.
 
 ## T1 — Angular workspace
 - [ ] T1.1 Create Angular 22 workspace with strict TypeScript and standalone application configuration.
