@@ -13,18 +13,20 @@ T0 evidence: `t0-contract-inventory.md`, `t0-browser-api-matrix.md`, `t0-contrac
 T0 is closed for migration planning. T3 generated-client completion remains blocked until every required read/write projection exists as an executable server route or generated/verified contract surface.
 
 ## T1 — Angular workspace
-- [ ] T1.1 Create Angular 22 workspace with strict TypeScript and standalone application configuration.
-- [ ] T1.2 Configure Angular Router and lazy feature boundaries.
-- [ ] T1.3 Create `core`, `shared`, `applicant`, `quoting`, `evidence`, `compliance`, `agent`, and `admin` boundaries.
-- [ ] T1.4 Configure environment/runtime configuration without exposing secrets to the browser bundle.
+- [x] T1.1 Create Angular 22 workspace with strict TypeScript and standalone application configuration.
+- [x] T1.2 Configure Angular Router and lazy feature boundaries.
+- [x] T1.3 Create `core`, `shared`, `applicant`, `quoting`, `evidence`, `compliance`, `agent`, and `admin` boundaries.
+- [x] T1.4 Configure environment/runtime configuration without exposing secrets to the browser bundle.
 - [ ] T1.5 Configure lint, formatting, type-check, unit/component test, contract-test, and E2E commands.
 - [ ] T1.6 Add deterministic synthetic API/fixture mode.
 
+T1 scaffold evidence: `angular/package.json`, `angular/angular.json`, strict tsconfigs, standalone bootstrap, lazy domain routes, `core/http`, `core/config`, and `shared/ui`. Compile/build verification remains required before T1 is sealed.
+
 ## T2 — Core runtime plumbing
 - [ ] T2.1 Integrate existing authentication/session contract.
-- [ ] T2.2 Configure HttpClient.
+- [x] T2.2 Configure HttpClient.
 - [ ] T2.3 Add functional auth interceptor where required by the existing contract.
-- [ ] T2.4 Add opaque request/correlation ID interceptor.
+- [x] T2.4 Add opaque request/correlation ID interceptor.
 - [ ] T2.5 Add normalized error interceptor/mapping.
 - [ ] T2.6 Add approved telemetry plumbing with PII-redaction tests.
 - [ ] T2.7 Add route guards for navigation UX while preserving server authorization as authority.
