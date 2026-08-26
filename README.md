@@ -42,6 +42,8 @@ This repository follows spec-driven development:
 - `specs/001-insurance-quote-platform/fixtures.md` — deterministic synthetic test scenarios.
 - `specs/001-insurance-quote-platform/traceability.md` — requirement-to-control-to-test mapping.
 - `specs/001-insurance-quote-platform/open-questions.md` — unresolved provider, legal, retention, carrier-capability, and architecture gates.
+- `specs/002-angular-presentation-migration/` — deferred Angular presentation migration package; not active current-runtime work.
+- `specs/003-scalable-runtime-evolution/architecture-note.md` — non-binding future scaling direction and activation gates.
 
 ## MVP scope
 - California only.
@@ -71,7 +73,7 @@ The first implementation is locked in `runtime-contract.md` to:
 - Vitest + Playwright acceptance automation;
 - OpenTelemetry-compatible PII-safe telemetry.
 
-These are implementation choices, not insurance-domain semantics.
+These are implementation choices, not insurance-domain semantics. The current build will finish on this stack. Angular presentation migration, independent API extraction, and dedicated worker topology are recorded as deferred evolution and do not change the active acceptance path.
 
 ## Current status
 `SPECS_SEALED_FOR_SYNTHETIC_CORE_IMPLEMENTATION / PRODUCTION_INTEGRATIONS_GATED`
