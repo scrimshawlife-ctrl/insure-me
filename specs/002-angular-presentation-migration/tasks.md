@@ -1,5 +1,12 @@
 # Tasks: Angular Presentation Migration
 
+## Status
+
+`DEFERRED / DO NOT EXECUTE DURING CURRENT RUNTIME COMPLETION`
+
+Completed items are preserved as planning/scaffold evidence. Unchecked items are not part of the active implementation queue until a later owner decision activates this migration under `../003-scalable-runtime-evolution/architecture-note.md`.
+
+
 ## T0 — Governance and contract freeze
 - [x] T0.1 Confirm Angular 22.x as canonical presentation framework for this migration.
 - [x] T0.2 Inventory current Next.js routes, API calls, auth/session behavior, environment variables, and P0 workflows.
