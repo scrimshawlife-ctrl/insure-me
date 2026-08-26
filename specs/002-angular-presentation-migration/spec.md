@@ -1,10 +1,12 @@
 # Feature Specification: Angular Presentation Migration
 
 ## Status
-Draft canonical specification.
+`DEFERRED MIGRATION SPEC / NOT ACTIVE CURRENT-RUNTIME WORK`.
+
+This specification is retained as a future migration package. It does not supersede the locked Next.js runtime, reopen current tasks, or authorize parallel implementation. Activation requires a later owner decision under `../003-scalable-runtime-evolution/architecture-note.md`.
 
 ## Purpose
-Adopt Angular 22 as the canonical presentation architecture for Insure Me while preserving the existing insurance domain, compliance, provider, carrier, audit, data, and API contracts as framework-independent server-side authority.
+If activated, adopt Angular 22 as the canonical presentation architecture for Insure Me while preserving the existing insurance domain, compliance, provider, carrier, audit, data, and API contracts as framework-independent server-side authority.
 
 This change is a presentation/runtime migration. It is not a rewrite of the insurance platform.
 
