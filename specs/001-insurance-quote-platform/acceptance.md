@@ -88,8 +88,12 @@ Critical consumer and agent journeys MUST pass the approved WCAG 2.2 AA engineer
 ### A-026 Carrier portability
 The same synthetic QuoteCase MUST be eligible for submission through two independently configured synthetic CarrierPrograms/CarrierAdapters with no carrier-name branch in core code and no canonical schema change. Differences MUST be expressed through program configuration and boundary mapping.
 
+Run A-026 on the Broker tenant or on a dedicated multi-program synthetic tenant. Exclusive configuration MUST fail closed if a second `CarrierProgram` is attached. A-026 does not authorize comparative quoting on Exclusive.
+
 ### A-027 Tenant configuration isolation
 Two synthetic tenants with different branding, provider bindings, notices, retention policies, and carrier programs MUST execute concurrently without configuration or data leakage. Changing Tenant B configuration MUST NOT change Tenant A behavior.
+
+The two-door operator pair (Exclusive + Broker) is an A-027 configuration. Later task T014 seeds that pair. There is no shared QuoteCase, `ExternalReport`, `ConsentRecord`, or lead pool.
 
 ### A-028 Configuration version replay
 For a historical regulated request/submission, the system MUST identify the exact TenantConfiguration, policy, provider binding, CarrierProgram, and adapter versions used at execution time even after newer versions are activated.

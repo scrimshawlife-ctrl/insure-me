@@ -49,7 +49,7 @@ These tasks require real external facts and cannot be completed by code alone.
 - [ ] Q-007 approve retention periods by data class.
 - [ ] Q-008 resolve privacy-role allocation.
 - [ ] Q-009 complete launch-time California legal/regulatory review.
-- [ ] Q-010 approve production branding/third-party marks.
+- [ ] Q-010 record live third-party mark approval for Exclusive carrier-shaped branding if used. `D-001` closed the product rule; this task is evidence, not Allstate corporate approval. Broker MUST NOT use the Allstate mark.
 - [ ] Record provider certification evidence and kill-switch test.
 - [ ] Record carrier certification evidence and kill-switch test.
 - [ ] Run authorized pilot reconciliation.

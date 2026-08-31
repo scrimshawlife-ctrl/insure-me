@@ -45,6 +45,11 @@ Trace canonical product requirements to architectural controls, implementation t
 | FR-027 Carrier capability registry | `Carrier`, `CarrierProgram`, capability descriptor | T112, T701, T707 | A-018, A-028 |
 | FR-028 Multi-carrier readiness | program overlays + selector | T507, T611, T708-T710 | A-026, A-029 |
 | FR-029 Synthetic carrier execution | `StubCarrierAdapter` | T700, T708, T910 | A-017, A-026 |
+| FR-030 Two doors, one kernel | two `TenantConfiguration` + `tenant_hosts` | T013-T016 | A-027 |
+| FR-031 Hard wall / no lead pool | tenant-scoped case/report/consent; no `LeadPool` | T013, T014 | A-005, A-027 |
+| FR-032 Exclusive constraints | `SINGLE` allowlist + copy rules | T016 | A-026 Exclusive fail-closed note |
+| FR-033 Broker constraints | multi-program path; no Allstate mark | T015, T016 | A-026, A-027 |
+| FR-034 Hostname tenant resolution | `tenant_hosts`; client MUST NOT send `tenant_id` | T013, T105 | A-001, A-014 |
 
 ## Portability invariants
 

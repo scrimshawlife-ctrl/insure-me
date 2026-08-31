@@ -9,6 +9,8 @@ Required evidence: written agency/carrier/program approval where required.
 
 Status: `BLOCKED FOR PRODUCTION / NOT BLOCKING CORE BUILD`.
 
+`D-001` records the operator model as two tenants (Exclusive + Broker) under one human. It does not name or certify the licensed agency or entity.
+
 ### Q-002 Data storage boundary
 For each configured agency, carrier, and provider, which prospect, MVR, claims, consumer-report, quote, and decision data may be stored, for how long, and in what form?
 
@@ -52,12 +54,12 @@ Status: `WATCH`.
 ### Q-010 Branding
 Will the initial consumer experience be Insure Me-branded, white-labeled for the agency, co-branded, or carrier-branded? What approvals are required for any third-party marks?
 
-Status: `PRODUCT DECISION / THIRD-PARTY APPROVAL IF USED`.
+Status: `CLOSED` by `D-001`. Exclusive MAY use carrier-shaped branding only with third-party mark approval; until then use a synthetic or agency brand. Broker is agency or Insure Me white-label and MUST NOT use the Allstate mark. Live mark evidence remains a production gate and is not Allstate corporate approval.
 
 ### Q-011 Multi-carrier strategy
 Will the first production release route to a single configured carrier, allow an agent to choose among carriers, or support comparative quoting through an approved rater/AMS?
 
-Status: `NOT BLOCKING CORE BUILD`.
+Status: `CLOSED` by `D-001`. Exclusive = one configured `CarrierProgram`. Broker = multiple programs allowed. Comparative quoting is not required for MVP and is forbidden on Exclusive.
 
 ## Non-blocking technical decisions
 - hosting platform;

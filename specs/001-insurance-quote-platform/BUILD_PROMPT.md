@@ -12,6 +12,7 @@ Before editing runtime code, read these files in order:
 1. `CONSTITUTION.md`
 2. `AGENTS.md`
 3. `specs/001-insurance-quote-platform/spec.md`
+3a. `specs/001-insurance-quote-platform/two-door-addendum.md`
 4. `specs/001-insurance-quote-platform/data-model.md`
 5. `specs/001-insurance-quote-platform/api-contracts.md`
 6. `specs/001-insurance-quote-platform/compliance.md`
@@ -20,11 +21,13 @@ Before editing runtime code, read these files in order:
 9. `specs/001-insurance-quote-platform/user-flows.md`
 10. `specs/001-insurance-quote-platform/fixtures.md`
 11. `specs/001-insurance-quote-platform/plan.md`
+11a. `specs/001-insurance-quote-platform/two-door-plan.md`
 12. `specs/001-insurance-quote-platform/runtime-contract.md`
 13. `specs/001-insurance-quote-platform/tasks.md`
 14. `specs/001-insurance-quote-platform/acceptance.md`
 15. `specs/001-insurance-quote-platform/traceability.md`
 16. `specs/001-insurance-quote-platform/open-questions.md`
+16a. `specs/001-insurance-quote-platform/decisions/D-001-two-door-operator.md`
 17. `specs/001-insurance-quote-platform/operations.md`
 
 Treat that hierarchy as binding. Do not infer product requirements from convenience, UI taste, vendor SDKs, or carrier/provider assumptions.

@@ -20,6 +20,7 @@ Do not skip directly from an idea to runtime code when a change affects regulate
 Before changing the system, read:
 1. `CONSTITUTION.md`
 2. `specs/001-insurance-quote-platform/spec.md`
+2a. `specs/001-insurance-quote-platform/two-door-addendum.md`
 3. `specs/001-insurance-quote-platform/data-model.md`
 4. `specs/001-insurance-quote-platform/api-contracts.md`
 5. `specs/001-insurance-quote-platform/compliance.md`
@@ -28,11 +29,13 @@ Before changing the system, read:
 8. `specs/001-insurance-quote-platform/user-flows.md`
 9. `specs/001-insurance-quote-platform/fixtures.md`
 10. `specs/001-insurance-quote-platform/plan.md`
+10a. `specs/001-insurance-quote-platform/two-door-plan.md`
 11. `specs/001-insurance-quote-platform/runtime-contract.md`
 12. `specs/001-insurance-quote-platform/tasks.md`
 13. `specs/001-insurance-quote-platform/acceptance.md`
 14. `specs/001-insurance-quote-platform/traceability.md`
 15. `specs/001-insurance-quote-platform/open-questions.md`
+15a. `specs/001-insurance-quote-platform/decisions/D-001-two-door-operator.md`
 16. `specs/001-insurance-quote-platform/operations.md`
 
 `BUILD_PROMPT.md` is a handoff/execution prompt. It summarizes the canonical documents but does not outrank them.

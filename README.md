@@ -27,6 +27,9 @@ This repository follows spec-driven development:
 - `CONSTITUTION.md` — purpose-bound access, provenance, carrier authority, tenant isolation, synthetic-core and production gates.
 - `AGENTS.md` — repository operating rules, read order, and ubiquitous language.
 - `specs/001-insurance-quote-platform/spec.md` — end-to-end product specification.
+- `specs/001-insurance-quote-platform/two-door-addendum.md` — Exclusive + Broker operator model on the sealed kernel.
+- `specs/001-insurance-quote-platform/two-door-plan.md` — configuration plan for the two doors.
+- `specs/001-insurance-quote-platform/decisions/D-001-two-door-operator.md` — Q-010, Q-011, and T001.
 - `specs/001-insurance-quote-platform/plan.md` — architecture and delivery phases.
 - `specs/001-insurance-quote-platform/runtime-contract.md` — locked Next.js/Vercel/Supabase first-runtime contract, module boundaries, environment rules, and synthetic-core definition of done.
 - `specs/001-insurance-quote-platform/BUILD_PROMPT.md` — comprehensive coding-agent execution prompt for the synthetic core.
@@ -76,4 +79,25 @@ These are implementation choices, not insurance-domain semantics.
 ## Current status
 `SPECS_SEALED_FOR_SYNTHETIC_CORE_IMPLEMENTATION / PRODUCTION_INTEGRATIONS_GATED`
 
-The synthetic build path is unblocked. The main unresolved production dependencies remain operating-entity evidence, live provider contracts/certification, live CarrierProgram certification, legal/compliance review, FCRA/adverse-action ownership, data-use policy approval, retention approval, and production security/operations review.
+The synthetic build path is unblocked. The two-door operator model is an addendum: two `TenantConfiguration` records (Exclusive + Broker), one kernel, no shared lead pool. Live Allstate, LexisNexis, and Verisk stay gated.
+
+The main unresolved production dependencies remain operating-entity evidence, live provider contracts/certification, live CarrierProgram certification, legal/compliance review, FCRA/adverse-action ownership, data-use policy approval, retention approval, and production security/operations review.
+
+## GitHub Pages
+The static board at `docs/site/` presents the two-door model. It is not the live quote app and it does not collect leads.
+
+Published URL after you enable Pages:
+
+https://scrimshawlife-ctrl.github.io/insure-me/
+
+### Turn on GitHub Pages
+1. Open the repository **Settings** tab.
+2. Open **Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. Merge to `main`. The `pages` workflow deploys `docs/site/` with base path `/insure-me/`.
+
+Do not add a custom domain. Do not point this site at production DNS.
+
+If you instead choose **Deploy from a branch** and folder `/docs` on the default branch, GitHub also publishes `docs/testing/`. Prefer GitHub Actions so only `docs/site/` goes live.
+
+The `pages` workflow validates the site on every pull request so a branch push proves the board builds. Deploy runs only from `main`.
