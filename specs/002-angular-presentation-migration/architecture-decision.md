@@ -1,11 +1,11 @@
 # Architecture Decision: Angular 22 Presentation Runtime
 
 ## Decision
-**Status:** Proposed for canonical adoption by merge of this change.
+**Status:** `DEFERRED / NOT CANONICAL FOR THE CURRENT RUNTIME`.
 
-Insure Me will use Angular 22.x as the canonical web presentation runtime for new frontend implementation and migration work.
+Angular 22.x is the preferred future web presentation candidate. The current Next.js 16/Vercel/Supabase runtime remains canonical through completion of the active implementation and its acceptance chain. Angular migration work MUST NOT create a parallel active delivery track unless a later owner decision activates this ADR after the revisit gates in `../003-scalable-runtime-evolution/architecture-note.md` are satisfied.
 
-This decision supersedes the non-binding frontend-framework suggestion in `specs/001-insurance-quote-platform/plan.md` for presentation implementation only. It does not supersede the reference architecture, service boundaries, domain model, API contracts, compliance controls, provider/carrier abstraction, storage rules, or production gates in specification 001.
+If later activated, this decision will supersede the non-binding frontend-framework suggestion in `specs/001-insurance-quote-platform/plan.md` for presentation implementation only. It does not supersede the reference architecture, service boundaries, domain model, API contracts, compliance controls, provider/carrier abstraction, storage rules, or production gates in specification 001.
 
 ## Context
 The product is primarily a structured, stateful, regulated workflow application with:

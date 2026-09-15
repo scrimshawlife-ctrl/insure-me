@@ -74,6 +74,14 @@ Status: `CLOSED` by `D-001`. Exclusive = one configured `CarrierProgram`. Broker
 
 The core build MAY proceed with synthetic data and stub carrier/provider adapters while production-specific external gates remain unresolved.
 
+## Deferred runtime evolution
+
+The preferred future direction—Angular presentation, a presentation-independent TypeScript API, durable queue/outbox processing, and independently scalable workers—is recorded in `../003-scalable-runtime-evolution/architecture-note.md`.
+
+Status: `DEFERRED / NOT BLOCKING CURRENT BUILD`.
+
+The current Next.js 16/Vercel/Supabase runtime remains canonical while the active implementation and acceptance chain are completed. Exact future API framework, hosting topology, workspace tooling, cache, and service-extraction decisions remain non-binding until an explicit activation decision is made against measured or product-driven revisit triggers.
+
 ## Decision record format
 For every resolved question create a decision record containing:
 - ID;
